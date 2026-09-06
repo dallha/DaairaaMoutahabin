@@ -1,0 +1,40 @@
+{
+  "entities": {
+    "Member": {
+      "title": "Member",
+      "description": "Information about a dahirah member",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "prenom": { "type": "string" },
+        "nom": { "type": "string" },
+        "gender": { "type": "string", "enum": ["M", "F"] },
+        "birth_date": { "type": "string", "format": "date" },
+        "status": { "type": "string", "enum": ["ACTIF", "SUSPENDU"] },
+        "joined_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "prenom", "nom"]
+    },
+    "Profession": {
+      "title": "Profession",
+      "description": "Professional occupation of a member",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "libelle": { "type": "string" },
+        "category_id": { "type": "string" }
+      },
+      "required": ["id", "libelle"]
+    }
+  },
+  "firestore": {
+    "/members/{memberId}": {
+      "schema": { "$ref": "#/entities/Member" },
+      "description": "Member document"
+    },
+    "/professions/{professionId}": {
+      "schema": { "$ref": "#/entities/Profession" },
+      "description": "Profession document"
+    }
+  }
+}

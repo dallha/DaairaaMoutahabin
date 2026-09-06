@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Fonctions d'aide pour la sécurité
+    function isSignedIn() { return request.auth != null; }
+    function getUserData() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function isAdmin() { return isSignedIn() && getUserData().role in ['ADMIN', 'SUPER_ADMIN']; }
+    function isSuperAdmin() { return isSignedIn() && getUserData().role == 'SUPER_ADMIN'; }
+
+    // Règle globale par défaut : refus total
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Gestion des membres
+    match /members/{memberId} {
+      allow read: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // Gestion des profils utilisateurs (Lecture limitée)
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Dāʾiratu Al-Mutahābbīna Fillāhi",
+  "description": "Plateforme communautaire de gestion des membres, annuaire, professions et activités pour Dāʾiratu Al-Mutahābbīna Fillāhi - Shaykh Muhammad Nūruddin Ibn Shaykh Muhammadul Amīn Ñas",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
