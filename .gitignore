@@ -1,8 +1,60 @@
+# Node / Frontend
 node_modules/
 build/
 dist/
 coverage/
-.DS_Store
-*.log
-.env*
+.next/
+
+# Environment & Secrets (NE JAMAIS COMMITER)
+.env
+.env.*
 !.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtualenv
+.venv/
+venv/
+ENV/
+env/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+prod_placeholder.sqlite3
+media/
+staticfiles/
+
+# OS & IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
