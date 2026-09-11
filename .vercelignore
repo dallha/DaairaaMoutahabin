@@ -1,0 +1,4 @@
+# Vercel Ignore: exclut le backend Django du build frontend Vercel
+backend
+.venv
+Procfile
