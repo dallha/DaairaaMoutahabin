@@ -68,6 +68,20 @@ class MemberRole(models.Model):
     is_current = models.BooleanField(_('Fonction actuelle'), default=True)
     notes = models.TextField(_('Observations / Décret / Mandat'), blank=True, null=True)
 
+    def clean(self):
+        super().clean()
+        if hasattr(self.start_date, 'date'):
+            self.start_date = self.start_date.date()
+        if hasattr(self.end_date, 'date'):
+            self.end_date = self.end_date.date()
+
+    def save(self, *args, **kwargs):
+        if hasattr(self.start_date, 'date'):
+            self.start_date = self.start_date.date()
+        if hasattr(self.end_date, 'date'):
+            self.end_date = self.end_date.date()
+        super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = _('Attribution de fonction Dahirah')
         verbose_name_plural = _('Attributions de fonctions Dahirah')

@@ -14,4 +14,5 @@ urlpatterns = [
     path('api/v1/contacts/', include('apps.members.contact_urls')),
     path('api/v1/professions/', include('apps.professions.urls')),
     path('api/v1/education/', include('apps.education.urls')),
+    path('api/v1/roles/', include('apps.roles.urls')),
 ]
