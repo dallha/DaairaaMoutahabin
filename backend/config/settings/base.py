@@ -37,6 +37,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'django_filters',
 ]
@@ -122,6 +123,7 @@ else:
 # Django REST Framework configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'common.authentication.JWTCookieAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
@@ -134,9 +136,31 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ),
+    'EXCEPTION_HANDLER': 'common.exceptions.custom_exception_handler',
 }
 
-# Note d'architecture RBAC :
-# Le modèle CustomUser natif (héritant de AbstractUser / PermissionsMixin) sera branché
-# via AUTH_USER_MODEL = 'accounts.CustomUser' dès la validation de la Phase 1.
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+# Configuration SimpleJWT (Tokens sécurisés)
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+}
+
+# Paramètres des Cookies d'authentification HttpOnly
+JWT_AUTH_COOKIE = 'access_token'
+JWT_AUTH_REFRESH_COOKIE = 'refresh_token'
+JWT_AUTH_COOKIE_SECURE = not DEBUG  # True en production (HTTPS requis)
+JWT_AUTH_COOKIE_SAMESITE = 'Lax'
+JWT_AUTH_COOKIE_PATH = '/'
+JWT_AUTH_REFRESH_COOKIE_PATH = '/api/v1/auth/'
+

@@ -306,6 +306,11 @@ class Contact(models.Model):
         verbose_name=_('Membre')
     )
     phone = models.CharField(_('Téléphone'), max_length=30)
+    phone_visible_to_members = models.BooleanField(
+        _('Téléphone visible aux membres'),
+        default=False,
+        help_text=_("Consentement explicite pour afficher le téléphone aux membres.")
+    )
     whatsapp = models.CharField(_('WhatsApp'), max_length=30, null=True, blank=True)
     email = models.EmailField(_('Email personnel'), null=True, blank=True)
     address = models.TextField(_('Adresse physique'), null=True, blank=True)
