@@ -214,6 +214,8 @@ class Member(models.Model):
             return f"DM-{year}-{sequence_record.last_sequence:04d}"
 
     def save(self, *args, **kwargs):
+        if hasattr(self.joined_at, 'date'):
+            self.joined_at = self.joined_at.date()
         if not self.matricule:
             year = self.joined_at.year if self.joined_at else timezone.now().year
             self.matricule = self.generate_next_matricule(year)
