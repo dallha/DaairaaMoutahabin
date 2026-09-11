@@ -12,4 +12,5 @@ urlpatterns = [
     path('api/v1/auth/', include('apps.accounts.urls')),
     path('api/v1/members/', include('apps.members.urls')),
     path('api/v1/contacts/', include('apps.members.contact_urls')),
+    path('api/v1/professions/', include('apps.professions.urls')),
 ]
