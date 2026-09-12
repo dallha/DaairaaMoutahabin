@@ -2,7 +2,9 @@
 Vues de l'API Membres avec filtrage de sécurité serveur, soft-delete, restore et hard-delete.
 """
 
+import uuid
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -39,10 +41,29 @@ class MemberViewSet(viewsets.ModelViewSet):
     """
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['gender', 'situation', 'status', 'visibility_level']
+    filterset_fields = ['gender', 'situation', 'status', 'visibility_level', 'matricule']
     search_fields = ['first_name', 'last_name', 'matricule']
     ordering_fields = ['last_name', 'first_name', 'created_at', 'joined_at']
     ordering = ['last_name', 'first_name']
+
+    def get_object(self):
+        """
+        Résolution transparente par UUID (id) ou par matricule unique (ex: DM-2026-0001).
+        Permet le deep linking direct /members/:id.
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        lookup_val = self.kwargs[lookup_url_kwarg]
+
+        try:
+            uuid.UUID(str(lookup_val))
+            filter_kwargs = {self.lookup_field: lookup_val}
+        except (ValueError, AttributeError):
+            filter_kwargs = {'matricule': lookup_val}
+
+        obj = get_object_or_404(queryset, **filter_kwargs)
+        self.check_object_permissions(self.request, obj)
+        return obj
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:

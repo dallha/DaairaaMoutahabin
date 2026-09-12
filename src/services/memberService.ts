@@ -4,8 +4,9 @@
  */
 
 import { Member, SituationType, Formation, Profession, FonctionDahirah } from '../types';
+import { API_BASE_URL } from './apiConfig';
 
-const API_BASE = '/api/v1';
+const API_BASE = API_BASE_URL;
 
 // Extraction du token CSRF des cookies posés par Django
 function getCsrfToken(): string {

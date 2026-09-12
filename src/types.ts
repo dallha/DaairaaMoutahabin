@@ -1,4 +1,5 @@
 export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'MEMBER' | 'PUBLIC';
+export type BackendRole = 'superadmin' | 'admin' | 'agent' | 'member';
 
 export type Language = 'fr' | 'ar' | 'en' | 'FR' | 'AR' | 'EN';
 
@@ -66,6 +67,7 @@ export interface Member {
   pays: string;
   adresse?: string;
   situation: SituationType;
+  professionActuelle?: string;
   formations: Formation[];
   professions: Profession[];
   activites: string[];

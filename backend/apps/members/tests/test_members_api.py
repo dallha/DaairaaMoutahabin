@@ -410,3 +410,12 @@ class MembersAPITests(APITestCase):
         res_capped = client.get('/api/v1/members/?page_size=200')
         self.assertEqual(res_capped.status_code, status.HTTP_200_OK)
         self.assertEqual(res_capped.data['page_size'], 100)
+
+    def test_retrieve_member_by_matricule_direct_lookup(self):
+        """Vérifie que GET /api/v1/members/{matricule}/ résout nativement la fiche membre."""
+        client = self._auth_client(self.admin_user)
+        matricule = self.member_public.matricule
+        res = client.get(f'/api/v1/members/{matricule}/')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['matricule'], matricule)
+        self.assertEqual(str(res.data['id']), str(self.member_public.id))
