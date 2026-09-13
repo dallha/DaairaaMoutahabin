@@ -51,6 +51,7 @@ LOCAL_APPS = [
     'apps.roles',
     'apps.audit',
     'apps.dashboard',
+    'apps.network',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

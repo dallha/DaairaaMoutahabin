@@ -1,0 +1,249 @@
+from django.db.models import Q
+from django.utils import timezone
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from apps.members.models import Member, MemberStatusChoices
+from common.pagination import StandardResultsSetPagination
+from .models import (
+    SkillCategory,
+    Skill,
+    MemberSkill,
+    ServiceCatalog,
+    MemberService,
+    MemberAvailability,
+    MemberRelation,
+    RelationStatusChoices,
+)
+from .permissions import IsAdminUserRole, IsOwnerOrAdmin
+from .serializers import (
+    SkillCategorySerializer,
+    SkillSerializer,
+    MemberSkillSerializer,
+    ServiceCatalogSerializer,
+    MemberServiceSerializer,
+    MemberAvailabilitySerializer,
+    MemberRelationSerializer,
+    NetworkMemberCardSerializer,
+)
+
+
+class SkillCategoryViewSet(viewsets.ModelViewSet):
+    queryset = SkillCategory.objects.all().order_by('display_order', 'name')
+    serializer_class = SkillCategorySerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.IsAuthenticated()]
+        return [IsAdminUserRole()]
+
+
+class SkillViewSet(viewsets.ModelViewSet):
+    queryset = Skill.objects.filter(is_active=True).select_related('category')
+    serializer_class = SkillSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.IsAuthenticated()]
+        return [IsAdminUserRole()]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        category = self.request.query_params.get('category')
+        search = self.request.query_params.get('search')
+        if category:
+            qs = qs.filter(Q(category__slug=category) | Q(category__name__iexact=category))
+        if search:
+            qs = qs.filter(name__icontains=search)
+        return qs
+
+
+class ServiceCatalogViewSet(viewsets.ModelViewSet):
+    queryset = ServiceCatalog.objects.all().order_by('display_order', 'name')
+    serializer_class = ServiceCatalogSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.IsAuthenticated()]
+        return [IsAdminUserRole()]
+
+
+class MemberSkillViewSet(viewsets.ModelViewSet):
+    queryset = MemberSkill.objects.all().select_related('member', 'skill', 'skill__category')
+    serializer_class = MemberSkillSerializer
+    permission_classes = [IsOwnerOrAdmin]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        member_param = self.request.query_params.get('member')
+        if member_param:
+            qs = qs.filter(Q(member__matricule=member_param) | Q(member__id=member_param))
+        return qs
+
+    def perform_create(self, serializer):
+        # Assurer que is_verified reste False pour un utilisateur non-admin
+        user = self.request.user
+        is_admin = bool(
+            user.is_superuser or user.is_staff or
+            user.groups.filter(name__in=['admin', 'superadmin']).exists()
+        )
+        if not is_admin:
+            serializer.save(is_verified=False, verified_by=None, verified_at=None)
+        else:
+            serializer.save()
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUserRole])
+    def verify(self, request, pk=None):
+        """Action administrative de certification d'une compétence."""
+        instance = self.get_object()
+        instance.is_verified = True
+        instance.verified_by = request.user
+        instance.verified_at = timezone.now()
+        instance.save(update_fields=['is_verified', 'verified_by', 'verified_at'])
+        return Response(self.get_serializer(instance).data)
+
+
+class MemberServiceViewSet(viewsets.ModelViewSet):
+    queryset = MemberService.objects.all().select_related('member', 'service')
+    serializer_class = MemberServiceSerializer
+    permission_classes = [IsOwnerOrAdmin]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        member_param = self.request.query_params.get('member')
+        if member_param:
+            qs = qs.filter(Q(member__matricule=member_param) | Q(member__id=member_param))
+        return qs
+
+
+class MemberAvailabilityViewSet(viewsets.ModelViewSet):
+    queryset = MemberAvailability.objects.all().select_related('member')
+    serializer_class = MemberAvailabilitySerializer
+    permission_classes = [IsOwnerOrAdmin]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        member_param = self.request.query_params.get('member')
+        if member_param:
+            qs = qs.filter(Q(member__matricule=member_param) | Q(member__id=member_param))
+        return qs
+
+
+class MemberRelationViewSet(viewsets.ModelViewSet):
+    queryset = MemberRelation.objects.all().select_related('from_member', 'to_member', 'approved_by')
+    serializer_class = MemberRelationSerializer
+    permission_classes = [IsOwnerOrAdmin]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        member_param = self.request.query_params.get('member')
+        if member_param:
+            qs = qs.filter(
+                Q(from_member__matricule=member_param) | Q(from_member__id=member_param) |
+                Q(to_member__matricule=member_param) | Q(to_member__id=member_param)
+            )
+        return qs
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        is_admin = bool(
+            user.is_superuser or user.is_staff or
+            user.groups.filter(name__in=['admin', 'superadmin']).exists()
+        )
+        if not is_admin:
+            serializer.save(status=RelationStatusChoices.PENDING, approved_by=None, approved_at=None)
+        else:
+            serializer.save()
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUserRole])
+    def approve(self, request, pk=None):
+        """Action administrative d'approbation d'une relation."""
+        instance = self.get_object()
+        instance.status = RelationStatusChoices.APPROVED
+        instance.approved_by = request.user
+        instance.approved_at = timezone.now()
+        instance.save(update_fields=['status', 'approved_by', 'approved_at'])
+        return Response(self.get_serializer(instance).data)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUserRole])
+    def reject(self, request, pk=None):
+        """Action administrative de refus d'une relation."""
+        instance = self.get_object()
+        instance.status = RelationStatusChoices.REJECTED
+        instance.approved_by = request.user
+        instance.approved_at = timezone.now()
+        instance.save(update_fields=['status', 'approved_by', 'approved_at'])
+        return Response(self.get_serializer(instance).data)
+
+
+class NetworkDiscoveryView(APIView):
+    """
+    Moteur de recherche et d'exploration multicritère pour le Carrefour Professionnel (/network).
+    Filtres combinables :
+    - sector : Catégorie de métier (ex: 'sante', 'commerce', 'informatique')
+    - profession : Nom ou fragment du métier
+    - skill : Nom ou fragment de compétence
+    - service_type : VOLUNTEER, DAHIRAH_RATE, MENTORSHIP, STANDARD
+    - city : Ville de résidence
+    - availability : AVAILABLE, LIMITED, etc.
+    - mentoring : 'true' pour filtrer les volontaires mentorat
+    - pro_help : 'true' pour entraide professionnelle
+    - search : Recherche globale sur nom, prénom, compétences, métiers
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        qs = Member.objects.filter(is_deleted=False, status=MemberStatusChoices.ACTIVE).distinct()
+
+        sector = request.query_params.get('sector')
+        profession = request.query_params.get('profession')
+        skill = request.query_params.get('skill')
+        service_type = request.query_params.get('service_type')
+        city = request.query_params.get('city')
+        availability = request.query_params.get('availability')
+        mentoring = request.query_params.get('mentoring')
+        pro_help = request.query_params.get('pro_help')
+        search = request.query_params.get('search')
+
+        if sector:
+            qs = qs.filter(professions__profession__category__slug=sector)
+        if profession:
+            qs = qs.filter(professions__profession__name__icontains=profession)
+        if skill:
+            qs = qs.filter(skills__skill__name__icontains=skill)
+        if service_type:
+            qs = qs.filter(services_offered__service_type=service_type, services_offered__is_active=True)
+        if city:
+            qs = qs.filter(contacts__city__icontains=city)
+        if availability:
+            qs = qs.filter(availability__status=availability)
+        if mentoring and mentoring.lower() == 'true':
+            qs = qs.filter(availability__open_for_mentoring=True)
+        if pro_help and pro_help.lower() == 'true':
+            qs = qs.filter(availability__open_for_pro_help=True)
+
+        if search:
+            qs = qs.filter(
+                Q(first_name__icontains=search) |
+                Q(last_name__icontains=search) |
+                Q(matricule__icontains=search) |
+                Q(professions__title__icontains=search) |
+                Q(professions__organization__icontains=search) |
+                Q(skills__skill__name__icontains=search)
+            )
+
+        # Préchargement optimisé pour éviter le problème N+1
+        qs = qs.prefetch_related(
+            'contacts',
+            'professions__profession',
+            'skills__skill',
+            'services_offered',
+        ).select_related('availability')
+
+        serializer = NetworkMemberCardSerializer(qs, many=True, context={'request': request})
+        return Response({
+            'count': qs.count(),
+            'results': serializer.data
+        })
