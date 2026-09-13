@@ -971,7 +971,7 @@ export const MemberDetailPage: React.FC = () => {
                   required
                   value={relationTargetMatricule}
                   onChange={(e) => setRelationTargetMatricule(e.target.value)}
-                  placeholder="Ex: DAM-2023-001"
+                  placeholder="Ex: DAMF-0001"
                   className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
                 />
               </div>

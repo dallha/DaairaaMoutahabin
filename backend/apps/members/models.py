@@ -64,9 +64,10 @@ class MatriculeSequence(models.Model):
     """
     Table de séquence dédiée garantissant l'absence totale de collision lors de la
     génération simultanée de matricules sous forte concurrence (PostgreSQL select_for_update).
-    Format : DAM-YYYY-XXX (un compteur par année).
+    Format : DAMF-XXXX (numérotation séquentielle pérenne).
     """
-    year = models.PositiveIntegerField(_('Année'), unique=True, db_index=True)
+    prefix = models.CharField(_('Préfixe institutionnel'), max_length=10, default='DAMF', unique=True)
+    year = models.PositiveIntegerField(_('Année (historique)'), null=True, blank=True)
     last_sequence = models.PositiveIntegerField(_('Dernier numéro de séquence'), default=0)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -75,7 +76,7 @@ class MatriculeSequence(models.Model):
         verbose_name_plural = _('Séquences Matricules')
 
     def __str__(self):
-        return f"Année {self.year} : dernier numéro = {self.last_sequence:03d}"
+        return f"{self.prefix} : dernier numéro = {self.last_sequence:04d}"
 
 
 # ==============================================================================
@@ -133,7 +134,7 @@ class Member(models.Model):
         max_length=20,
         unique=True,
         db_index=True,
-        help_text=_('Format concurrent-safe garanti : DAM-YYYY-XXX (ex: DAM-2023-001)')
+        help_text=_('Format concurrent-safe garanti : DAMF-XXXX (ex: DAMF-0001)')
     )
     first_name = models.CharField(_('Prénom'), max_length=100)
     last_name = models.CharField(_('Nom'), max_length=100, blank=True, default='')
@@ -198,27 +199,26 @@ class Member(models.Model):
         super().delete()
 
     @classmethod
-    def generate_next_matricule(cls, year: int) -> str:
+    def generate_next_matricule(cls, prefix: str = 'DAMF', year: int = None) -> str:
         """
-        Génération atomique et concurremment sûre du matricule séquentiel.
+        Génération atomique et concurremment sûre du matricule séquentiel institutionnel DAMF-XXXX.
         Utilise SELECT FOR UPDATE dans une transaction atomique pour verrouiller la ligne
-        de l'année sous PostgreSQL, éliminant tout risque de collision entre administrateurs.
+        de séquence sous PostgreSQL, éliminant tout risque de collision entre administrateurs.
         """
         with transaction.atomic():
             sequence_record, _ = MatriculeSequence.objects.select_for_update().get_or_create(
-                year=year,
+                prefix=prefix,
                 defaults={'last_sequence': 0}
             )
             sequence_record.last_sequence += 1
             sequence_record.save(update_fields=['last_sequence', 'updated_at'])
-            return f"DAM-{year}-{sequence_record.last_sequence:03d}"
+            return f"{prefix}-{sequence_record.last_sequence:04d}"
 
     def save(self, *args, **kwargs):
         if hasattr(self.joined_at, 'date'):
             self.joined_at = self.joined_at.date()
         if not self.matricule:
-            year = self.joined_at.year if self.joined_at else timezone.now().year
-            self.matricule = self.generate_next_matricule(year)
+            self.matricule = self.generate_next_matricule()
         super().save(*args, **kwargs)
 
     def __str__(self):

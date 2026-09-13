@@ -38,7 +38,7 @@ export function transformDjangoMember(item: any): Member {
 
   return {
     id: String(item.id),
-    matricule: item.matricule || `DAM-${item.id?.slice(0, 8)}`,
+    matricule: item.matricule || `DAMF-${item.id?.slice(0, 8)}`,
     prenom: item.first_name || '',
     nom: item.last_name || '',
     nomArabe: item.arabic_name || '',

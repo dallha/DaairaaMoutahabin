@@ -51,7 +51,7 @@ class UserManagementTests(APITestCase):
 
         # 5. Membre de test
         self.test_member = Member.objects.create(
-            matricule='DM-2026-0099',
+            matricule='DAMF-0099',
             first_name='Ousmane',
             last_name='Ndiaye',
             gender=GenderChoices.MALE,
