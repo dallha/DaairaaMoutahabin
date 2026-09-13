@@ -147,10 +147,10 @@ class Command(BaseCommand):
 
     def _process_member(self, item, stats, dry_run):
         # 1. Extraction et mapping identité
-        first_name = item.get('prenom') or item.get('first_name', '').strip()
-        last_name = item.get('nom') or item.get('last_name', '').strip()
-        if not first_name or not last_name:
-            raise ValueError("Prénom et Nom sont obligatoires.")
+        first_name = (item.get('prenom') or item.get('first_name', '')).strip()
+        last_name = (item.get('nom') or item.get('last_name', '')).strip()
+        if not first_name:
+            raise ValueError("Le prénom est obligatoire.")
 
         arabic_name = item.get('nomArabe') or item.get('arabic_name')
         raw_gender = str(item.get('sexe') or item.get('gender', 'M')).upper()

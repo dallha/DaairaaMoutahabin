@@ -136,7 +136,7 @@ class Member(models.Model):
         help_text=_('Format concurrent-safe garanti : DM-YYYY-XXXX (ex: DM-2026-0001)')
     )
     first_name = models.CharField(_('Prénom'), max_length=100)
-    last_name = models.CharField(_('Nom'), max_length=100)
+    last_name = models.CharField(_('Nom'), max_length=100, blank=True, default='')
     gender = models.CharField(_('Genre'), max_length=1, choices=GenderChoices.choices)
     birth_date = models.DateField(_('Date de naissance'), null=True, blank=True)
     situation = models.CharField(
