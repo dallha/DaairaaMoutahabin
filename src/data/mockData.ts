@@ -68,8 +68,28 @@ export const INITIAL_FONCTIONS_REF: FonctionRef[] = [
 
 export const MOCK_MEMBERS: Member[] = [
   {
-    id: 'm-1',
+    id: 'm-0',
     matricule: 'DAMF-0001',
+    prenom: 'Shaykh Muhammad Nūruddin',
+    nom: 'Ibn Shaykh Muhammadul Amīn Ñas',
+    nomArabe: 'الشيخ محمد نور الدين بن الشيخ محمد الأمين نياس',
+    sexe: 'M',
+    statutCompte: 'ACTIF',
+    situation: 'AUTRE',
+    ville: 'Dakar',
+    pays: 'Sénégal',
+    formations: [],
+    professions: [],
+    activites: ['Orientation spirituelle', 'Enseignement'],
+    privacy: { showPhone: 'PUBLIC', showEmail: 'PUBLIC', showAddress: 'ADMIN_ONLY', showProfessions: 'PUBLIC', showFormations: 'PUBLIC' },
+    dateInscription: '2020-01-01',
+    fonctionsDahirah: [
+      { id: 'fn-m0-1', role: 'Guide Spirituel', pole: 'Direction', dateNomination: '2020-01-01', isActif: true },
+    ],
+  },
+  {
+    id: 'm-1',
+    matricule: 'DAMF-0002',
     prenom: 'Aïcha',
     nom: 'Niang',
     sexe: 'F',
@@ -99,7 +119,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-2',
-    matricule: 'DAMF-0002',
+    matricule: 'DAMF-0003',
     prenom: 'Ndèye Amy',
     nom: 'Biteye',
     sexe: 'F',
@@ -128,7 +148,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-3',
-    matricule: 'DAMF-0003',
+    matricule: 'DAMF-0004',
     prenom: 'Codou',
     nom: 'Biteye',
     sexe: 'F',
@@ -156,7 +176,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-4',
-    matricule: 'DAMF-0004',
+    matricule: 'DAMF-0005',
     prenom: 'Rokhaya',
     nom: 'Fane',
     sexe: 'F',
@@ -182,7 +202,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-5',
-    matricule: 'DAMF-0005',
+    matricule: 'DAMF-0006',
     prenom: 'Mame Fatou',
     nom: 'Badiane',
     sexe: 'F',
@@ -206,7 +226,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-6',
-    matricule: 'DAMF-0006',
+    matricule: 'DAMF-0007',
     prenom: 'Bintou',
     nom: 'Coulibaly',
     sexe: 'F',
@@ -234,7 +254,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-7',
-    matricule: 'DAMF-0007',
+    matricule: 'DAMF-0008',
     prenom: 'Khady',
     nom: 'Diop',
     sexe: 'F',
@@ -261,7 +281,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-8',
-    matricule: 'DAMF-0008',
+    matricule: 'DAMF-0009',
     prenom: 'Tamsir',
     nom: 'Fall',
     sexe: 'M',
@@ -291,7 +311,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-9',
-    matricule: 'DAMF-0009',
+    matricule: 'DAMF-0010',
     prenom: 'Amadou',
     nom: 'Diouf',
     sexe: 'M',
@@ -318,7 +338,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-10',
-    matricule: 'DAMF-0010',
+    matricule: 'DAMF-0011',
     prenom: 'Yusuf',
     nom: 'Sirajudeen',
     sexe: 'M',
@@ -349,7 +369,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-11',
-    matricule: 'DAMF-0011',
+    matricule: 'DAMF-0012',
     prenom: 'Adji',
     nom: 'Diop',
     sexe: 'F',
@@ -373,7 +393,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-12',
-    matricule: 'DAMF-0012',
+    matricule: 'DAMF-0013',
     prenom: 'Oma',
     nom: 'Ndieguene',
     sexe: 'M',
@@ -402,7 +422,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-13',
-    matricule: 'DAMF-0013',
+    matricule: 'DAMF-0014',
     prenom: 'Aminata',
     nom: 'Diop',
     sexe: 'F',
@@ -430,7 +450,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-14',
-    matricule: 'DAMF-0014',
+    matricule: 'DAMF-0015',
     prenom: 'Mahmoud',
     nom: 'Ndiaye',
     sexe: 'M',
@@ -459,7 +479,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-15',
-    matricule: 'DAMF-0015',
+    matricule: 'DAMF-0016',
     prenom: 'Ndèye Coumba',
     nom: 'Diop',
     sexe: 'F',
@@ -486,7 +506,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-16',
-    matricule: 'DAMF-0016',
+    matricule: 'DAMF-0017',
     prenom: 'Ndèye Seynabou',
     nom: 'Ndom',
     sexe: 'F',
@@ -512,7 +532,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-17',
-    matricule: 'DAMF-0017',
+    matricule: 'DAMF-0018',
     prenom: 'Fatou',
     nom: 'Ndao',
     sexe: 'F',
@@ -539,7 +559,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-18',
-    matricule: 'DAMF-0018',
+    matricule: 'DAMF-0019',
     prenom: 'Modou',
     nom: 'Biteye',
     sexe: 'M',
@@ -566,7 +586,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-19',
-    matricule: 'DAMF-0019',
+    matricule: 'DAMF-0020',
     prenom: 'Racky',
     nom: 'Sow',
     sexe: 'F',
@@ -595,7 +615,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-20',
-    matricule: 'DAMF-0020',
+    matricule: 'DAMF-0021',
     prenom: 'Awa',
     nom: 'Badiane',
     sexe: 'F',
@@ -624,7 +644,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-21',
-    matricule: 'DAMF-0021',
+    matricule: 'DAMF-0022',
     prenom: 'Coumba',
     nom: 'Cissé',
     sexe: 'F',
@@ -650,7 +670,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-22',
-    matricule: 'DAMF-0022',
+    matricule: 'DAMF-0023',
     prenom: 'Maty',
     nom: 'Faye',
     sexe: 'F',
@@ -674,7 +694,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-23',
-    matricule: 'DAMF-0023',
+    matricule: 'DAMF-0024',
     prenom: 'Aminata',
     nom: 'Willane',
     sexe: 'F',
@@ -701,7 +721,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-24',
-    matricule: 'DAMF-0024',
+    matricule: 'DAMF-0025',
     prenom: 'Fatima',
     nom: 'Sylla',
     sexe: 'F',
@@ -723,7 +743,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-25',
-    matricule: 'DAMF-0025',
+    matricule: 'DAMF-0026',
     prenom: 'Khadija',
     nom: 'Sidibé',
     sexe: 'F',
@@ -761,7 +781,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-26',
-    matricule: 'DAMF-0026',
+    matricule: 'DAMF-0027',
     prenom: 'Omar',
     nom: 'Kane',
     sexe: 'M',
@@ -789,7 +809,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-27',
-    matricule: 'DAMF-0027',
+    matricule: 'DAMF-0028',
     prenom: 'Babacar',
     nom: 'Ndieguene',
     sexe: 'M',
@@ -817,7 +837,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-28',
-    matricule: 'DAMF-0028',
+    matricule: 'DAMF-0029',
     prenom: 'Ibrahima',
     nom: 'Aïdarah',
     sexe: 'M',
@@ -847,7 +867,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-29',
-    matricule: 'DAMF-0029',
+    matricule: 'DAMF-0030',
     prenom: 'Mouhamed',
     nom: 'Sakho',
     sexe: 'M',
@@ -876,7 +896,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-30',
-    matricule: 'DAMF-0030',
+    matricule: 'DAMF-0031',
     prenom: 'Adjia Thiouna',
     nom: 'Mbaye',
     sexe: 'F',
@@ -904,7 +924,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-31',
-    matricule: 'DAMF-0031',
+    matricule: 'DAMF-0032',
     prenom: 'Fatiha',
     nom: 'Niang',
     sexe: 'F',
@@ -933,7 +953,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-32',
-    matricule: 'DAMF-0032',
+    matricule: 'DAMF-0033',
     prenom: 'Mame Astou',
     nom: 'Biteye',
     sexe: 'F',
@@ -961,7 +981,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-33',
-    matricule: 'DAMF-0033',
+    matricule: 'DAMF-0034',
     prenom: 'Safiatou',
     nom: 'Badiane',
     sexe: 'F',
@@ -989,7 +1009,7 @@ export const MOCK_MEMBERS: Member[] = [
   },
   {
     id: 'm-34',
-    matricule: 'DAMF-0034',
+    matricule: 'DAMF-0035',
     prenom: 'Ousmane',
     nom: '', // Intentionally missing last name for data quality demonstration
     sexe: 'M',
@@ -1064,7 +1084,7 @@ export const MOCK_ACTIVITY_LOGS: ActivityLog[] = [
     objetConcerne: 'Mouhamed Sakho',
     date: '2026-08-15 18:05',
     statut: 'SUCCESS',
-    details: 'Attribution du matricule DAMF-0029 et activation du compte',
+    details: 'Attribution du matricule DAMF-0030 et activation du compte',
   },
   {
     id: 'log-6',
