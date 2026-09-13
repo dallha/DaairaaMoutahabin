@@ -55,11 +55,14 @@ export const DashboardOverviewPage: React.FC = () => {
     };
   }, []);
 
-  const totalMembers = stats?.metrics.total_active_members ?? recentMembers.length;
-  const totalStudents = stats?.metrics.total_students ?? 0;
-  const totalProfessionals = stats?.metrics.total_professionals ?? 0;
-  const totalJobSeekers = stats?.metrics.total_job_seekers ?? 0;
-  const totalArchived = stats?.metrics.total_archived_members ?? 0;
+  const rawMetrics = (stats as any)?.data?.metrics ?? stats?.metrics;
+  const totalMembers = rawMetrics?.total_active_members ?? recentMembers.length;
+  const totalStudents = rawMetrics?.total_students ?? 0;
+  const totalProfessionals = rawMetrics?.total_professionals ?? 0;
+  const totalJobSeekers = rawMetrics?.total_job_seekers ?? 0;
+  const totalArchived = rawMetrics?.total_archived_members ?? 0;
+  const topRoles = (stats as any)?.data?.top_roles ?? stats?.top_roles ?? [];
+  const recentAuditLogs = (stats as any)?.data?.recent_audit_logs ?? stats?.recent_audit_logs ?? [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -298,8 +301,8 @@ export const DashboardOverviewPage: React.FC = () => {
               </Link>
             </div>
             <div className="space-y-2.5">
-              {stats?.top_roles && stats.top_roles.length > 0 ? (
-                stats.top_roles.map((r, i) => (
+              {topRoles && topRoles.length > 0 ? (
+                topRoles.map((r: any, i: number) => (
                   <div key={i} className="flex items-center justify-between p-2.5 rounded-xl bg-[#111722] border border-[#2b3547]/40 text-xs">
                     <span className="font-medium text-[#e5e9f2] truncate">{r.role__name}</span>
                     <span className="px-2 py-0.5 rounded-full bg-[#f2ca50]/15 text-[#f2ca50] font-bold text-[11px]">
@@ -326,8 +329,8 @@ export const DashboardOverviewPage: React.FC = () => {
               </span>
             </div>
             <div className="space-y-2.5">
-              {stats?.recent_audit_logs && stats.recent_audit_logs.length > 0 ? (
-                stats.recent_audit_logs.map((log) => (
+              {recentAuditLogs && recentAuditLogs.length > 0 ? (
+                recentAuditLogs.map((log: any) => (
                   <div key={log.id} className="flex items-start gap-2 text-xs pb-2 border-b border-[#2b3547]/20">
                     <span className="material-symbols-outlined text-[#f2ca50] text-[15px] mt-0.5">history</span>
                     <div className="flex flex-col min-w-0">

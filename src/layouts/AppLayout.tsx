@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 
 export const AppLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -101,11 +102,11 @@ export const AppLayout: React.FC = () => {
           
           {/* Logo & Emblème Officiel */}
           <Link to="/dashboard" className="flex items-center gap-3.5 group">
-            <div className="relative flex items-center justify-center p-1 rounded-full bg-gradient-to-b from-[#242e40] to-[#111722] border border-[#f2ca50]/40 shadow-[0_0_15px_rgba(242,202,80,0.2)] group-hover:scale-105 transition-transform duration-300">
+            <div className="relative flex items-center justify-center p-0.5 rounded-full bg-white border border-[#f2ca50]/50 shadow-[0_0_15px_rgba(242,202,80,0.25)] group-hover:scale-105 transition-transform duration-300">
               <img
-                src="https://lh3.googleusercontent.com/aida/AEtjO1VFfKNNPTdKqGKZNBuoAaCLwnDofoEfks4uP-jHqDqfVp6MFfEIVn7T_VlPkgt9zeDWYB3veqQYzYYiGV9iAzw1E91g4Gy-z07RUlmuIuzGhiV185af1fFHg1XMId5yTos4w99nNVn-lXZ6AzNWs9PFl1gzj27jSCh1t-dAfHk2MD80qEIxine2okW7ICURcsJZwa8oM9lHLR7DvO3Vc_r0ynQ9sHXpUmBreJ2X8pQCIEPBE52q86cMFw"
-                alt="Sceau Officiel Dāʾiratu Al-Mutahābbīna Fillāhi"
-                className="w-10 h-10 rounded-full object-cover"
+                src="/logo.png"
+                alt="Emblème Officiel Dāʾiratu Al-Mutahābbīna Fillāhi"
+                className="w-11 h-11 rounded-full object-contain"
               />
             </div>
             <div className="flex flex-col">
@@ -229,8 +230,10 @@ export const AppLayout: React.FC = () => {
           })}
         </nav>
 
-        {/* Injection fluide de la vue active */}
-        <Outlet />
+        {/* Injection fluide de la vue active protégée par ErrorBoundary */}
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
 
       {/* 3. FLOATING DOCK PERSISTANT (NAVIGATION BASSE) */}

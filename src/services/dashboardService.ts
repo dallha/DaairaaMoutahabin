@@ -43,5 +43,6 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     throw new Error('Impossible de charger les statistiques du tableau de bord.');
   }
 
-  return await res.json();
+  const json = await res.json();
+  return json.data || json;
 }
