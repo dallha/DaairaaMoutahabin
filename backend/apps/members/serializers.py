@@ -50,9 +50,20 @@ class ContactNestedSerializer(serializers.ModelSerializer):
         return obj.whatsapp if self._can_see_phone(obj) else None
 
 
+def get_institutional_role(obj):
+    """Projection directe depuis MemberRole : fonction officielle actuelle de rang prioritaire."""
+    role_assignment = obj.dairah_roles.filter(is_current=True).order_by('role__rank').first()
+    if role_assignment:
+        return role_assignment.role.name
+    if getattr(obj, 'is_founder', False):
+        return "Guide Spirituel & Fondateur"
+    return None
+
+
 class MemberPublicSerializer(serializers.ModelSerializer):
     """Sérialiseur minimal pour les visiteurs anonymes (profils publics uniquement)."""
     display_name = serializers.CharField(read_only=True)
+    institutional_role_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Member
@@ -62,13 +73,20 @@ class MemberPublicSerializer(serializers.ModelSerializer):
             'display_name',
             'situation',
             'photo',
+            'is_founder',
+            'institutional_priority',
+            'institutional_role_name',
         ]
+
+    def get_institutional_role_name(self, obj):
+        return get_institutional_role(obj)
 
 
 class MemberDirectorySerializer(serializers.ModelSerializer):
     """Sérialiseur pour l'annuaire interne des membres connectés."""
     display_name = serializers.CharField(read_only=True)
     primary_contact = serializers.SerializerMethodField()
+    institutional_role_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Member
@@ -82,6 +100,9 @@ class MemberDirectorySerializer(serializers.ModelSerializer):
             'situation',
             'photo',
             'status',
+            'is_founder',
+            'institutional_priority',
+            'institutional_role_name',
             'primary_contact',
         ]
 
@@ -91,11 +112,15 @@ class MemberDirectorySerializer(serializers.ModelSerializer):
             return ContactNestedSerializer(primary, context=self.context).data
         return None
 
+    def get_institutional_role_name(self, obj):
+        return get_institutional_role(obj)
+
 
 class MemberDetailSerializer(serializers.ModelSerializer):
     """Sérialiseur de consultation détaillée pour membres et propriétaires."""
     display_name = serializers.CharField(read_only=True)
     contacts = ContactNestedSerializer(many=True, read_only=True)
+    institutional_role_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Member
@@ -111,11 +136,17 @@ class MemberDetailSerializer(serializers.ModelSerializer):
             'photo',
             'status',
             'visibility_level',
+            'is_founder',
+            'institutional_priority',
+            'institutional_role_name',
             'joined_at',
             'created_at',
             'updated_at',
             'contacts',
         ]
+
+    def get_institutional_role_name(self, obj):
+        return get_institutional_role(obj)
 
 
 class MemberAdminSerializer(serializers.ModelSerializer):
@@ -123,6 +154,7 @@ class MemberAdminSerializer(serializers.ModelSerializer):
     display_name = serializers.CharField(read_only=True)
     contacts = ContactNestedSerializer(many=True, read_only=True)
     user_email = serializers.EmailField(source='user.email', read_only=True)
+    institutional_role_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Member
@@ -140,6 +172,9 @@ class MemberAdminSerializer(serializers.ModelSerializer):
             'photo',
             'status',
             'visibility_level',
+            'is_founder',
+            'institutional_priority',
+            'institutional_role_name',
             'joined_at',
             'notes',
             'is_deleted',
@@ -147,6 +182,9 @@ class MemberAdminSerializer(serializers.ModelSerializer):
             'updated_at',
             'contacts',
         ]
+
+    def get_institutional_role_name(self, obj):
+        return get_institutional_role(obj)
 
 
 from django.db import transaction

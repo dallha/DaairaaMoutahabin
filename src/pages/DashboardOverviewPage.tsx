@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { DashboardStats, getDashboardStats } from '../services/dashboardService';
-import { getMembers } from '../services/memberService';
+import { getMembers, getMemberById } from '../services/memberService';
 import { Member } from '../types';
 
 export const DashboardOverviewPage: React.FC = () => {
@@ -10,6 +10,7 @@ export const DashboardOverviewPage: React.FC = () => {
 
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentMembers, setRecentMembers] = useState<Member[]>([]);
+  const [founder, setFounder] = useState<Member | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,9 +21,10 @@ export const DashboardOverviewPage: React.FC = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const [statsData, membersData] = await Promise.allSettled([
+        const [statsData, membersData, founderData] = await Promise.allSettled([
           getDashboardStats(),
           getMembers(5),
+          getMemberById('DAMF-0001'),
         ]);
 
         if (isMounted) {
@@ -35,6 +37,10 @@ export const DashboardOverviewPage: React.FC = () => {
 
           if (membersData.status === 'fulfilled') {
             setRecentMembers(membersData.value.members || []);
+          }
+
+          if (founderData.status === 'fulfilled') {
+            setFounder(founderData.value);
           }
         }
       } catch (err: any) {
@@ -122,7 +128,67 @@ export const DashboardOverviewPage: React.FC = () => {
         </div>
       )}
 
-      {/* 2. Cartes Métriques Clés */}
+      {/* 2. Bloc Protocolaire : Guide Spirituel & Fondateur */}
+      <section className="relative rounded-2xl bg-gradient-to-br from-[#0e1624] via-[#121c2c] to-[#0c1420] p-6 lg:p-7 border border-[#c8a44d]/40 shadow-xl overflow-hidden">
+        {/* Liseré or institutionnel sobre */}
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#c8a44d] to-transparent"></div>
+
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-3 max-w-3xl">
+            {/* Badge protocolaire & Matricule */}
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#c8a44d]/15 border border-[#c8a44d]/40 text-[#c8a44d] text-[11px] font-bold tracking-wider uppercase">
+                <span className="material-symbols-outlined text-[15px]">stars</span>
+                Guide Spirituel &amp; Fondateur
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-[#1b2636] border border-[#2b3547] text-[#9ca7b8] text-[11px] font-mono font-semibold">
+                {founder?.matricule || 'DAMF-0001'}
+              </span>
+            </div>
+
+            {/* Identité & Nom Arabe */}
+            <div>
+              <h2 className="font-headline-lg text-xl sm:text-2xl font-bold text-[#e5e9f2] tracking-tight">
+                {founder ? `${founder.prenom} ${founder.nom}` : 'Shaykh Muhammad Nūruddin Ibn Shaykh Muhammadul Amīn Ñas'}
+              </h2>
+              <p className="text-sm font-headline-sm text-[#c8a44d] mt-1 font-medium tracking-wide">
+                {founder?.nomArabe || 'محمد نور الدين نياس'}
+              </p>
+            </div>
+
+            {/* Disciplines, Expertise & Formation Al-Azhar */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs text-[#9ca7b8]">
+              <div className="flex items-start gap-2.5">
+                <span className="material-symbols-outlined text-[#c8a44d] text-[18px] shrink-0 mt-0.5">school</span>
+                <div>
+                  <span className="text-[#e5e9f2] font-medium block">Université Al-Azhar</span>
+                  <span>Faculté de la Charia et du Droit • Doctorat (thèse en cours)</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="material-symbols-outlined text-[#c8a44d] text-[18px] shrink-0 mt-0.5">verified_user</span>
+                <div>
+                  <span className="text-[#e5e9f2] font-medium block">Expertise &amp; Relations</span>
+                  <span>Sciences politiques islamiques &amp; relations internationales</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bouton d'accès direct vers la fiche complète */}
+          <div className="shrink-0 flex items-center md:self-end">
+            <Link
+              to={`/members/${founder?.matricule || founder?.id || 'DAMF-0001'}`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#c8a44d]/15 hover:bg-[#c8a44d]/25 text-[#c8a44d] hover:text-[#f3d37a] border border-[#c8a44d]/40 text-xs font-bold transition shadow-sm group"
+            >
+              <span>Voir le profil complet</span>
+              <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Cartes Métriques Clés */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
         
         {/* Metric 1 : Total Membres Actifs */}

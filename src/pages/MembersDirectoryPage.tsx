@@ -110,6 +110,20 @@ export const MembersDirectoryPage: React.FC = () => {
     fetchMembers();
   }, [fetchMembers]);
 
+  // Normalisation canonique pour tri alphabétique strict A-Z (accents, espaces, casse)
+  const normalizeForSort = (str: string) =>
+    (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim();
+
+  // Distinction entre Guide Spirituel & Fondateur (priorité protocolaire) et Membres de la Dahirah
+  const founderMember = members.find((m) => m.isFounder || m.institutionalPriority === 1);
+  const communityMembers = members
+    .filter((m) => !(m.isFounder || m.institutionalPriority === 1))
+    .sort((a, b) => {
+      const nameA = normalizeForSort(`${a.prenom} ${a.nom}`);
+      const nameB = normalizeForSort(`${b.prenom} ${b.nom}`);
+      return nameA.localeCompare(nameB, 'fr');
+    });
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     const newParams = new URLSearchParams(searchParams);
@@ -258,6 +272,105 @@ export const MembersDirectoryPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
+      {/* 0. BLOC PROTOCOLAIRE : GUIDE SPIRITUEL & FONDATEUR */}
+      {/* ========================================================================= */}
+      {!isLoading && founderMember && (
+        <div className="relative rounded-2xl bg-gradient-to-br from-[#0e1624] via-[#121c2c] to-[#0c1420] border border-[#c8a44d]/40 shadow-xl p-5 sm:p-6 overflow-hidden space-y-4">
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#c8a44d] to-transparent"></div>
+
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#111722] border-2 border-[#c8a44d]/50 text-[#c8a44d] flex items-center justify-center font-bold text-base sm:text-lg shadow-inner shrink-0">
+                {founderMember.prenom?.[0] || 'S'}
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#c8a44d]/15 border border-[#c8a44d]/40 text-[#c8a44d] text-[10px] sm:text-[11px] font-bold tracking-wider uppercase">
+                    <span className="material-symbols-outlined text-[14px]">stars</span>
+                    Guide Spirituel &amp; Fondateur
+                  </span>
+                  <span className="px-2 py-0.5 rounded-md bg-[#1b2636] border border-[#2b3547] text-[#9ca7b8] text-[11px] font-mono font-semibold">
+                    {founderMember.matricule}
+                  </span>
+                </div>
+
+                <h2 className="font-headline-lg text-lg sm:text-xl font-bold text-[#e5e9f2] leading-snug">
+                  {founderMember.prenom} {founderMember.nom}
+                </h2>
+                <p className="text-xs sm:text-sm font-headline-sm text-[#c8a44d] font-medium">
+                  {founderMember.nomArabe || 'محمد نور الدين نياس'}
+                </p>
+              </div>
+            </div>
+
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#c8a44d]/15 border border-[#c8a44d]/30 text-[#c8a44d] text-[10px] font-bold self-start sm:self-auto">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#c8a44d]"></span>
+              {founderMember.statutCompte || 'ACTIF'}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-2 text-xs pt-1">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1b2636] text-[#e5e9f2] border border-[#2b3547]">
+              <span className="material-symbols-outlined text-[15px] text-[#c8a44d]">verified_user</span>
+              <span>{founderMember.professionActuelle || 'Expert en sciences politiques islamiques & relations internationales'}</span>
+            </span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1b2636] text-[#9ca7b8] border border-[#2b3547]">
+              <span className="material-symbols-outlined text-[15px] text-emerald-400">location_on</span>
+              <span>{founderMember.ville || 'Dakar'}</span>
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between pt-3 border-t border-[#2b3547]/40 gap-2">
+            <Link
+              to={`/members/${founderMember.matricule || founderMember.id}`}
+              className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl bg-[#c8a44d]/15 hover:bg-[#c8a44d]/25 text-[#c8a44d] hover:text-[#f3d37a] border border-[#c8a44d]/40 text-xs font-bold transition shadow-sm group"
+            >
+              <span>Consulter la Fiche 360°</span>
+              <span className="material-symbols-outlined text-[15px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+            </Link>
+
+            <div className="flex items-center gap-2">
+              {isEditor && (
+                <Link
+                  to={`/members/${founderMember.matricule || founderMember.id}/edit`}
+                  className="p-2 rounded-xl bg-[#242e40]/70 hover:bg-[#c8a44d] hover:text-slate-950 text-[#9ca7b8] transition flex items-center justify-center"
+                  title="Modifier"
+                >
+                  <span className="material-symbols-outlined text-[17px]">edit</span>
+                </Link>
+              )}
+              <button
+                onClick={() => setActionMember(founderMember)}
+                className="p-2 rounded-xl bg-[#1b2332] hover:bg-[#c8a44d] hover:text-slate-950 text-[#e5e9f2] border border-[#2b3547] transition flex items-center justify-center cursor-pointer"
+                title="Actions contextuelles"
+              >
+                <span className="material-symbols-outlined text-[17px]">more_vert</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SÉPARATEUR PROTOCOLAIRE : MEMBRES DE LA DAHIRAH */}
+      {/* ========================================================================= */}
+      {!isLoading && (founderMember || communityMembers.length > 0) && (
+        <div className="flex items-center justify-between pt-2 pb-1 border-b border-[#2b3547]/50">
+          <div className="flex items-center gap-2">
+            <h2 className="font-headline-sm text-xs font-bold uppercase tracking-wider text-[#e5e9f2]">
+              Membres de la Dahirah
+            </h2>
+            <span className="px-2 py-0.5 rounded-full bg-[#1b2332] text-[#c8a44d] text-[11px] font-mono font-bold border border-[#2b3547]">
+              {communityMembers.length}
+            </span>
+          </div>
+          <span className="text-[11px] text-[#788294] hidden sm:inline italic">
+            Ordre alphabétique canonique A → Z
+          </span>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
       {/* 1. VUE MOBILE-FIRST (< md / < 768px) : CARTES VERTICALES SANS TABLE HORIZONTALE */}
       {/* ========================================================================= */}
       <div className="block md:hidden space-y-3.5">
@@ -266,12 +379,14 @@ export const MembersDirectoryPage: React.FC = () => {
             <span className="material-symbols-outlined text-[28px] animate-spin text-[#f2ca50]">refresh</span>
             <p className="text-xs">Chargement des fiches membres...</p>
           </div>
-        ) : members.length === 0 ? (
+        ) : communityMembers.length === 0 ? (
           <div className="p-10 rounded-2xl bg-[#151c28]/90 border border-[#2b3547]/60 text-center text-[#9ca7b8] text-xs">
-            Aucun membre ne correspond à vos critères de recherche.
+            {founderMember
+              ? "Aucun autre disciple ne correspond à vos critères de recherche."
+              : "Aucun membre ne correspond à vos critères de recherche."}
           </div>
         ) : (
-          members.map((member) => (
+          communityMembers.map((member) => (
             <div
               key={member.id}
               className="p-4 rounded-2xl bg-[#151c28]/90 border border-[#2b3547]/60 shadow-lg space-y-3 transition hover:border-[#f2ca50]/40"
@@ -376,14 +491,16 @@ export const MembersDirectoryPage: React.FC = () => {
                     </div>
                   </td>
                 </tr>
-              ) : members.length === 0 ? (
+              ) : communityMembers.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-[#9ca7b8]">
-                    Aucun membre ne correspond à vos critères de recherche.
+                    {founderMember
+                      ? "Aucun autre disciple ne correspond à vos critères de recherche."
+                      : "Aucun membre ne correspond à vos critères de recherche."}
                   </td>
                 </tr>
               ) : (
-                members.map((member) => (
+                communityMembers.map((member) => (
                   <tr key={member.id} className="group hover:bg-[#1b2332]/60 transition-colors">
                     
                     {/* Identité & Matricule */}

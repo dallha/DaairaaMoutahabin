@@ -462,3 +462,106 @@ class MembersAPITests(APITestCase):
         self.assertIn(str(self.member_public.id), ids_prof)
         self.assertIn(str(self.member_internal.id), ids_prof)
         self.assertNotIn(str(pupil.id), ids_prof)
+
+    def test_institutional_priority_and_canonical_alphabetical_ordering(self):
+        """
+        Vérifie la règle protocolaire complète V1.2.2 :
+        1. Position 1 = Shaykh (is_founder=True, institutional_priority=1)
+        2. Positions 2+ = aucun fondateur, ordre alphabétique canonique strict A->Z
+        3. Recherche ciblée ("Aïcha" -> Shaykh absent; "Shaykh" -> Shaykh présent; "DAMF-0001" -> Shaykh présent)
+        """
+        client = self._auth_client(self.admin_user)
+
+        # Nettoyer les membres existants physiquement pour un contrôle déterministe
+        Member.all_objects.all().hard_delete()
+
+        # Création du Shaykh (Priorité 1)
+        shaykh = Member.objects.create(
+            first_name='Shaykh Muhammad Nūruddin',
+            last_name='Ibn Shaykh Muhammadul Amīn Ñas',
+            matricule='DAMF-0001',
+            gender=GenderChoices.MALE,
+            status=MemberStatusChoices.ACTIVE,
+            is_founder=True,
+            institutional_priority=1
+        )
+
+        # Création de plusieurs disciples ordinaires
+        m_aicha = Member.objects.create(
+            first_name='Aïcha',
+            last_name='Niang',
+            matricule='DAMF-0002',
+            gender=GenderChoices.FEMALE,
+            status=MemberStatusChoices.ACTIVE,
+            is_founder=False,
+            institutional_priority=100
+        )
+        m_ousmane = Member.objects.create(
+            first_name='Ousmane',
+            last_name='',
+            matricule='DAMF-0035',
+            gender=GenderChoices.MALE,
+            status=MemberStatusChoices.ACTIVE,
+            is_founder=False,
+            institutional_priority=100
+        )
+        m_amadou = Member.objects.create(
+            first_name='Amadou',
+            last_name='Diouf',
+            matricule='DAMF-0010',
+            gender=GenderChoices.MALE,
+            status=MemberStatusChoices.ACTIVE,
+            is_founder=False,
+            institutional_priority=100
+        )
+        m_yusuf = Member.objects.create(
+            first_name='Yusuf',
+            last_name='Sirajudeen',
+            matricule='DAMF-0011',
+            gender=GenderChoices.MALE,
+            status=MemberStatusChoices.ACTIVE,
+            is_founder=False,
+            institutional_priority=100
+        )
+
+        # 1. Requête générale de l'annuaire
+        res = client.get('/api/v1/members/')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        results = res.data['results']
+        self.assertEqual(len(results), 5)
+
+        # Position 1 = Shaykh
+        self.assertEqual(results[0]['matricule'], 'DAMF-0001')
+        self.assertTrue(results[0]['is_founder'])
+        self.assertEqual(results[0]['institutional_priority'], 1)
+
+        # Positions 2 à 5 = aucun fondateur
+        other_results = results[1:]
+        for r in other_results:
+            self.assertFalse(r['is_founder'])
+            self.assertEqual(r['institutional_priority'], 100)
+
+        # Vérification de l'ordre alphabétique canonique strict :
+        # Aïcha Niang -> Amadou Diouf -> Ousmane -> Yusuf Sirajudeen
+        canonical_names = [r['display_name'] for r in other_results]
+        self.assertEqual(canonical_names, ['Aïcha Niang', 'Amadou Diouf', 'Ousmane', 'Yusuf Sirajudeen'])
+
+        # 2. Test Recherche "Aïcha" -> Shaykh absent, Aïcha présente
+        res_aicha = client.get('/api/v1/members/?search=Aïcha')
+        self.assertEqual(res_aicha.status_code, status.HTTP_200_OK)
+        names_aicha = [r['display_name'] for r in res_aicha.data['results']]
+        self.assertIn('Aïcha Niang', names_aicha)
+        self.assertNotIn('Shaykh Muhammad Nūruddin Ibn Shaykh Muhammadul Amīn Ñas', names_aicha)
+
+        # 3. Test Recherche "Shaykh" -> Shaykh présent
+        res_shaykh = client.get('/api/v1/members/?search=Shaykh')
+        self.assertEqual(res_shaykh.status_code, status.HTTP_200_OK)
+        names_shaykh = [r['display_name'] for r in res_shaykh.data['results']]
+        self.assertIn('Shaykh Muhammad Nūruddin Ibn Shaykh Muhammadul Amīn Ñas', names_shaykh)
+        self.assertNotIn('Aïcha Niang', names_shaykh)
+
+        # 4. Test Recherche "DAMF-0001" -> Shaykh présent
+        res_matricule = client.get('/api/v1/members/?search=DAMF-0001')
+        self.assertEqual(res_matricule.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res_matricule.data['results']), 1)
+        self.assertEqual(res_matricule.data['results'][0]['matricule'], 'DAMF-0001')

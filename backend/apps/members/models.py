@@ -1,5 +1,6 @@
 import uuid
 import re
+import unicodedata
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
@@ -159,6 +160,26 @@ class Member(models.Model):
         choices=VisibilityChoices.choices,
         default=VisibilityChoices.INTERNAL
     )
+    is_founder = models.BooleanField(
+        _('Fondateur / Guide Spirituel'),
+        default=False,
+        db_index=True,
+        help_text=_('Priorité institutionnelle et protocolaire majeure.')
+    )
+    institutional_priority = models.PositiveSmallIntegerField(
+        _('Priorité protocolaire'),
+        default=100,
+        db_index=True,
+        help_text=_('1 = Guide Spirituel / Fondateur, 100 = Membres ordinaires.')
+    )
+    canonical_name = models.CharField(
+        _('Nom canonique de tri'),
+        max_length=200,
+        blank=True,
+        default='',
+        db_index=True,
+        help_text=_('Nom complet normalisé sans accents pour le tri alphabétique strict A-Z.')
+    )
     joined_at = models.DateField(_('Date d’adhésion'), default=timezone.now)
     notes = models.TextField(_('Notes internes'), blank=True, null=True)
     is_deleted = models.BooleanField(_('Supprimé (Soft Delete)'), default=False, db_index=True)
@@ -172,8 +193,9 @@ class Member(models.Model):
     class Meta:
         verbose_name = _('Membre')
         verbose_name_plural = _('Membres')
-        ordering = ['last_name', 'first_name']
+        ordering = ['institutional_priority', 'canonical_name']
         indexes = [
+            models.Index(fields=['institutional_priority', 'canonical_name'], name='idx_members_inst_canon'),
             models.Index(fields=['last_name', 'first_name'], name='idx_members_names'),
             models.Index(fields=['situation'], name='idx_members_situation'),
             models.Index(fields=['status', 'is_deleted'], name='idx_members_status_del'),
@@ -219,6 +241,9 @@ class Member(models.Model):
             self.joined_at = self.joined_at.date()
         if not self.matricule:
             self.matricule = self.generate_next_matricule()
+        full_name = f"{self.first_name} {self.last_name}".strip()
+        norm = ''.join(c for c in unicodedata.normalize('NFD', full_name) if unicodedata.category(c) != 'Mn')
+        self.canonical_name = norm.upper()
         super().save(*args, **kwargs)
 
     def __str__(self):

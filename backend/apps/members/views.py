@@ -71,9 +71,9 @@ class MemberViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = MemberFilterSet
-    search_fields = ['first_name', 'last_name', 'matricule']
-    ordering_fields = ['last_name', 'first_name', 'created_at', 'joined_at']
-    ordering = ['last_name', 'first_name']
+    search_fields = ['first_name', 'last_name', 'matricule', 'canonical_name']
+    ordering_fields = ['institutional_priority', 'canonical_name', 'created_at', 'joined_at']
+    ordering = ['institutional_priority', 'canonical_name']
 
     def get_object(self):
         """

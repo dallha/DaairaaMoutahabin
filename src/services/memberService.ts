@@ -86,7 +86,10 @@ export function transformDjangoMember(item: any): Member {
     dateInscription: item.joined_at || new Date().toISOString().split('T')[0],
     statutCompte: item.status === 'SUSPENDED' ? 'SUSPENDU' : 'ACTIF',
     notesInternes: item.notes || undefined,
-    dataQualityIssues: []
+    dataQualityIssues: [],
+    isFounder: Boolean(item.is_founder || item.institutional_priority === 1),
+    institutionalPriority: item.institutional_priority ?? 100,
+    institutionalRoleName: item.institutional_role_name || (item.is_founder ? 'Guide Spirituel & Fondateur' : undefined),
   };
 }
 

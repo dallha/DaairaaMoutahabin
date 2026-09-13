@@ -77,6 +77,9 @@ export interface Member {
   statutCompte: 'ACTIF' | 'SUSPENDU' | 'EN_ATTENTE';
   notesInternes?: string;
   dataQualityIssues?: string[]; // E.g. "Numéro de téléphone manquant", "Nom incomplet"
+  isFounder?: boolean;
+  institutionalPriority?: number;
+  institutionalRoleName?: string;
 }
 
 export interface ProfessionRef {
