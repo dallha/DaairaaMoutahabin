@@ -77,7 +77,7 @@ class MemberViewSet(viewsets.ModelViewSet):
 
     def get_object(self):
         """
-        Résolution transparente par UUID (id) ou par matricule unique (ex: DM-2026-0001).
+        Résolution transparente par UUID (id) ou par matricule unique (ex: DAM-2023-001).
         Permet le deep linking direct /members/:id.
         """
         queryset = self.filter_queryset(self.get_queryset())

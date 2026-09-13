@@ -64,7 +64,7 @@ class MatriculeSequence(models.Model):
     """
     Table de séquence dédiée garantissant l'absence totale de collision lors de la
     génération simultanée de matricules sous forte concurrence (PostgreSQL select_for_update).
-    Format : DM-YYYY-XXXX (un compteur par année).
+    Format : DAM-YYYY-XXX (un compteur par année).
     """
     year = models.PositiveIntegerField(_('Année'), unique=True, db_index=True)
     last_sequence = models.PositiveIntegerField(_('Dernier numéro de séquence'), default=0)
@@ -75,7 +75,7 @@ class MatriculeSequence(models.Model):
         verbose_name_plural = _('Séquences Matricules')
 
     def __str__(self):
-        return f"Année {self.year} : dernier numéro = {self.last_sequence:04d}"
+        return f"Année {self.year} : dernier numéro = {self.last_sequence:03d}"
 
 
 # ==============================================================================
@@ -133,7 +133,7 @@ class Member(models.Model):
         max_length=20,
         unique=True,
         db_index=True,
-        help_text=_('Format concurrent-safe garanti : DM-YYYY-XXXX (ex: DM-2026-0001)')
+        help_text=_('Format concurrent-safe garanti : DAM-YYYY-XXX (ex: DAM-2023-001)')
     )
     first_name = models.CharField(_('Prénom'), max_length=100)
     last_name = models.CharField(_('Nom'), max_length=100, blank=True, default='')
@@ -211,7 +211,7 @@ class Member(models.Model):
             )
             sequence_record.last_sequence += 1
             sequence_record.save(update_fields=['last_sequence', 'updated_at'])
-            return f"DM-{year}-{sequence_record.last_sequence:04d}"
+            return f"DAM-{year}-{sequence_record.last_sequence:03d}"
 
     def save(self, *args, **kwargs):
         if hasattr(self.joined_at, 'date'):

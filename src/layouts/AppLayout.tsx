@@ -69,8 +69,8 @@ export const AppLayout: React.FC = () => {
       case 'settings':
         return 'Paramètres';
       default:
-        // Matricule ou identifiant (ex: DM-2026-0001)
-        if (path.startsWith('DM-') || index === 1) {
+        // Matricule ou identifiant (ex: DAM-2023-001)
+        if (path.startsWith('DAM-') || path.startsWith('DM-') || index === 1) {
           return `Fiche ${path}`;
         }
         return path.charAt(0).toUpperCase() + path.slice(1);
@@ -83,7 +83,7 @@ export const AppLayout: React.FC = () => {
       const q = searchQuery.trim();
       setSearchOpen(false);
       setSearchQuery('');
-      if (q.toUpperCase().startsWith('DM-')) {
+      if (q.toUpperCase().startsWith('DAM-') || q.toUpperCase().startsWith('DM-')) {
         navigate(`/members/${q.toUpperCase()}`);
       } else {
         navigate(`/members?search=${encodeURIComponent(q)}`);
@@ -514,7 +514,7 @@ export const AppLayout: React.FC = () => {
                 autoFocus
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Matricule (ex: DM-2026-0001) ou nom..."
+                placeholder="Matricule (ex: DAM-2023-001) ou nom..."
                 className="w-full bg-transparent text-[#e5e9f2] placeholder-[#788294] outline-none text-sm"
               />
               <button

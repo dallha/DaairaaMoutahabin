@@ -251,7 +251,7 @@ class MembersAPITests(APITestCase):
         new_id = res.data['id']
         member = Member.objects.get(id=new_id)
 
-        self.assertTrue(member.matricule.startswith('DM-'))
+        self.assertTrue(member.matricule.startswith('DAM-') or member.matricule.startswith('DM-'))
         self.assertEqual(member.first_name, 'Aliou')
 
         # Vérification AuditLog

@@ -219,7 +219,7 @@ export const MembersDirectoryPage: React.FC = () => {
             type="text"
             value={searchTerm}
             onChange={handleSearchChange}
-            placeholder="Rechercher par nom, prénom, matricule (ex: DM-2026-0001)..."
+            placeholder="Rechercher par nom, prénom, matricule (ex: DAM-2023-001)..."
             className="w-full bg-[#06090e] text-[#e5e9f2] placeholder-[#788294] text-xs rounded-xl pl-10 pr-4 py-2.5 outline-none border border-[#2b3547] focus:border-[#f2ca50] transition"
           />
         </div>
