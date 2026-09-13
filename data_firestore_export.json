@@ -1,0 +1,1988 @@
+[
+  {
+    "id": "m-1",
+    "matricule": "DAM-2023-001",
+    "prenom": "Aïcha",
+    "nom": "Niang",
+    "sexe": "F",
+    "dateNaissance": "1992-04-14",
+    "lieuNaissance": "Dakar",
+    "telephone": "+221 77 541 23 89",
+    "email": "aicha.niang@mutahabbina.sn",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Almadies, Lot 45",
+    "situation": "SALARIE",
+    "formations": [
+      {
+        "id": "f-m1-1",
+        "domaine": "Management & Gestion",
+        "niveau": "Master 2",
+        "etablissement": "ISM Dakar",
+        "diplome": "Master en Management de Projets",
+        "annee": "2016"
+      },
+      {
+        "id": "f-m1-2",
+        "domaine": "Administration des Entreprises",
+        "niveau": "Licence",
+        "etablissement": "Université Cheikh Anta Diop",
+        "diplome": "Licence de Gestion",
+        "annee": "2014"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m1-1",
+        "metier": "Manager de Projets",
+        "secteur": "Finance & Gestion",
+        "activite": "Pilotage des opérations et coordination des équipes",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Coordination administrative",
+      "Mentorat jeunes diplômés",
+      "Planification stratégique"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m1-1",
+        "role": "Membre du Bureau Exécutif",
+        "pole": "Direction",
+        "dateNomination": "2022-01-10",
+        "isActif": true
+      },
+      {
+        "id": "fn-m1-2",
+        "role": "Responsable Suivi Organisationnel",
+        "pole": "Pôle Logistique",
+        "dateNomination": "2023-03-01",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "MEMBRES",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2021-10-15",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-2",
+    "matricule": "DAM-2023-002",
+    "prenom": "Ndèye Amy",
+    "nom": "Biteye",
+    "sexe": "F",
+    "dateNaissance": "1994-08-22",
+    "lieuNaissance": "Kaolack",
+    "telephone": "+221 78 120 44 11",
+    "email": "ndeyeamy.b@gmail.com",
+    "ville": "Kaolack",
+    "pays": "Sénégal",
+    "adresse": "Médina Baye, Rue Shaykh Ibrahim",
+    "situation": "SALARIE",
+    "formations": [
+      {
+        "id": "f-m2-1",
+        "domaine": "Sciences Infirmières",
+        "niveau": "Licence d’État",
+        "etablissement": "ENDSS Dakar",
+        "diplome": "Diplôme d’État Infirmier",
+        "annee": "2017"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m2-1",
+        "metier": "Infirmière Major",
+        "secteur": "Santé",
+        "activite": "Soins pédiatriques et urgences",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Assistance médicale lors des grands rassemblements (Mawlid, Gamou)"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m2-1",
+        "role": "Commission Santé & Secourisme",
+        "pole": "Pôle Social & Santé",
+        "dateNomination": "2022-05-12",
+        "isActif": true
+      },
+      {
+        "id": "fn-m2-2",
+        "role": "Membre actif",
+        "pole": "Général",
+        "dateNomination": "2021-11-01",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2021-11-01",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-3",
+    "matricule": "DAM-2023-003",
+    "prenom": "Codou",
+    "nom": "Biteye",
+    "sexe": "F",
+    "dateNaissance": "1996-01-19",
+    "lieuNaissance": "Kaolack",
+    "telephone": "+221 77 890 32 15",
+    "email": "codou.biteye@sante.sn",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Fann Résidence",
+    "situation": "SALARIE",
+    "formations": [
+      {
+        "id": "f-m3-1",
+        "domaine": "Soins Infirmiers & Réanimation",
+        "niveau": "Licence Pro",
+        "etablissement": "UFR Santé Thiès",
+        "diplome": "Licence en Soins Critiques",
+        "annee": "2019"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m3-1",
+        "metier": "Infirmière",
+        "secteur": "Santé",
+        "activite": "Services hospitaliers et consultations",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Campagnes de don de sang Dahirah",
+      "Consultations gratuites"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m3-1",
+        "role": "Membre actif",
+        "pole": "Pôle Social & Santé",
+        "dateNomination": "2022-02-15",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "MEMBRES",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2022-02-15",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-4",
+    "matricule": "DAM-2023-004",
+    "prenom": "Rokhaya",
+    "nom": "Fane",
+    "sexe": "F",
+    "dateNaissance": "2007-03-11",
+    "lieuNaissance": "Dakar",
+    "telephone": "+221 76 345 88 90",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Grand Yoff",
+    "situation": "ELEVE",
+    "formations": [
+      {
+        "id": "f-m4-1",
+        "domaine": "Enseignement Général",
+        "niveau": "Première S2",
+        "etablissement": "Lycée Seydina Limamoulaye",
+        "diplome": "En cours de préparation Bac",
+        "annee": "2024"
+      },
+      {
+        "id": "f-m4-2",
+        "domaine": "Études Islamiques & Daara",
+        "niveau": "Cycle Moyen",
+        "etablissement": "Daara Médina Baye",
+        "diplome": "Certificat de mémorisation partielle",
+        "annee": "2022"
+      }
+    ],
+    "professions": [],
+    "activites": [
+      "Récitation coranique",
+      "Club scientifique lycéen"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m4-1",
+        "role": "Membre jeunesse",
+        "pole": "Pôle Jeunesse & Éducation",
+        "dateNomination": "2023-01-05",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "ADMIN_ONLY",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2023-01-05",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-5",
+    "matricule": "DAM-2023-005",
+    "prenom": "Mame Fatou",
+    "nom": "Badiane",
+    "sexe": "F",
+    "dateNaissance": "2006-09-08",
+    "lieuNaissance": "Thiès",
+    "telephone": "+221 77 912 04 56",
+    "ville": "Thiès",
+    "pays": "Sénégal",
+    "situation": "ELEVE",
+    "formations": [
+      {
+        "id": "f-m5-1",
+        "domaine": "Série Littéraire",
+        "niveau": "Terminale L2",
+        "etablissement": "Lycée Malick Sall",
+        "diplome": "Baccalauréat en préparation",
+        "annee": "2024"
+      }
+    ],
+    "professions": [],
+    "activites": [
+      "Lecture et poésie mystique Tijani"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m5-1",
+        "role": "Membre actif",
+        "pole": "Pôle Jeunesse",
+        "dateNomination": "2023-04-12",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2023-04-12",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-6",
+    "matricule": "DAM-2023-006",
+    "prenom": "Bintou",
+    "nom": "Coulibaly",
+    "sexe": "F",
+    "dateNaissance": "2002-05-18",
+    "lieuNaissance": "Dakar",
+    "telephone": "+221 78 402 11 99",
+    "email": "bintou.coulibaly@ucad.edu.sn",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Cité Claudel, UCAD",
+    "situation": "ETUDIANT",
+    "formations": [
+      {
+        "id": "f-m6-1",
+        "domaine": "Sciences Biologiques & Végétales",
+        "niveau": "Licence 3",
+        "etablissement": "Faculté des Sciences UCAD",
+        "diplome": "Licence de Biologie Végétale",
+        "annee": "2024"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m6-1",
+        "metier": "Étudiante chercheuse",
+        "secteur": "Sciences & Éducation",
+        "activite": "Travaux pratiques et laboratoire de botanique",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Recherche sur la flore locale",
+      "Animation des cercles d’études féminins"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m6-1",
+        "role": "Commission Scientifique & Daara",
+        "pole": "Pôle Éducation",
+        "dateNomination": "2023-02-18",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "MEMBRES",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2023-02-18",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-7",
+    "matricule": "DAM-2023-007",
+    "prenom": "Khady",
+    "nom": "Diop",
+    "sexe": "F",
+    "dateNaissance": "1995-12-03",
+    "lieuNaissance": "Saint-Louis",
+    "telephone": "+221 77 631 77 20",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Sacré-Cœur 3",
+    "situation": "INDEPENDANT",
+    "formations": [
+      {
+        "id": "f-m7-1",
+        "domaine": "Esthétique & Cosmétologie",
+        "niveau": "Certification Pro",
+        "etablissement": "Institut Supérieur de Beauté",
+        "diplome": "Certificat Pro Maquillage Artistique",
+        "annee": "2017"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m7-1",
+        "metier": "Maquilleuse professionnelle",
+        "secteur": "Artisanat & Mode",
+        "activite": "Prestations de mise en beauté cérémoniale et shootings",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Ateliers d’autonomie financière pour les jeunes femmes de la dahirah"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m7-1",
+        "role": "Membre actif",
+        "pole": "Général",
+        "dateNomination": "2022-09-10",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "PUBLIC",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2022-09-10",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-8",
+    "matricule": "DAM-2023-008",
+    "prenom": "Tamsir",
+    "nom": "Fall",
+    "sexe": "M",
+    "dateNaissance": "1987-07-14",
+    "lieuNaissance": "Kaolack",
+    "telephone": "+221 77 419 80 02",
+    "email": "tamsir.fall@mutahabbina.sn",
+    "ville": "Kaolack",
+    "pays": "Sénégal",
+    "adresse": "Médina Baye, Quartier Kassaville",
+    "situation": "SALARIE",
+    "formations": [
+      {
+        "id": "f-m8-1",
+        "domaine": "Enseignement Islamique & Qawa’id",
+        "niveau": "Idjaza",
+        "etablissement": "Institut Cheikh Al-Islam Médina Baye",
+        "diplome": "Idjaza en Sciences du Hadith et Dhikr",
+        "annee": "2012"
+      },
+      {
+        "id": "f-m8-2",
+        "domaine": "Langue Arabe & Rhétorique",
+        "niveau": "Maîtrise",
+        "etablissement": "Université Zitouna (Antenne Dakar)",
+        "diplome": "Maîtrise en Langue Arabe",
+        "annee": "2015"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m8-1",
+        "metier": "Professeur de Langue Arabe",
+        "secteur": "Éducation",
+        "activite": "Enseignement secondaire et conférences",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Direction des chants spirituels (Madîh)",
+      "Traduction de textes de Shaykh Ibrahima Ñas"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m8-1",
+        "role": "Zakir Principal",
+        "pole": "Pôle Spirituel & Wazifa",
+        "dateNomination": "2020-01-01",
+        "isActif": true
+      },
+      {
+        "id": "fn-m8-2",
+        "role": "Membre du Bureau Exécutif",
+        "pole": "Direction",
+        "dateNomination": "2021-06-01",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "MEMBRES",
+      "showAddress": "MEMBRES",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2020-01-01",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-9",
+    "matricule": "DAM-2023-009",
+    "prenom": "Amadou",
+    "nom": "Diouf",
+    "sexe": "M",
+    "dateNaissance": "1989-11-25",
+    "lieuNaissance": "Fatick",
+    "telephone": "+221 70 882 14 00",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "HLM 5, Marché de la Couture",
+    "situation": "INDEPENDANT",
+    "formations": [
+      {
+        "id": "f-m9-1",
+        "domaine": "Stylisme & Coupe Traditionnelle",
+        "niveau": "CAP / Maîtrise d’Atelier",
+        "etablissement": "Atelier Maître Babacar",
+        "diplome": "Brevet de Maître Tailleur",
+        "annee": "2010"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m9-1",
+        "metier": "Maître Tailleur & Styliste",
+        "secteur": "Artisanat & Mode",
+        "activite": "Confection de boubous traditionnels et tenues de cérémonie",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Habillage des délégations religieuses",
+      "Formation d’apprentis"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m9-1",
+        "role": "Membre actif",
+        "pole": "Pôle Logistique",
+        "dateNomination": "2021-08-14",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "PUBLIC",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "MEMBRES",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2021-08-14",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-10",
+    "matricule": "DAM-2023-010",
+    "prenom": "Yusuf",
+    "nom": "Sirajudeen",
+    "sexe": "M",
+    "dateNaissance": "1984-03-30",
+    "lieuNaissance": "Kano / Kaolack",
+    "telephone": "+221 77 220 90 90",
+    "email": "yusuf.siraj@trade-west.com",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Plateau, Rue Carnot",
+    "situation": "ENTREPRENEUR",
+    "formations": [
+      {
+        "id": "f-m10-1",
+        "domaine": "Commerce International",
+        "niveau": "MBA",
+        "etablissement": "Lagos Business School",
+        "diplome": "Executive MBA",
+        "annee": "2013"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m10-1",
+        "metier": "Directeur Général d’Entreprise de Négoce",
+        "secteur": "Commerce & Négoce",
+        "activite": "Import-export sous-régional et logistique maritime",
+        "isPrincipale": true
+      },
+      {
+        "id": "p-m10-2",
+        "metier": "Investisseur Agricole",
+        "secteur": "Agrobusiness",
+        "activite": "Fermes semencières dans le bassin arachidier"
+      }
+    ],
+    "activites": [
+      "Parrainage de bourses d’études",
+      "Financement participatif de la Dahirah"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m10-1",
+        "role": "Conseiller Financier & Mécène",
+        "pole": "Pôle Finances",
+        "dateNomination": "2021-03-15",
+        "isActif": true
+      },
+      {
+        "id": "fn-m10-2",
+        "role": "Membre du Bureau",
+        "pole": "Direction",
+        "dateNomination": "2022-01-01",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "MEMBRES",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2021-03-15",
+    "statutCompte": "ACTIF",
+    "dataQualityIssues": [
+      "Vérification d’adresse internationale requise"
+    ]
+  },
+  {
+    "id": "m-11",
+    "matricule": "DAM-2023-011",
+    "prenom": "Adji",
+    "nom": "Diop",
+    "sexe": "F",
+    "dateNaissance": "2008-05-14",
+    "lieuNaissance": "Mbour",
+    "telephone": "+221 76 512 34 09",
+    "ville": "Mbour",
+    "pays": "Sénégal",
+    "situation": "ELEVE",
+    "formations": [
+      {
+        "id": "f-m11-1",
+        "domaine": "Enseignement Moyen",
+        "niveau": "Classe de 3ème",
+        "etablissement": "Collège Privé Mbour",
+        "diplome": "Brevet BFEM en préparation",
+        "annee": "2024"
+      }
+    ],
+    "professions": [],
+    "activites": [
+      "Chants religieux pour enfants",
+      "Apprentissage du tajwîd"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m11-1",
+        "role": "Membre jeunesse",
+        "pole": "Pôle Jeunesse",
+        "dateNomination": "2023-05-02",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "ADMIN_ONLY",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2023-05-02",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-12",
+    "matricule": "DAM-2023-012",
+    "prenom": "Oma",
+    "nom": "Ndieguene",
+    "sexe": "M",
+    "dateNaissance": "1981-06-17",
+    "lieuNaissance": "Thiès",
+    "telephone": "+221 77 114 99 82",
+    "email": "oma.ndieguene@daara.org",
+    "ville": "Thiès",
+    "pays": "Sénégal",
+    "adresse": "Quartier Keur Mame El Hadji",
+    "situation": "SALARIE",
+    "formations": [
+      {
+        "id": "f-m12-1",
+        "domaine": "Sciences Coraniques & Tajwîd",
+        "niveau": "Grand Diplôme Hifz & Rasm",
+        "etablissement": "Grande Daara de Coki & Médina Baye",
+        "diplome": "Attestation de Maître Coranique",
+        "annee": "2004"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m12-1",
+        "metier": "Enseignant Coranique & Oustaz",
+        "secteur": "Éducation & Enseignement",
+        "activite": "Direction d’une école coranique et cours de Fiqh",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Organisation des concours coraniques de la Dahirah"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m12-1",
+        "role": "Responsable Pôle Éducation & Daara",
+        "pole": "Pôle Éducation",
+        "dateNomination": "2020-04-10",
+        "isActif": true
+      },
+      {
+        "id": "fn-m12-2",
+        "role": "Zakir",
+        "pole": "Pôle Spirituel & Wazifa",
+        "dateNomination": "2021-01-01",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "PUBLIC",
+      "showEmail": "MEMBRES",
+      "showAddress": "MEMBRES",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2020-04-10",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-13",
+    "matricule": "DAM-2023-013",
+    "prenom": "Aminata",
+    "nom": "Diop",
+    "sexe": "F",
+    "dateNaissance": "1997-02-28",
+    "lieuNaissance": "Dakar",
+    "telephone": "+221 78 650 43 21",
+    "email": "aminatashop.sn@gmail.com",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Parcelles Assainies, Unité 14",
+    "situation": "ENTREPRENEUR",
+    "formations": [
+      {
+        "id": "f-m13-1",
+        "domaine": "Commerce & Marketing Digital",
+        "niveau": "BTS",
+        "etablissement": "ESMT Dakar",
+        "diplome": "BTS Commerce Électronique",
+        "annee": "2019"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m13-1",
+        "metier": "Vendeuse en Ligne & E-Commerçante",
+        "secteur": "Commerce & Négoce",
+        "activite": "Vente d’encens, voiles, bazins et cosmétiques de Dubaï",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Gestion de communauté digitale",
+      "Animation de boutiques éphémères"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m13-1",
+        "role": "Commission Communication",
+        "pole": "Pôle Médias",
+        "dateNomination": "2022-11-04",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "PUBLIC",
+      "showEmail": "MEMBRES",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2022-11-04",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-14",
+    "matricule": "DAM-2023-014",
+    "prenom": "Mahmoud",
+    "nom": "Ndiaye",
+    "sexe": "M",
+    "dateNaissance": "1993-10-05",
+    "lieuNaissance": "Dakar",
+    "telephone": "+221 77 301 98 44",
+    "email": "mahmoud.ndiaye@techdev.sn",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Ouakam, Cité Avion",
+    "situation": "SALARIE",
+    "formations": [
+      {
+        "id": "f-m14-1",
+        "domaine": "Génie Logiciel & Systèmes",
+        "niveau": "Master 2",
+        "etablissement": "ESP Dakar (UCAD)",
+        "diplome": "Ingénieur en Systèmes d’Information",
+        "annee": "2018"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m14-1",
+        "metier": "Ingénieur Informaticien / Lead Dev",
+        "secteur": "Technologie & Numérique",
+        "activite": "Architecture logicielle, cloud et sécurité des données",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Développement des outils numériques de la Dahirah",
+      "Formation bureautique des membres"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m14-1",
+        "role": "Responsable Cellule Informatique",
+        "pole": "Pôle Médias & Systèmes",
+        "dateNomination": "2021-09-01",
+        "isActif": true
+      },
+      {
+        "id": "fn-m14-2",
+        "role": "Membre du Bureau",
+        "pole": "Direction",
+        "dateNomination": "2023-01-15",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "MEMBRES",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2021-09-01",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-15",
+    "matricule": "DAM-2023-015",
+    "prenom": "Ndèye Coumba",
+    "nom": "Diop",
+    "sexe": "F",
+    "dateNaissance": "1990-04-12",
+    "lieuNaissance": "Saint-Louis",
+    "telephone": "+221 77 823 44 91",
+    "ville": "Saint-Louis",
+    "pays": "Sénégal",
+    "adresse": "Bango",
+    "situation": "SALARIE",
+    "formations": [
+      {
+        "id": "f-m15-1",
+        "domaine": "Comptabilité & Gestion de Caisse",
+        "niveau": "Bac Pro / CQP",
+        "etablissement": "Lycée Technique André Peytavin",
+        "diplome": "CQP Caissière Gestionnaire",
+        "annee": "2011"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m15-1",
+        "metier": "Receveuse des Transports & Guichet",
+        "secteur": "Administration & Droit",
+        "activite": "Collecte et contrôle des titres de transport et caisse",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Tenue des comptes de la sous-section Saint-Louis"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m15-1",
+        "role": "Trésorière Adjointe Régionale",
+        "pole": "Pôle Finances",
+        "dateNomination": "2022-04-18",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2022-04-18",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-16",
+    "matricule": "DAM-2023-016",
+    "prenom": "Ndèye Seynabou",
+    "nom": "Ndom",
+    "sexe": "F",
+    "dateNaissance": "2001-11-20",
+    "lieuNaissance": "Dakar",
+    "telephone": "+221 78 510 22 76",
+    "email": "ndeye.seynabou@ugb.edu.sn",
+    "ville": "Saint-Louis",
+    "pays": "Sénégal",
+    "adresse": "Campus UGB",
+    "situation": "ETUDIANT",
+    "formations": [
+      {
+        "id": "f-m16-1",
+        "domaine": "Sociologie & Sciences Sociales",
+        "niveau": "Licence 2",
+        "etablissement": "Université Gaston Berger (UGB)",
+        "diplome": "Licence en cours",
+        "annee": "2024"
+      }
+    ],
+    "professions": [],
+    "activites": [
+      "Enquêtes de terrain sur les dahirahs féminines"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m16-1",
+        "role": "Membre actif",
+        "pole": "Pôle Jeunesse",
+        "dateNomination": "2023-03-10",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "MEMBRES",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2023-03-10",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-17",
+    "matricule": "DAM-2023-017",
+    "prenom": "Fatou",
+    "nom": "Ndao",
+    "sexe": "F",
+    "dateNaissance": "1988-08-15",
+    "lieuNaissance": "Kaolack",
+    "telephone": "+221 77 400 12 88",
+    "ville": "Kaolack",
+    "pays": "Sénégal",
+    "adresse": "Bongré",
+    "situation": "INDEPENDANT",
+    "formations": [
+      {
+        "id": "f-m17-1",
+        "domaine": "Couture & Broderie Traditionnelle",
+        "niveau": "Brevet d’Atelier",
+        "etablissement": "Centre de Formation Féminin Kaolack",
+        "diplome": "Certificat de Fin d’Apprentissage",
+        "annee": "2008"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m17-1",
+        "metier": "Couturière Modéliste",
+        "secteur": "Artisanat & Mode",
+        "activite": "Broderie main et confection de rideaux et boubous",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Organisation des expositions d’artisanat lors du Gamou"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m17-1",
+        "role": "Responsable Atelier Féminin",
+        "pole": "Pôle Social & Féminin",
+        "dateNomination": "2021-10-01",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "PUBLIC",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "MEMBRES",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2021-10-01",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-18",
+    "matricule": "DAM-2023-018",
+    "prenom": "Modou",
+    "nom": "Biteye",
+    "sexe": "M",
+    "dateNaissance": "1985-02-10",
+    "lieuNaissance": "Kaolack",
+    "telephone": "+221 77 560 33 01",
+    "ville": "Kaolack",
+    "pays": "Sénégal",
+    "adresse": "Marché Central Kaolack",
+    "situation": "ENTREPRENEUR",
+    "formations": [
+      {
+        "id": "f-m18-1",
+        "domaine": "Gestion Commerciale",
+        "niveau": "Autodidacte & Cursus Franco-Arabe",
+        "etablissement": "Institut Al-Falah",
+        "diplome": "Certificat Franco-Arabe",
+        "annee": "2003"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m18-1",
+        "metier": "Commerçant Grossiste",
+        "secteur": "Commerce & Négoce",
+        "activite": "Importation de tissus, quincaillerie et denrées",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Approvisionnement logistique des cérémonies de la Dahirah"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m18-1",
+        "role": "Membre de la Commission Trésorerie",
+        "pole": "Pôle Finances",
+        "dateNomination": "2021-04-12",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "PUBLIC",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "MEMBRES",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2021-04-12",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-19",
+    "matricule": "DAM-2023-019",
+    "prenom": "Racky",
+    "nom": "Sow",
+    "sexe": "F",
+    "dateNaissance": "1995-07-29",
+    "lieuNaissance": "Dakar",
+    "telephone": "+221 77 905 12 34",
+    "email": "racky.sow@agency-com.sn",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Mermoz Pyrotechnie",
+    "situation": "SALARIE",
+    "formations": [
+      {
+        "id": "f-m19-1",
+        "domaine": "Marketing Digital & Relations Publiques",
+        "niveau": "Master 2",
+        "etablissement": "BEM Management School Dakar",
+        "diplome": "Master en Communication Stratégique",
+        "annee": "2019"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m19-1",
+        "metier": "Consultante Marketing & Communication",
+        "secteur": "Communication & Médias",
+        "activite": "Stratégie de marque, relations presse et campagnes d’influence",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Supervision de la charte graphique et des communiqués de la Dahirah"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m19-1",
+        "role": "Responsable Pôle Communication",
+        "pole": "Pôle Médias",
+        "dateNomination": "2022-06-01",
+        "isActif": true
+      },
+      {
+        "id": "fn-m19-2",
+        "role": "Membre du Bureau Exécutif",
+        "pole": "Direction",
+        "dateNomination": "2023-01-01",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "PUBLIC",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2022-06-01",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-20",
+    "matricule": "DAM-2023-020",
+    "prenom": "Awa",
+    "nom": "Badiane",
+    "sexe": "F",
+    "dateNaissance": "2001-04-11",
+    "lieuNaissance": "Thiès",
+    "telephone": "+221 78 333 45 67",
+    "ville": "Thiès",
+    "pays": "Sénégal",
+    "adresse": "Dixième",
+    "situation": "ETUDIANT",
+    "formations": [
+      {
+        "id": "f-m20-1",
+        "domaine": "Sciences Économiques & Gestion",
+        "niveau": "Licence 2",
+        "etablissement": "Université Iba Der Thiam de Thiès",
+        "diplome": "Licence en cours",
+        "annee": "2024"
+      },
+      {
+        "id": "f-m20-2",
+        "domaine": "Esthétique & Cosmétique",
+        "niveau": "Certificat Pratique",
+        "etablissement": "Académie de Beauté Soleil",
+        "diplome": "Attestation Make-up Artiste",
+        "annee": "2022"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m20-1",
+        "metier": "Étudiante en Économie",
+        "secteur": "Études & Scolarité",
+        "activite": "Parcours universitaire en économie appliquée",
+        "isPrincipale": true
+      },
+      {
+        "id": "p-m20-2",
+        "metier": "Maquilleuse indépendante",
+        "secteur": "Artisanat & Mode",
+        "activite": "Prestations de beauté à domicile pendant les week-ends"
+      }
+    ],
+    "activites": [
+      "Micro-entrepreneuriat jeune",
+      "Chant choral dans la section féminine"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m20-1",
+        "role": "Membre actif",
+        "pole": "Pôle Jeunesse & Social",
+        "dateNomination": "2023-01-20",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2023-01-20",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-21",
+    "matricule": "DAM-2023-021",
+    "prenom": "Coumba",
+    "nom": "Cissé",
+    "sexe": "F",
+    "dateNaissance": "1991-09-17",
+    "lieuNaissance": "Touba",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "situation": "INDEPENDANT",
+    "formations": [
+      {
+        "id": "f-m21-1",
+        "domaine": "Couture Traditionnelle",
+        "niveau": "Apprentissage d’Atelier",
+        "etablissement": "Atelier Touba Couture",
+        "diplome": "Certificat de Qualification",
+        "annee": "2012"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m21-1",
+        "metier": "Couturière",
+        "secteur": "Artisanat & Mode",
+        "activite": "Couture femmes et enfants",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Confection d’uniformes pour les événements communautaires"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m21-1",
+        "role": "Membre actif",
+        "pole": "Général",
+        "dateNomination": "2022-07-15",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "ADMIN_ONLY",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2022-07-15",
+    "statutCompte": "ACTIF",
+    "dataQualityIssues": [
+      "Numéro de téléphone manquant",
+      "Adresse précise à renseigner"
+    ]
+  },
+  {
+    "id": "m-22",
+    "matricule": "DAM-2023-022",
+    "prenom": "Maty",
+    "nom": "Faye",
+    "sexe": "F",
+    "dateNaissance": "2007-10-02",
+    "lieuNaissance": "Kaolack",
+    "telephone": "+221 76 991 00 23",
+    "ville": "Kaolack",
+    "pays": "Sénégal",
+    "situation": "ELEVE",
+    "formations": [
+      {
+        "id": "f-m22-1",
+        "domaine": "Enseignement Secondaire",
+        "niveau": "Seconde S",
+        "etablissement": "Lycée Valdiodio Ndiaye",
+        "diplome": "En cours de scolarité",
+        "annee": "2024"
+      }
+    ],
+    "professions": [],
+    "activites": [
+      "Wazifa hebdomadaire",
+      "Cercle de lecture coranique"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m22-1",
+        "role": "Membre jeunesse",
+        "pole": "Pôle Jeunesse",
+        "dateNomination": "2023-04-01",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "ADMIN_ONLY",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2023-04-01",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-23",
+    "matricule": "DAM-2023-023",
+    "prenom": "Aminata",
+    "nom": "Willane",
+    "sexe": "F",
+    "dateNaissance": "1986-12-05",
+    "lieuNaissance": "Kaffrine",
+    "telephone": "+221 77 245 61 70",
+    "ville": "Kaffrine",
+    "pays": "Sénégal",
+    "adresse": "Centre-ville Kaffrine",
+    "situation": "INDEPENDANT",
+    "formations": [
+      {
+        "id": "f-m23-1",
+        "domaine": "Stylisme & Coupe",
+        "niveau": "Diplôme Professionnel",
+        "etablissement": "Centre Artisanal de Kaolack",
+        "diplome": "Brevet Professionnel Métiers de la Mode",
+        "annee": "2007"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m23-1",
+        "metier": "Couturière Maître d’Atelier",
+        "secteur": "Artisanat & Mode",
+        "activite": "Stylisme et formation de jeunes apprenties",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Formation gratuite des jeunes filles déscolarisées"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m23-1",
+        "role": "Responsable Section Kaffrine",
+        "pole": "Sections Régionales",
+        "dateNomination": "2021-05-10",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "PUBLIC",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "MEMBRES",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2021-05-10",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-24",
+    "matricule": "DAM-2023-024",
+    "prenom": "Fatima",
+    "nom": "Sylla",
+    "sexe": "F",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "situation": "ELEVE",
+    "formations": [
+      {
+        "id": "f-m24-1",
+        "domaine": "Scolarité Lycée",
+        "niveau": "Première L",
+        "etablissement": "Lycée John F. Kennedy",
+        "diplome": "En cours",
+        "annee": "2024"
+      }
+    ],
+    "professions": [],
+    "activites": [
+      "Participation aux récitations de Burda"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m24-1",
+        "role": "Membre actif",
+        "pole": "Pôle Jeunesse",
+        "dateNomination": "2023-06-01",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "ADMIN_ONLY",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "ADMIN_ONLY"
+    },
+    "dateInscription": "2023-06-01",
+    "statutCompte": "ACTIF",
+    "dataQualityIssues": [
+      "Date de naissance manquante",
+      "Téléphone et contact manquant"
+    ]
+  },
+  {
+    "id": "m-25",
+    "matricule": "DAM-2023-025",
+    "prenom": "Khadija",
+    "nom": "Sidibé",
+    "sexe": "F",
+    "dateNaissance": "1998-06-24",
+    "lieuNaissance": "Dakar",
+    "telephone": "+221 77 712 90 04",
+    "email": "khadija.sidibe@mediacraft.sn",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Fann Hock, Rue 67",
+    "situation": "ENTREPRENEUR",
+    "formations": [
+      {
+        "id": "f-m25-1",
+        "domaine": "Droit Privé & Sciences Juridiques",
+        "niveau": "Master 1",
+        "etablissement": "Faculté des Sciences Juridiques et Politiques UCAD",
+        "diplome": "Master 1 en Droit des Affaires",
+        "annee": "2023"
+      },
+      {
+        "id": "f-m25-2",
+        "domaine": "Audiovisuel & Journalisme",
+        "niveau": "Certification Pro",
+        "etablissement": "CESTI Dakar",
+        "diplome": "Certificat Voix & Prise de Parole",
+        "annee": "2021"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m25-1",
+        "metier": "Étudiante en Droit",
+        "secteur": "Administration & Droit",
+        "activite": "Préparation du Master 2 en Droit Économique",
+        "isPrincipale": false
+      },
+      {
+        "id": "p-m25-2",
+        "metier": "Entrepreneur Culturel",
+        "secteur": "Commerce & Médias",
+        "activite": "Fondatrice d’une maison de production et contenus",
+        "isPrincipale": true
+      },
+      {
+        "id": "p-m25-3",
+        "metier": "Écrivaine",
+        "secteur": "Communication & Médias",
+        "activite": "Auteure de recueils poétiques et chroniques"
+      },
+      {
+        "id": "p-m25-4",
+        "metier": "Artiste Voix Off",
+        "secteur": "Communication & Médias",
+        "activite": "Enregistrement de spots institutionnels, documentaires"
+      },
+      {
+        "id": "p-m25-5",
+        "metier": "Présentatrice d’Émission",
+        "secteur": "Communication & Médias",
+        "activite": "Animation de plateaux culturels et religieux"
+      }
+    ],
+    "activites": [
+      "Présentation officielle des galas et colloques de la Dahirah",
+      "Ateliers d’art oratoire pour la jeunesse",
+      "Rédaction de la revue périodique spirituelle"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m25-1",
+        "role": "Membre du Bureau Exécutif",
+        "pole": "Direction",
+        "dateNomination": "2022-09-01",
+        "isActif": true
+      },
+      {
+        "id": "fn-m25-2",
+        "role": "Responsable Pôle Médias & Prises de Parole",
+        "pole": "Pôle Médias",
+        "dateNomination": "2023-01-10",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "PUBLIC",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2022-09-01",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-26",
+    "matricule": "DAM-2023-026",
+    "prenom": "Omar",
+    "nom": "Kane",
+    "sexe": "M",
+    "dateNaissance": "1994-01-18",
+    "lieuNaissance": "Saint-Louis",
+    "telephone": "+221 70 311 88 55",
+    "email": "omar.kane@supply-sa.sn",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Zone Industrielle Bel-Air",
+    "situation": "SALARIE",
+    "formations": [
+      {
+        "id": "f-m26-1",
+        "domaine": "Transport & Logistique",
+        "niveau": "DUT",
+        "etablissement": "Institut Supérieur de Logistique (ISL)",
+        "diplome": "DUT Gestion Logistique et Transport",
+        "annee": "2016"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m26-1",
+        "metier": "Assistant Logistique",
+        "secteur": "Services & Logistique",
+        "activite": "Coordination du parc de véhicules et des entrepôts",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Acheminement du matériel pour les événements majeurs (tentes, sonorisation)"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m26-1",
+        "role": "Responsable Logistique & Déplacements",
+        "pole": "Pôle Logistique",
+        "dateNomination": "2021-12-01",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "MEMBRES",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2021-12-01",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-27",
+    "matricule": "DAM-2023-027",
+    "prenom": "Babacar",
+    "nom": "Ndieguene",
+    "sexe": "M",
+    "dateNaissance": "1983-05-12",
+    "lieuNaissance": "Thiès",
+    "telephone": "+221 77 622 10 90",
+    "ville": "Thiès",
+    "pays": "Sénégal",
+    "adresse": "Quartier Randoulène",
+    "situation": "ENTREPRENEUR",
+    "formations": [
+      {
+        "id": "f-m27-1",
+        "domaine": "Génie Électrique & Matériaux",
+        "niveau": "BTS",
+        "etablissement": "Lycée Technique de Thiès",
+        "diplome": "BTS Électrotechnique",
+        "annee": "2005"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m27-1",
+        "metier": "Commerce BT (Basse Tension & Matériel Électrique)",
+        "secteur": "Commerce & Négoce",
+        "activite": "Fourniture de composants électriques et d’éclairage de sécurité",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Éclairage et sonorisation des lieux de culte"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m27-1",
+        "role": "Membre actif",
+        "pole": "Pôle Logistique",
+        "dateNomination": "2021-04-20",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "PUBLIC",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "MEMBRES",
+      "showProfessions": "PUBLIC",
+      "showFormations": "MEMBRES"
+    },
+    "dateInscription": "2021-04-20",
+    "statutCompte": "ACTIF",
+    "dataQualityIssues": [
+      "Libellé de profession ambigu : « Commerce BT » à qualifier formellement"
+    ]
+  },
+  {
+    "id": "m-28",
+    "matricule": "DAM-2023-028",
+    "prenom": "Ibrahima",
+    "nom": "Aïdarah",
+    "sexe": "M",
+    "dateNaissance": "1986-07-09",
+    "lieuNaissance": "Kaolack",
+    "telephone": "+221 77 509 30 30",
+    "email": "ibrahima.aidarah@archistudio.sn",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Ngor Virage, Immeuble Horizon",
+    "situation": "ENTREPRENEUR",
+    "formations": [
+      {
+        "id": "f-m28-1",
+        "domaine": "Architecture & Urbanisme",
+        "niveau": "Diplôme d’Architecte d’État",
+        "etablissement": "Collège Universitaire d’Architecture de Dakar",
+        "diplome": "Diplôme National d’Architecte",
+        "annee": "2012"
+      },
+      {
+        "id": "f-m28-2",
+        "domaine": "Architecture Islamique & Patrimoine",
+        "niveau": "Master Spécialisé",
+        "etablissement": "Université de Fès",
+        "diplome": "Master en Conservation du Patrimoine",
+        "annee": "2015"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m28-1",
+        "metier": "Architecte en Chef & Fondateur",
+        "secteur": "Architecture & BTP",
+        "activite": "Conception de complexes culturels, mosquées et résidences contemporaines",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Conception des plans du futur complexe culturel de la Dahirah"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m28-1",
+        "role": "Responsable Commission Patrimoine & Travaux",
+        "pole": "Pôle Projets & Patrimoine",
+        "dateNomination": "2020-03-01",
+        "isActif": true
+      },
+      {
+        "id": "fn-m28-2",
+        "role": "Membre du Bureau Exécutif",
+        "pole": "Direction",
+        "dateNomination": "2021-01-01",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "PUBLIC",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2020-03-01",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-29",
+    "matricule": "DAM-2023-029",
+    "prenom": "Mouhamed",
+    "nom": "Sakho",
+    "sexe": "M",
+    "dateNaissance": "2000-08-16",
+    "lieuNaissance": "Kaolack",
+    "telephone": "+221 77 190 82 45",
+    "email": "mouhamed.sakho@ucad.edu.sn",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Pavillon A, Cité Universitaire UCAD",
+    "situation": "ETUDIANT",
+    "formations": [
+      {
+        "id": "f-m29-1",
+        "domaine": "Géographie & Aménagement",
+        "niveau": "Licence 3",
+        "etablissement": "Département de Géographie, UCAD",
+        "diplome": "Licence 3 en Géographie Physique & SIG",
+        "annee": "2024"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m29-1",
+        "metier": "Étudiant en Licence 3 Géographie",
+        "secteur": "Études & Scolarité",
+        "activite": "Cartographie numérique et études climatiques",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Cartographie des cellules de la Dahirah au Sénégal et diaspora"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m29-1",
+        "role": "Zakir",
+        "pole": "Pôle Spirituel & Wazifa",
+        "dateNomination": "2022-10-10",
+        "isActif": true
+      },
+      {
+        "id": "fn-m29-2",
+        "role": "Membre actif",
+        "pole": "Pôle Jeunesse",
+        "dateNomination": "2021-11-01",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "MEMBRES",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2021-11-01",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-30",
+    "matricule": "DAM-2023-030",
+    "prenom": "Adjia Thiouna",
+    "nom": "Mbaye",
+    "sexe": "F",
+    "dateNaissance": "2001-03-27",
+    "lieuNaissance": "Dakar",
+    "telephone": "+221 78 877 12 90",
+    "email": "adjia.mbaye@esp.sn",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Hann Maristes 2",
+    "situation": "ETUDIANT",
+    "formations": [
+      {
+        "id": "f-m30-1",
+        "domaine": "Génie Industriel & Procédés",
+        "niveau": "Master 1 / DIC 2",
+        "etablissement": "École Supérieure Polytechnique (ESP)",
+        "diplome": "Diplôme d’Ingénieur de Conception en cours",
+        "annee": "2024"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m30-1",
+        "metier": "Étudiante en Génie Industriel",
+        "secteur": "Technologie & Numérique",
+        "activite": "Optimisation de la production et lean manufacturing",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Modélisation des flux logistiques lors des pèlerinages"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m30-1",
+        "role": "Commission Organisation & Flux",
+        "pole": "Pôle Logistique",
+        "dateNomination": "2023-02-14",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "MEMBRES",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2023-02-14",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-31",
+    "matricule": "DAM-2023-031",
+    "prenom": "Fatiha",
+    "nom": "Niang",
+    "sexe": "F",
+    "dateNaissance": "1999-12-14",
+    "lieuNaissance": "Dakar",
+    "telephone": "+221 77 441 20 88",
+    "email": "fatiha.niang@cesag.sn",
+    "ville": "Dakar",
+    "pays": "Sénégal",
+    "adresse": "Point E, Boulevard de l’Est",
+    "situation": "ETUDIANT",
+    "formations": [
+      {
+        "id": "f-m31-1",
+        "domaine": "Diplomatie & Relations Internationales",
+        "niveau": "Master 2",
+        "etablissement": "CESAG / UGB",
+        "diplome": "Master en Diplomatie et Coopération Internationale",
+        "annee": "2024"
+      },
+      {
+        "id": "f-m31-2",
+        "domaine": "Sciences Politiques",
+        "niveau": "Licence",
+        "etablissement": "UCAD",
+        "diplome": "Licence en Sciences Politiques",
+        "annee": "2022"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m31-1",
+        "metier": "Étudiante en Diplomatie & Relations Internationales",
+        "secteur": "Administration & Droit",
+        "activite": "Coopération Sud-Sud et diplomatie religieuse",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Accueil des délégations étrangères lors du Mawlid de Médina Baye"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m31-1",
+        "role": "Commission Relations Extérieures & Protocole",
+        "pole": "Pôle Protocole",
+        "dateNomination": "2022-12-01",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "MEMBRES",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2022-12-01",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-32",
+    "matricule": "DAM-2023-032",
+    "prenom": "Mame Astou",
+    "nom": "Biteye",
+    "sexe": "F",
+    "dateNaissance": "1979-08-04",
+    "lieuNaissance": "Kaolack",
+    "telephone": "+221 77 319 84 50",
+    "ville": "Kaolack",
+    "pays": "Sénégal",
+    "adresse": "Médina Baye, Face Grande Mosquée",
+    "situation": "ENTREPRENEUR",
+    "formations": [
+      {
+        "id": "f-m32-1",
+        "domaine": "Commerce Traditionnel & Langue Arabe",
+        "niveau": "Diplôme Franco-Arabe",
+        "etablissement": "École Franco-Arabe Médina Baye",
+        "diplome": "Certificat d’Études",
+        "annee": "1998"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m32-1",
+        "metier": "Commerçante & Grossiste",
+        "secteur": "Commerce & Négoce",
+        "activite": "Vente de chapelets (Tasbîh), tapis de prière et parfums orientaux",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Entraide communautaire et soutien aux familles démunies"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m32-1",
+        "role": "Responsable Commission Solidarité Féminine",
+        "pole": "Pôle Social & Féminin",
+        "dateNomination": "2019-11-15",
+        "isActif": true
+      },
+      {
+        "id": "fn-m32-2",
+        "role": "Membre du Bureau",
+        "pole": "Direction",
+        "dateNomination": "2021-01-01",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "PUBLIC",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "MEMBRES",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2019-11-15",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-33",
+    "matricule": "DAM-2023-033",
+    "prenom": "Safiatou",
+    "nom": "Badiane",
+    "sexe": "F",
+    "dateNaissance": "1993-05-19",
+    "lieuNaissance": "Kaolack",
+    "telephone": "+221 77 554 19 02",
+    "email": "safiatou.badiane@maternite.sn",
+    "ville": "Kaolack",
+    "pays": "Sénégal",
+    "adresse": "Quartier Kasnack",
+    "situation": "SALARIE",
+    "formations": [
+      {
+        "id": "f-m33-1",
+        "domaine": "Maïeutique & Santé Reproductive",
+        "niveau": "Diplôme d’État",
+        "etablissement": "École Nationale des Travailleurs Sociaux & ENDSS",
+        "diplome": "Diplôme d’État de Sage-Femme",
+        "annee": "2016"
+      }
+    ],
+    "professions": [
+      {
+        "id": "p-m33-1",
+        "metier": "Sage-Femme d’État",
+        "secteur": "Santé",
+        "activite": "Accouchements, consultations prénatales et planning familial",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [
+      "Sensibilisation à l’hygiène et santé maternelle au sein de la Dahirah"
+    ],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m33-1",
+        "role": "Commission Santé Communautaire",
+        "pole": "Pôle Social & Santé",
+        "dateNomination": "2021-07-22",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "MEMBRES",
+      "showEmail": "MEMBRES",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "PUBLIC"
+    },
+    "dateInscription": "2021-07-22",
+    "statutCompte": "ACTIF"
+  },
+  {
+    "id": "m-34",
+    "matricule": "DAM-2023-034",
+    "prenom": "Ousmane",
+    "nom": "",
+    "sexe": "M",
+    "ville": "Kaolack",
+    "pays": "Sénégal",
+    "situation": "ENTREPRENEUR",
+    "formations": [],
+    "professions": [
+      {
+        "id": "p-m34-1",
+        "metier": "Commerçant",
+        "secteur": "Commerce & Négoce",
+        "activite": "Vente au détail de produits divers",
+        "isPrincipale": true
+      }
+    ],
+    "activites": [],
+    "fonctionsDahirah": [
+      {
+        "id": "fn-m34-1",
+        "role": "Membre",
+        "pole": "Général",
+        "dateNomination": "2023-08-11",
+        "isActif": true
+      }
+    ],
+    "privacy": {
+      "showPhone": "ADMIN_ONLY",
+      "showEmail": "ADMIN_ONLY",
+      "showAddress": "ADMIN_ONLY",
+      "showProfessions": "PUBLIC",
+      "showFormations": "ADMIN_ONLY"
+    },
+    "dateInscription": "2023-08-11",
+    "statutCompte": "EN_ATTENTE",
+    "dataQualityIssues": [
+      "Nom de famille manquant (fiche incomplète)",
+      "Numéro de téléphone obligatoire manquant",
+      "Date de naissance non renseignée"
+    ]
+  }
+]

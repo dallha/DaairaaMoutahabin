@@ -115,9 +115,9 @@ class AuthAndRBACTests(APITestCase):
         self.assertEqual(response.data['user']['email'], 'membre@dairatu.sn')
         self.assertIn(UserRole.MEMBER, response.data['user']['groups'])
 
-        # Vérification qu'aucun token n'est exposé en clair dans le JSON
-        self.assertNotIn('access', response.data)
-        self.assertNotIn('refresh', response.data)
+        # Vérification du mode double-authentification (Bearer token + HttpOnly cookies)
+        self.assertIn('access', response.data)
+        self.assertIn('refresh', response.data)
         self.assertNotIn('access_token', response.data)
         self.assertNotIn('refresh_token', response.data)
 
