@@ -149,9 +149,18 @@ class MemberAdminSerializer(serializers.ModelSerializer):
         ]
 
 
+from django.db import transaction
+
+
 class MemberCreateSerializer(serializers.ModelSerializer):
     """Sérialiseur de création de membre (réservé aux administrateurs)."""
     joined_at = serializers.DateField(required=False, default=timezone.localdate)
+    phone = serializers.CharField(required=False, write_only=True, allow_blank=True, allow_null=True)
+    phone_visible_to_members = serializers.BooleanField(required=False, write_only=True, default=False)
+    email = serializers.EmailField(required=False, write_only=True, allow_blank=True, allow_null=True)
+    city = serializers.CharField(required=False, write_only=True, allow_blank=True, default='Dakar')
+    country = serializers.CharField(required=False, write_only=True, allow_blank=True, default='Sénégal')
+    address = serializers.CharField(required=False, write_only=True, allow_blank=True)
 
     class Meta:
         model = Member
@@ -168,8 +177,39 @@ class MemberCreateSerializer(serializers.ModelSerializer):
             'visibility_level',
             'joined_at',
             'notes',
+            'phone',
+            'phone_visible_to_members',
+            'email',
+            'city',
+            'country',
+            'address',
         ]
         read_only_fields = ['id']
+
+    @transaction.atomic
+    def create(self, validated_data):
+        phone = validated_data.pop('phone', None)
+        phone_visible = validated_data.pop('phone_visible_to_members', False)
+        email = validated_data.pop('email', None)
+        city = validated_data.pop('city', 'Dakar')
+        country = validated_data.pop('country', 'Sénégal')
+        address = validated_data.pop('address', '')
+
+        member = super().create(validated_data)
+
+        if phone or email:
+            Contact.objects.create(
+                member=member,
+                phone=phone or '',
+                phone_visible_to_members=bool(phone_visible),
+                email=email or '',
+                city=city or 'Dakar',
+                country=country or 'Sénégal',
+                address=address or '',
+                is_primary=True,
+            )
+
+        return member
 
 
 class MemberUpdateSerializer(serializers.ModelSerializer):

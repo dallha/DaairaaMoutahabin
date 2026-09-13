@@ -182,7 +182,7 @@ export async function addMember(member: Omit<Member, 'id' | 'createdAt' | 'updat
 
   const json = await res.json();
   const created = json.data || json;
-  return String(created.id);
+  return String(created.matricule || created.id);
 }
 
 export async function updateMember(id: string, member: Partial<Member>): Promise<void> {
