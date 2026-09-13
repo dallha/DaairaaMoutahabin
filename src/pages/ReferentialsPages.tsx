@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../services/apiConfig';
+import { getAuthHeaders } from '../services/authService';
 
 export const ProfessionsListPage: React.FC = () => {
   const [professions, setProfessions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/professions/`, { credentials: 'include' })
+    fetch(`${API_BASE_URL}/professions/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    })
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => setProfessions(Array.isArray(data) ? data : data.results || []))
       .catch(() => setProfessions([]))
@@ -56,7 +60,10 @@ export const TaxonomyCategoriesPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/professions/categories/`, { credentials: 'include' })
+    fetch(`${API_BASE_URL}/professions/categories/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    })
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => setCategories(Array.isArray(data) ? data : data.results || []))
       .catch(() => setCategories([]))
@@ -126,7 +133,10 @@ export const DahirahRolesPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/roles/`, { credentials: 'include' })
+    fetch(`${API_BASE_URL}/roles/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    })
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => setRoles(Array.isArray(data) ? data : data.results || []))
       .catch(() => setRoles([]))

@@ -419,3 +419,46 @@ class MembersAPITests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data['matricule'], matricule)
         self.assertEqual(str(res.data['id']), str(self.member_public.id))
+
+    def test_filter_by_situation_learner_and_professional(self):
+        """Vérifie le filtre ?situation=LEARNER agrégé et ?situation=PROFESSIONAL."""
+        client = self._auth_client(self.admin_user)
+
+        # Créer un élève et un étudiant
+        pupil = Member.objects.create(
+            first_name='Adji',
+            last_name='Diop',
+            gender=GenderChoices.FEMALE,
+            situation=SituationChoices.PUPIL,
+            status=MemberStatusChoices.ACTIVE,
+        )
+        student = Member.objects.create(
+            first_name='Bintou',
+            last_name='Coulibaly',
+            gender=GenderChoices.FEMALE,
+            situation=SituationChoices.STUDENT,
+            status=MemberStatusChoices.ACTIVE,
+        )
+
+        # 1. Filtre agrégé LEARNER -> doit renvoyer à la fois pupil et student
+        res_learner = client.get('/api/v1/members/?situation=LEARNER')
+        self.assertEqual(res_learner.status_code, status.HTTP_200_OK)
+        ids_learner = [m['id'] for m in res_learner.data['results']]
+        self.assertIn(str(pupil.id), ids_learner)
+        self.assertIn(str(student.id), ids_learner)
+        self.assertNotIn(str(self.member_public.id), ids_learner)
+
+        # 2. Filtre spécifique STUDENT
+        res_student = client.get('/api/v1/members/?situation=STUDENT')
+        self.assertEqual(res_student.status_code, status.HTTP_200_OK)
+        ids_student = [m['id'] for m in res_student.data['results']]
+        self.assertIn(str(student.id), ids_student)
+        self.assertNotIn(str(pupil.id), ids_student)
+
+        # 3. Filtre PROFESSIONAL -> doit renvoyer EMPLOYEE (member_public) et ENTREPRENEUR (member_internal)
+        res_prof = client.get('/api/v1/members/?situation=PROFESSIONAL')
+        self.assertEqual(res_prof.status_code, status.HTTP_200_OK)
+        ids_prof = [m['id'] for m in res_prof.data['results']]
+        self.assertIn(str(self.member_public.id), ids_prof)
+        self.assertIn(str(self.member_internal.id), ids_prof)
+        self.assertNotIn(str(pupil.id), ids_prof)

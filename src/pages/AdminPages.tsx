@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../services/apiConfig';
+import { getAuthHeaders } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 
 export const AuditLogsPage: React.FC = () => {
@@ -8,7 +9,10 @@ export const AuditLogsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/audit/logs/`, { credentials: 'include' })
+    fetch(`${API_BASE_URL}/audit/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    })
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => setLogs(Array.isArray(data) ? data : data.results || []))
       .catch(() => setLogs([]))

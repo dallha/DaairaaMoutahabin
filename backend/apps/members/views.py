@@ -11,13 +11,14 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+import django_filters
 
 from apps.audit.models import AuditActionChoices
 from apps.audit.services import log_audit_event
 from common.constants import UserRole
 from common.pagination import StandardResultsSetPagination
 from common.permissions import CanHardDelete, IsAdminUserRole, IsOwnerOrAdmin, IsSuperAdminUser
-from .models import Member, MemberStatusChoices, VisibilityChoices
+from .models import Member, MemberStatusChoices, SituationChoices, VisibilityChoices
 from .serializers import (
     MemberAdminSerializer,
     MemberCreateSerializer,
@@ -26,6 +27,34 @@ from .serializers import (
     MemberPublicSerializer,
     MemberUpdateSerializer,
 )
+
+
+class MemberFilterSet(DjangoFilterBackend.filterset_base if hasattr(DjangoFilterBackend, 'filterset_base') else django_filters.FilterSet):
+    situation = django_filters.CharFilter(method='filter_situation')
+
+    class Meta:
+        model = Member
+        fields = ['gender', 'situation', 'status', 'visibility_level', 'matricule']
+
+    def filter_situation(self, queryset, name, value):
+        if not value:
+            return queryset
+        val = value.upper().strip()
+        MAPPING = {
+            'LEARNER': [SituationChoices.STUDENT, SituationChoices.PUPIL],
+            'APPRENANT': [SituationChoices.STUDENT, SituationChoices.PUPIL],
+            'STUDENT': [SituationChoices.STUDENT],
+            'ETUDIANT': [SituationChoices.STUDENT],
+            'PUPIL': [SituationChoices.PUPIL],
+            'ELEVE': [SituationChoices.PUPIL],
+            'PROFESSIONAL': [SituationChoices.EMPLOYEE, SituationChoices.ENTREPRENEUR, SituationChoices.FREELANCE],
+            'PROFESSIONNEL': [SituationChoices.EMPLOYEE, SituationChoices.ENTREPRENEUR, SituationChoices.FREELANCE],
+        }
+        if val in MAPPING:
+            return queryset.filter(situation__in=MAPPING[val])
+        if val in [c.value for c in SituationChoices]:
+            return queryset.filter(situation=val)
+        return queryset.filter(situation=value)
 
 
 class MemberViewSet(viewsets.ModelViewSet):
@@ -41,7 +70,7 @@ class MemberViewSet(viewsets.ModelViewSet):
     """
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['gender', 'situation', 'status', 'visibility_level', 'matricule']
+    filterset_class = MemberFilterSet
     search_fields = ['first_name', 'last_name', 'matricule']
     ordering_fields = ['last_name', 'first_name', 'created_at', 'joined_at']
     ordering = ['last_name', 'first_name']

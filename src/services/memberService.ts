@@ -92,10 +92,15 @@ export function transformDjangoMember(item: any): Member {
 
 export async function getMembers(
   pageSize: number = 50,
-  page: number = 1
+  page: number = 1,
+  situation?: string
 ): Promise<{ members: Member[]; totalCount: number }> {
   try {
-    const res = await fetch(`${API_BASE}/members/?page_size=${pageSize}&page=${page}`, {
+    let url = `${API_BASE}/members/?page_size=${pageSize}&page=${page}`;
+    if (situation) {
+      url += `&situation=${encodeURIComponent(situation)}`;
+    }
+    const res = await fetch(url, {
       headers: getAuthHeaders(),
       credentials: 'include',
     });

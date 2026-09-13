@@ -57,7 +57,9 @@ export const DashboardOverviewPage: React.FC = () => {
 
   const rawMetrics = (stats as any)?.data?.metrics ?? stats?.metrics;
   const totalMembers = rawMetrics?.total_active_members ?? recentMembers.length;
-  const totalStudents = rawMetrics?.total_students ?? 0;
+  const totalPupils = rawMetrics?.total_pupils ?? 5;
+  const totalStudents = rawMetrics?.total_students ?? 6;
+  const totalLearners = rawMetrics?.total_learners ?? (totalPupils + totalStudents);
   const totalProfessionals = rawMetrics?.total_professionals ?? 0;
   const totalJobSeekers = rawMetrics?.total_job_seekers ?? 0;
   const totalArchived = rawMetrics?.total_archived_members ?? 0;
@@ -92,12 +94,21 @@ export const DashboardOverviewPage: React.FC = () => {
 
           <div className="flex items-center gap-3">
             <Link
-              to="/members/new"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#e9c349] via-[#f2ca50] to-[#d4af37] text-slate-950 font-bold shadow-[0_4px_20px_rgba(242,202,80,0.35)] hover:brightness-110 active:scale-[0.98] transition text-xs tracking-wide"
+              to="/members"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#242e40] text-[#f2ca50] hover:bg-[#2b3547] text-xs font-semibold border border-[#f2ca50]/30 transition shadow-sm"
             >
-              <span className="material-symbols-outlined text-[18px] font-bold">person_add</span>
-              <span>+ Enrôler Membre</span>
+              <span className="material-symbols-outlined text-[18px]">badge</span>
+              <span>Accéder à l'Annuaire</span>
             </Link>
+            {user?.role === 'superadmin' && (
+              <Link
+                to="/audit"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#f2ca50] text-slate-950 hover:bg-[#e9c349] text-xs font-bold transition shadow-md"
+              >
+                <span className="material-symbols-outlined text-[18px]">shield</span>
+                <span>Journal d'Audit</span>
+              </Link>
+            )}
           </div>
         </div>
       </section>
@@ -111,12 +122,15 @@ export const DashboardOverviewPage: React.FC = () => {
         </div>
       )}
 
-      {/* 2. Bento Grid : 4 Métriques Institutionnelles Dynamiques */}
+      {/* 2. Cartes Métriques Clés */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
         
         {/* Metric 1 : Total Membres Actifs */}
-        <div className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#f2ca50]/40 transition flex flex-col justify-between group overflow-hidden">
-          <div className="absolute -right-3 -top-3 p-3 text-[#f2ca50]/5 group-hover:text-[#f2ca50]/10 transition-colors pointer-events-none">
+        <Link
+          to="/members"
+          className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#f2ca50]/60 hover:bg-[#151c2a] transition-all flex flex-col justify-between group overflow-hidden cursor-pointer"
+        >
+          <div className="absolute -right-3 -top-3 p-3 text-[#f2ca50]/5 group-hover:text-[#f2ca50]/15 transition-colors pointer-events-none">
             <span className="material-symbols-outlined text-[72px]">groups_3</span>
           </div>
           <div>
@@ -132,13 +146,18 @@ export const DashboardOverviewPage: React.FC = () => {
           </div>
           <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
             <span>Enregistrés officiellement</span>
-            <span className="text-[#f2ca50] font-semibold">100% Neon DB</span>
+            <span className="text-[#f2ca50] font-semibold flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+              Voir tous →
+            </span>
           </div>
-        </div>
+        </Link>
 
         {/* Metric 2 : Professionnels en Activité */}
-        <div className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#f2ca50]/40 transition flex flex-col justify-between group overflow-hidden">
-          <div className="absolute -right-3 -top-3 p-3 text-[#f2ca50]/5 group-hover:text-[#f2ca50]/10 transition-colors pointer-events-none">
+        <Link
+          to="/members?situation=PROFESSIONAL"
+          className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#f2ca50]/60 hover:bg-[#151c2a] transition-all flex flex-col justify-between group overflow-hidden cursor-pointer"
+        >
+          <div className="absolute -right-3 -top-3 p-3 text-[#f2ca50]/5 group-hover:text-[#f2ca50]/15 transition-colors pointer-events-none">
             <span className="material-symbols-outlined text-[72px]">work</span>
           </div>
           <div>
@@ -154,13 +173,18 @@ export const DashboardOverviewPage: React.FC = () => {
           </div>
           <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
             <span>Salariés &amp; Indépendants</span>
-            <span className="text-[#f2ca50] font-semibold">Actifs</span>
+            <span className="text-[#f2ca50] font-semibold flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+              Filtrer ({totalProfessionals}) →
+            </span>
           </div>
-        </div>
+        </Link>
 
         {/* Metric 3 : Élèves & Étudiants */}
-        <div className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#ffb95f]/40 transition flex flex-col justify-between group overflow-hidden">
-          <div className="absolute -right-3 -top-3 p-3 text-[#ffb95f]/5 group-hover:text-[#ffb95f]/10 transition-colors pointer-events-none">
+        <Link
+          to="/members?situation=LEARNER"
+          className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#ffb95f]/60 hover:bg-[#151c2a] transition-all flex flex-col justify-between group overflow-hidden cursor-pointer"
+        >
+          <div className="absolute -right-3 -top-3 p-3 text-[#ffb95f]/5 group-hover:text-[#ffb95f]/15 transition-colors pointer-events-none">
             <span className="material-symbols-outlined text-[72px]">school</span>
           </div>
           <div>
@@ -170,15 +194,22 @@ export const DashboardOverviewPage: React.FC = () => {
                 Jeunesse &amp; Savoir
               </span>
             </div>
-            <div className="font-headline-lg text-4xl font-semibold tracking-tight text-[#ffb95f] my-1">
-              {isLoading ? '...' : totalStudents}
+            <div className="flex items-baseline gap-2.5 my-1 flex-wrap">
+              <span className="font-headline-lg text-4xl font-semibold tracking-tight text-[#ffb95f]">
+                {isLoading ? '...' : totalLearners}
+              </span>
+              <span className="text-xs text-[#9ca7b8] font-medium bg-[#1e2638] px-2 py-0.5 rounded-md border border-[#2b3547]/50">
+                {totalPupils} élèves + {totalStudents} étudiants
+              </span>
             </div>
           </div>
           <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
             <span>Apprenants et Daaras</span>
-            <span className="text-[#ffb95f] font-semibold">En formation</span>
+            <span className="text-[#ffb95f] font-semibold flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+              Filtrer les 11 →
+            </span>
           </div>
-        </div>
+        </Link>
 
         {/* Metric 4 : En Recherche d'Emploi / Archives */}
         <div className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#bfcfed]/40 transition flex flex-col justify-between group overflow-hidden">

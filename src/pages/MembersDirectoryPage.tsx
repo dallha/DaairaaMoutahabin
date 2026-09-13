@@ -16,6 +16,29 @@ export const MembersDirectoryPage: React.FC = () => {
   const searchTerm = searchParams.get('search') || '';
   const filterPôle = searchParams.get('pole') || '';
   const filterStatut = searchParams.get('statut') || '';
+  const filterSituation = searchParams.get('situation') || '';
+
+  const getSituationLabel = (sit: string) => {
+    switch (sit.toUpperCase()) {
+      case 'LEARNER':
+      case 'APPRENANT':
+        return 'Élèves & Étudiants (Apprenants)';
+      case 'STUDENT':
+      case 'ETUDIANT':
+        return 'Étudiants Universitaires';
+      case 'PUPIL':
+      case 'ELEVE':
+        return 'Élèves';
+      case 'PROFESSIONAL':
+      case 'PROFESSIONNEL':
+        return 'Professionnels en Activité';
+      case 'JOB_SEEKER':
+      case 'SANS_EMPLOI':
+        return 'En Recherche d\'Emploi';
+      default:
+        return sit;
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -23,7 +46,7 @@ export const MembersDirectoryPage: React.FC = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await getMembers(50);
+        const response = await getMembers(50, 1, filterSituation || undefined);
         if (isMounted) {
           let list = response.members || [];
 
@@ -61,7 +84,7 @@ export const MembersDirectoryPage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [searchTerm, filterPôle, filterStatut]);
+  }, [searchTerm, filterPôle, filterStatut, filterSituation]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -117,10 +140,29 @@ export const MembersDirectoryPage: React.FC = () => {
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <span className="text-xs text-[#9ca7b8] whitespace-nowrap pl-2">
-            {totalCount} membres enregistrés
+            {totalCount} membres affichés
           </span>
         </div>
       </div>
+
+      {filterSituation && (
+        <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#1e2638] border border-[#f2ca50]/40 text-xs text-[#e5e9f2] w-fit shadow-sm">
+          <span className="material-symbols-outlined text-[17px] text-[#f2ca50]">filter_alt</span>
+          <span>Filtre appliqué : <strong className="text-[#f2ca50]">{getSituationLabel(filterSituation)}</strong> ({totalCount})</span>
+          <button
+            onClick={() => {
+              const p = new URLSearchParams(searchParams);
+              p.delete('situation');
+              setSearchParams(p);
+            }}
+            className="ml-2 px-2 py-0.5 rounded-lg bg-[#111722] hover:bg-[#2b3547] text-[#9ca7b8] hover:text-[#f2ca50] transition flex items-center gap-1 text-[11px] border border-[#2b3547]"
+            title="Effacer le filtre"
+          >
+            <span className="material-symbols-outlined text-[13px]">close</span>
+            <span>Tous les membres</span>
+          </button>
+        </div>
+      )}
 
       {error && (
         <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">

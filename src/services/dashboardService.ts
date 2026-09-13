@@ -9,7 +9,9 @@ import { getAuthHeaders } from './authService';
 export interface DashboardStats {
   metrics: {
     total_active_members: number;
+    total_learners?: number;
     total_students: number;
+    total_pupils?: number;
     total_professionals: number;
     total_job_seekers: number;
     total_archived_members?: number;

@@ -30,7 +30,9 @@ class DashboardStatsView(APIView):
         active_members = Member.objects.filter(is_deleted=False, status=MemberStatusChoices.ACTIVE)
 
         total_members = active_members.count()
-        total_students = active_members.filter(situation__in=[SituationChoices.STUDENT, SituationChoices.PUPIL]).count()
+        total_pupils = active_members.filter(situation=SituationChoices.PUPIL).count()
+        total_students_univ = active_members.filter(situation=SituationChoices.STUDENT).count()
+        total_learners = total_pupils + total_students_univ
         total_professionals = active_members.filter(
             situation__in=[SituationChoices.EMPLOYEE, SituationChoices.ENTREPRENEUR, SituationChoices.FREELANCE]
         ).count()
@@ -38,7 +40,9 @@ class DashboardStatsView(APIView):
 
         metrics = {
             'total_active_members': total_members,
-            'total_students': total_students,
+            'total_learners': total_learners,
+            'total_students': total_students_univ,
+            'total_pupils': total_pupils,
             'total_professionals': total_professionals,
             'total_job_seekers': total_job_seekers,
         }
