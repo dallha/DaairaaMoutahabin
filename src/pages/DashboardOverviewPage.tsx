@@ -72,6 +72,14 @@ export const DashboardOverviewPage: React.FC = () => {
   const topRoles = (stats as any)?.data?.top_roles ?? stats?.top_roles ?? [];
   const recentAuditLogs = (stats as any)?.data?.recent_audit_logs ?? stats?.recent_audit_logs ?? [];
 
+  const rawImpact = (stats as any)?.data?.impact_metrics ?? stats?.impact_metrics;
+  const needsTotal = rawImpact?.needs_total ?? 0;
+  const needsInProgress = rawImpact?.needs_in_progress ?? 0;
+  const needsResolved = rawImpact?.needs_resolved ?? 0;
+  const relationsActive = rawImpact?.relations_active ?? 0;
+  const supportRate = rawImpact?.support_rate ?? 0;
+  const resolutionRate = rawImpact?.resolution_rate ?? 0;
+
   return (
     <div className="flex flex-col gap-6">
       
@@ -379,6 +387,132 @@ export const DashboardOverviewPage: React.FC = () => {
               </div>
             </Link>
           )}
+        </div>
+      </section>
+
+      {/* 2.6 Baromètre d'Impact & Solidarité */}
+      <section className="relative rounded-2xl bg-gradient-to-br from-[#0e1625] via-[#121c2c] to-[#0d1521] border border-[#26354d] p-6 lg:p-7 shadow-2xl overflow-hidden space-y-6">
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#f2ca50]/60 to-transparent"></div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#f2ca50]/15 border border-[#f2ca50]/30 text-[#f2ca50] text-[11px] font-bold uppercase tracking-wider">
+                <span className="material-symbols-outlined text-[14px]">vital_signs</span>
+                Baromètre d'Impact Confraternel
+              </span>
+              <span className="text-[11px] text-[#9ca7b8]">• Mesure V1.2.3</span>
+            </div>
+            <h2 className="font-headline-sm text-xl lg:text-2xl font-semibold text-[#e5e9f2]">
+              Solidarité Active &amp; Entraide Communautaire
+            </h2>
+            <p className="text-xs text-[#9ca7b8]">
+              Indicateurs de transformation : de l'expression des besoins à l'accompagnement effectif et la résolution.
+            </p>
+          </div>
+
+          <Link
+            to="/network"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#242e40] text-[#f2ca50] hover:bg-[#2b3547] text-xs font-bold border border-[#f2ca50]/30 transition shrink-0"
+          >
+            <span className="material-symbols-outlined text-[18px]">handshake</span>
+            <span>Carrefour d'Entraide</span>
+            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </Link>
+        </div>
+
+        {/* 4 Compteurs d'impact */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="rounded-xl bg-[#151d2a] border border-[#2b3547]/80 p-4 flex flex-col justify-between">
+            <div className="flex items-center justify-between text-xs text-[#9ca7b8]">
+              <span className="uppercase text-[10px] font-bold tracking-wider">Besoins Exprimés</span>
+              <span className="material-symbols-outlined text-amber-400 text-[20px]">help_center</span>
+            </div>
+            <div className="font-headline-lg text-3xl font-bold text-[#e5e9f2] my-1">
+              {isLoading ? '...' : needsTotal}
+            </div>
+            <span className="text-[11px] text-[#9ca7b8]">Demandes confraternelles</span>
+          </div>
+
+          <div className="rounded-xl bg-[#151d2a] border border-[#2b3547]/80 p-4 flex flex-col justify-between">
+            <div className="flex items-center justify-between text-xs text-[#9ca7b8]">
+              <span className="uppercase text-[10px] font-bold tracking-wider">Pris en Charge</span>
+              <span className="material-symbols-outlined text-blue-400 text-[20px]">hourglass_top</span>
+            </div>
+            <div className="font-headline-lg text-3xl font-bold text-blue-400 my-1">
+              {isLoading ? '...' : needsInProgress}
+            </div>
+            <span className="text-[11px] text-[#9ca7b8]">Accompagnements en cours</span>
+          </div>
+
+          <div className="rounded-xl bg-[#151d2a] border border-[#2b3547]/80 p-4 flex flex-col justify-between">
+            <div className="flex items-center justify-between text-xs text-[#9ca7b8]">
+              <span className="uppercase text-[10px] font-bold tracking-wider">Mises en Relation</span>
+              <span className="material-symbols-outlined text-emerald-400 text-[20px]">connect_without_contact</span>
+            </div>
+            <div className="font-headline-lg text-3xl font-bold text-emerald-400 my-1">
+              {isLoading ? '...' : relationsActive}
+            </div>
+            <span className="text-[11px] text-[#9ca7b8]">Relations fraternelles actives</span>
+          </div>
+
+          <div className="rounded-xl bg-[#151d2a] border border-[#2b3547]/80 p-4 flex flex-col justify-between">
+            <div className="flex items-center justify-between text-xs text-[#9ca7b8]">
+              <span className="uppercase text-[10px] font-bold tracking-wider">Entraides Réalisées</span>
+              <span className="material-symbols-outlined text-[#f2ca50] text-[20px]">verified</span>
+            </div>
+            <div className="font-headline-lg text-3xl font-bold text-[#f2ca50] my-1">
+              {isLoading ? '...' : needsResolved}
+            </div>
+            <span className="text-[11px] text-[#9ca7b8]">Besoins pourvus avec succès</span>
+          </div>
+        </div>
+
+        {/* 2 Jauges de performance confraternelle */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          {/* Jauge 1 : Taux de prise en charge */}
+          <div className="rounded-xl bg-[#151d2a]/60 border border-[#2b3547]/60 p-4 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-[#e5e9f2] flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                Taux de prise en charge
+              </span>
+              <span className="font-mono font-bold text-emerald-400 text-sm">
+                {isLoading ? '...' : `${supportRate}%`}
+              </span>
+            </div>
+            <div className="w-full bg-[#1e2736] rounded-full h-2.5 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-emerald-500 to-teal-400 h-2.5 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(100, Math.max(0, supportRate))}%` }}
+              ></div>
+            </div>
+            <p className="text-[10px] text-[#9ca7b8]">
+              Part des besoins actifs ayant reçu un accompagnement ou déjà résolus.
+            </p>
+          </div>
+
+          {/* Jauge 2 : Taux de résolution */}
+          <div className="rounded-xl bg-[#151d2a]/60 border border-[#2b3547]/60 p-4 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-[#e5e9f2] flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#f2ca50]"></span>
+                Taux de résolution
+              </span>
+              <span className="font-mono font-bold text-[#f2ca50] text-sm">
+                {isLoading ? '...' : `${resolutionRate}%`}
+              </span>
+            </div>
+            <div className="w-full bg-[#1e2736] rounded-full h-2.5 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-[#e9c349] to-[#f2ca50] h-2.5 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(100, Math.max(0, resolutionRate))}%` }}
+              ></div>
+            </div>
+            <p className="text-[10px] text-[#9ca7b8]">
+              Part des entraides engagées menées à leur terme avec succès.
+            </p>
+          </div>
         </div>
       </section>
 

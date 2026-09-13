@@ -353,6 +353,8 @@ export async function approveMemberRelation(relationId: string): Promise<MemberR
 // ----------------------------------------------------------------------
 
 export interface NetworkSearchParams {
+  intent?: 'MENTORSHIP' | 'SERVICE' | 'PRO_HELP' | 'JOB_INTERNSHIP';
+  available_only?: boolean;
   sector?: string;
   profession?: string;
   skill?: string;
@@ -370,6 +372,8 @@ export async function searchNetwork(params: NetworkSearchParams): Promise<{
 }> {
   try {
     const q = new URLSearchParams();
+    if (params.intent) q.set('intent', params.intent);
+    if (params.available_only) q.set('available_only', 'true');
     if (params.sector) q.set('sector', params.sector);
     if (params.profession) q.set('profession', params.profession);
     if (params.skill) q.set('skill', params.skill);
@@ -465,4 +469,131 @@ export async function resolveMemberNeed(needId: string): Promise<MemberNeedDTO |
     return null;
   }
 }
+
+// ----------------------------------------------------------------------
+// Matching Explicable & Demandes de Mise en Relation (ConnectionRequest)
+// ----------------------------------------------------------------------
+
+export interface NeedMatchCandidateDTO {
+  member_id: string;
+  matricule: string;
+  display_name: string;
+  gender: string;
+  city: string;
+  primary_profession?: string | null;
+  score: number;
+  match_reasons: string[];
+  availability_status: string;
+  open_for_mentoring: boolean;
+}
+
+export interface ConnectionRequestDTO {
+  id: string;
+  need?: string;
+  need_title?: string;
+  need_type?: string;
+  need_type_display?: string;
+  requester?: string;
+  requester_name: string;
+  requester_matricule?: string;
+  facilitator?: string;
+  facilitator_email?: string;
+  target_member: string;
+  target_member_name: string;
+  target_member_matricule: string;
+  status: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'CANCELLED';
+  status_display: string;
+  message?: string;
+  resulting_relation?: string;
+  resulting_relation_id?: string;
+  created_at: string;
+  responded_at?: string | null;
+}
+
+export async function fetchNeedMatches(needId: string): Promise<NeedMatchCandidateDTO[]> {
+  try {
+    const res = await fetch(`${API_BASE}/member-needs/${needId}/matches/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.results || [];
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchConnectionRequests(params?: {
+  status?: string;
+  need?: string;
+}): Promise<ConnectionRequestDTO[]> {
+  try {
+    const q = new URLSearchParams();
+    if (params?.status) q.set('status', params.status);
+    if (params?.need) q.set('need', params.need);
+    const url = `${API_BASE}/connection-requests/?${q.toString()}`;
+    const res = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : (data.results || []);
+  } catch {
+    return [];
+  }
+}
+
+export async function createConnectionRequest(data: {
+  need?: string;
+  target_member: string;
+  message?: string;
+}): Promise<ConnectionRequestDTO | null> {
+  try {
+    const res = await fetch(`${API_BASE}/connection-requests/`, {
+      method: 'POST',
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || err.message || 'Erreur lors de l’envoi de la demande de mise en relation.');
+    }
+    return res.json();
+  } catch (e: any) {
+    throw e;
+  }
+}
+
+export async function acceptConnectionRequest(requestId: string): Promise<ConnectionRequestDTO> {
+  const res = await fetch(`${API_BASE}/connection-requests/${requestId}/accept/`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Impossible d’accepter cette demande.');
+  }
+  return res.json();
+}
+
+export async function declineConnectionRequest(requestId: string): Promise<ConnectionRequestDTO> {
+  const res = await fetch(`${API_BASE}/connection-requests/${requestId}/decline/`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Impossible de décliner cette demande.');
+  }
+  return res.json();
+}
+
 

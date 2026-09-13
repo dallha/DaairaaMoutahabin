@@ -13,6 +13,14 @@ from apps.professions.models import MemberProfession
 from apps.education.models import Education
 from apps.roles.models import MemberRole
 from apps.audit.models import AuditLog
+from apps.network.models import (
+    MemberNeed,
+    NeedStatusChoices,
+    MemberRelation,
+    RelationStatusChoices,
+    ConnectionRequest,
+    ConnectionRequestStatusChoices,
+)
 
 
 class DashboardStatsView(APIView):
@@ -51,6 +59,35 @@ class DashboardStatsView(APIView):
             metrics['total_archived_members'] = Member.all_objects.filter(is_deleted=True).count()
             metrics['total_inactive_members'] = Member.all_objects.filter(is_deleted=False, status=MemberStatusChoices.INACTIVE).count()
             metrics['total_contacts'] = Contact.objects.count()
+
+        # Baromètre d'Impact & Solidarité
+        needs_qs = MemberNeed.objects.all()
+        needs_total = needs_qs.count()
+        needs_in_progress = needs_qs.filter(status=NeedStatusChoices.IN_PROGRESS).count()
+        needs_resolved = needs_qs.filter(status=NeedStatusChoices.RESOLVED).count()
+        needs_cancelled = needs_qs.filter(status=NeedStatusChoices.CANCELLED).count()
+        needs_expired = needs_qs.filter(status=NeedStatusChoices.EXPIRED).count()
+
+        relations_active = MemberRelation.objects.filter(status=RelationStatusChoices.APPROVED).count()
+        connection_requests_pending = ConnectionRequest.objects.filter(status=ConnectionRequestStatusChoices.PENDING).count()
+
+        # Taux de prise en charge : (IN_PROGRESS + RESOLVED) / (TOTAL - (CANCELLED + EXPIRED)) * 100
+        eligible_needs = needs_total - (needs_cancelled + needs_expired)
+        support_rate = round(((needs_in_progress + needs_resolved) / eligible_needs * 100), 1) if eligible_needs > 0 else 0.0
+
+        # Taux de résolution : RESOLVED / (IN_PROGRESS + RESOLVED) * 100
+        active_engaged = needs_in_progress + needs_resolved
+        resolution_rate = round((needs_resolved / active_engaged * 100), 1) if active_engaged > 0 else 0.0
+
+        impact_metrics = {
+            'needs_total': needs_total,
+            'needs_in_progress': needs_in_progress,
+            'needs_resolved': needs_resolved,
+            'relations_active': relations_active,
+            'connection_requests_pending': connection_requests_pending,
+            'support_rate': support_rate,
+            'resolution_rate': resolution_rate,
+        }
 
         # Distribution par genre
         gender_data = list(
@@ -92,6 +129,7 @@ class DashboardStatsView(APIView):
 
         data = {
             'metrics': metrics,
+            'impact_metrics': impact_metrics,
             'gender_distribution': gender_data,
             'situation_distribution': situation_data,
             'education_distribution': education_data,

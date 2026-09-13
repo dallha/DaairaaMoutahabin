@@ -9,6 +9,7 @@ from .views import (
     MemberAvailabilityViewSet,
     MemberRelationViewSet,
     MemberNeedViewSet,
+    ConnectionRequestViewSet,
     NetworkDiscoveryView,
 )
 
@@ -21,6 +22,7 @@ router.register(r'member-services', MemberServiceViewSet, basename='member-servi
 router.register(r'member-availability', MemberAvailabilityViewSet, basename='member-availability')
 router.register(r'member-relations', MemberRelationViewSet, basename='member-relations')
 router.register(r'member-needs', MemberNeedViewSet, basename='member-needs')
+router.register(r'connection-requests', ConnectionRequestViewSet, basename='connection-requests')
 
 urlpatterns = [
     path('discovery/', NetworkDiscoveryView.as_view(), name='network-discovery'),

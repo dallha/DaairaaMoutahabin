@@ -236,6 +236,19 @@ class Member(models.Model):
             sequence_record.save(update_fields=['last_sequence', 'updated_at'])
             return f"{prefix}-{sequence_record.last_sequence:04d}"
 
+    def clean(self):
+        super().clean()
+        if self.is_founder:
+            existing_founder = Member.all_objects.filter(is_founder=True).exclude(pk=self.pk)
+            if existing_founder.exists():
+                raise ValidationError({
+                    'is_founder': _('Un seul membre de la Dahirah peut porter le statut de Fondateur (DAMF-0001).')
+                })
+        if self.institutional_priority == 1 and not self.is_founder:
+            raise ValidationError({
+                'institutional_priority': _('La priorité protocolaire 1 est strictement réservée au Fondateur.')
+            })
+
     def save(self, *args, **kwargs):
         if hasattr(self.joined_at, 'date'):
             self.joined_at = self.joined_at.date()
@@ -244,6 +257,22 @@ class Member(models.Model):
         full_name = f"{self.first_name} {self.last_name}".strip()
         norm = ''.join(c for c in unicodedata.normalize('NFD', full_name) if unicodedata.category(c) != 'Mn')
         self.canonical_name = norm.upper()
+
+        if self.pk:
+            orig = Member.all_objects.filter(pk=self.pk).values('is_founder', 'institutional_priority').first()
+            if orig:
+                if (orig['is_founder'] != self.is_founder or orig['institutional_priority'] != self.institutional_priority) and not getattr(self, '_allow_institutional_override', False):
+                    import logging
+                    logger = logging.getLogger('security.governance')
+                    logger.warning(
+                        "SECURITY AUDIT: Tentative non autorisée de modification des attributs institutionnels du membre %s (PK: %s) : founder (%s -> %s), priority (%s -> %s)",
+                        self.matricule, self.pk, orig['is_founder'], self.is_founder, orig['institutional_priority'], self.institutional_priority
+                    )
+                    raise ValidationError(
+                        _("Modification interdite : les attributs institutionnels (Fondateur, Priorité) sont sacralisés et protégés.")
+                    )
+
+        self.clean()
         super().save(*args, **kwargs)
 
     def __str__(self):

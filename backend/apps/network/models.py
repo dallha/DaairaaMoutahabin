@@ -479,3 +479,101 @@ class MemberNeed(models.Model):
     def __str__(self):
         return f"[{self.get_need_type_display()}] {self.title} - {self.get_status_display()}"
 
+
+# ==============================================================================
+# 6. DEMANDES DE MISE EN RELATION CONFRATERNELLE (CONNECTION REQUEST)
+# ==============================================================================
+
+class ConnectionRequestStatusChoices(models.TextChoices):
+    PENDING = 'PENDING', _('En attente')
+    ACCEPTED = 'ACCEPTED', _('Acceptée')
+    DECLINED = 'DECLINED', _('Déclinée')
+    CANCELLED = 'CANCELLED', _('Annulée')
+
+
+class ConnectionRequest(models.Model):
+    """
+    Proposition formelle de mise en relation confraternelle.
+    Distingue rigoureusement :
+    - le demandeur à l'origine du besoin (requester)
+    - le facilitateur éventuel (facilitator : admin ou tiers ayant initié/facilité la mise en relation)
+    - le membre sollicité pour apporter son aide (target_member)
+    - le besoin d'entraide support (need, optionnel pour mise en relation spontanée)
+    - la relation effective générée à l'acceptation (resulting_relation)
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    need = models.ForeignKey(
+        MemberNeed,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='connection_requests',
+        verbose_name=_('Besoin associé')
+    )
+    requester = models.ForeignKey(
+        'members.Member',
+        on_delete=models.CASCADE,
+        related_name='outgoing_connection_requests',
+        verbose_name=_('Demandeur')
+    )
+    facilitator = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='facilitated_connection_requests',
+        verbose_name=_('Facilitateur (Admin/Tiers)')
+    )
+    target_member = models.ForeignKey(
+        'members.Member',
+        on_delete=models.CASCADE,
+        related_name='incoming_connection_requests',
+        verbose_name=_('Membre sollicité')
+    )
+    status = models.CharField(
+        _('Statut de la demande'),
+        max_length=20,
+        choices=ConnectionRequestStatusChoices.choices,
+        default=ConnectionRequestStatusChoices.PENDING,
+        db_index=True
+    )
+    message = models.TextField(_('Message de présentation ou motivation'), blank=True, default='')
+    resulting_relation = models.ForeignKey(
+        MemberRelation,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='originating_requests',
+        verbose_name=_('Relation effective générée')
+    )
+    created_at = models.DateTimeField(_('Créé le'), auto_now_add=True)
+    responded_at = models.DateTimeField(_('Date de réponse'), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _('Demande de mise en relation')
+        verbose_name_plural = _('Demandes de mise en relation')
+        ordering = ['-created_at']
+        constraints = [
+            models.CheckConstraint(
+                check=~models.Q(requester=models.F('target_member')),
+                name='prevent_self_connection_request'
+            ),
+            models.UniqueConstraint(
+                fields=['need', 'target_member'],
+                condition=models.Q(status__in=['PENDING', 'ACCEPTED']),
+                name='unique_active_conn_req_need_target'
+            ),
+            models.UniqueConstraint(
+                fields=['requester', 'target_member'],
+                condition=models.Q(need__isnull=True, status__in=['PENDING', 'ACCEPTED']),
+                name='unique_active_spontaneous_conn_req'
+            ),
+        ]
+        indexes = [
+            models.Index(fields=['status', 'created_at'], name='idx_conn_req_status_created'),
+        ]
+
+    def __str__(self):
+        need_str = f" pour [{self.need.title}]" if self.need else ""
+        return f"Demande {self.requester.matricule} ➔ {self.target_member.matricule}{need_str} ({self.get_status_display()})"
+

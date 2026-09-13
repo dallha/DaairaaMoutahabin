@@ -182,6 +182,7 @@ class MemberAdminSerializer(serializers.ModelSerializer):
             'updated_at',
             'contacts',
         ]
+        read_only_fields = ['id', 'matricule', 'is_founder', 'institutional_priority', 'created_at', 'updated_at']
 
     def get_institutional_role_name(self, obj):
         return get_institutional_role(obj)

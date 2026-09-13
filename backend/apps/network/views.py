@@ -19,6 +19,8 @@ from .models import (
     MemberNeed,
     NeedVisibilityChoices,
     NeedStatusChoices,
+    ConnectionRequest,
+    ConnectionRequestStatusChoices,
 )
 from .permissions import IsAdminUserRole, IsOwnerOrAdmin
 from .serializers import (
@@ -31,6 +33,12 @@ from .serializers import (
     MemberRelationSerializer,
     NetworkMemberCardSerializer,
     MemberNeedSerializer,
+    ConnectionRequestSerializer,
+)
+from .services import (
+    find_need_matches,
+    accept_connection_request,
+    decline_connection_request,
 )
 
 
@@ -237,11 +245,122 @@ class MemberNeedViewSet(viewsets.ModelViewSet):
         need.save(update_fields=['status', 'resolved_at', 'updated_at'])
         return Response(self.get_serializer(need).data)
 
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def matches(self, request, pk=None):
+        """Moteur d'appariement confraternel déterministe avec motifs explicatifs."""
+        need = self.get_object()
+        matches = find_need_matches(need)
+        return Response({
+            'need_id': str(need.id),
+            'count': len(matches),
+            'results': matches
+        })
+
+
+class ConnectionRequestViewSet(viewsets.ModelViewSet):
+    """
+    Gestion des propositions et demandes de mise en relation d'entraide.
+    """
+    queryset = ConnectionRequest.objects.all().select_related(
+        'need', 'requester', 'target_member', 'facilitator', 'resulting_relation'
+    )
+    serializer_class = ConnectionRequestSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        is_admin = bool(
+            user.is_superuser or user.is_staff or
+            user.groups.filter(name__in=['admin', 'superadmin', 'Super-Administrateurs', 'Administrateurs']).exists()
+        )
+        qs = super().get_queryset()
+
+        if not is_admin:
+            if hasattr(user, 'member_profile') and user.member_profile:
+                qs = qs.filter(
+                    Q(requester=user.member_profile) | Q(target_member=user.member_profile)
+                )
+            else:
+                return qs.none()
+
+        need_id = self.request.query_params.get('need')
+        if need_id:
+            qs = qs.filter(need_id=need_id)
+
+        status_param = self.request.query_params.get('status')
+        if status_param:
+            qs = qs.filter(status=status_param)
+
+        return qs
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        is_admin = bool(
+            user.is_superuser or user.is_staff or
+            user.groups.filter(name__in=['admin', 'superadmin', 'Super-Administrateurs', 'Administrateurs']).exists()
+        )
+        requester = serializer.validated_data.get('requester')
+        
+        if is_admin:
+            if hasattr(user, 'member_profile') and user.member_profile and requester == user.member_profile:
+                serializer.save(facilitator=None)
+            else:
+                serializer.save(facilitator=user)
+        else:
+            if hasattr(user, 'member_profile') and user.member_profile:
+                serializer.save(requester=user.member_profile, facilitator=None)
+            else:
+                raise serializers.ValidationError("Compte utilisateur non rattaché à une fiche membre.")
+
+    @action(detail=True, methods=['post'])
+    def accept(self, request, pk=None):
+        """Acceptation transactionnelle atomique d'une demande de mise en relation."""
+        instance = self.get_object()
+        is_admin = bool(
+            request.user.is_superuser or request.user.is_staff or
+            request.user.groups.filter(name__in=['admin', 'superadmin', 'Super-Administrateurs', 'Administrateurs']).exists()
+        )
+        if not is_admin:
+            if not (hasattr(request.user, 'member_profile') and request.user.member_profile == instance.target_member):
+                return Response(
+                    {"detail": "Seul le membre sollicité ou un administrateur peut accepter cette demande."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+        try:
+            accepted_req = accept_connection_request(instance.id, user=request.user)
+            return Response(self.get_serializer(accepted_req).data)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['post'])
+    def decline(self, request, pk=None):
+        """Refus confraternel d'une demande de mise en relation."""
+        instance = self.get_object()
+        is_admin = bool(
+            request.user.is_superuser or request.user.is_staff or
+            request.user.groups.filter(name__in=['admin', 'superadmin', 'Super-Administrateurs', 'Administrateurs']).exists()
+        )
+        if not is_admin:
+            if not (hasattr(request.user, 'member_profile') and request.user.member_profile == instance.target_member):
+                return Response(
+                    {"detail": "Seul le membre sollicité ou un administrateur peut décliner cette demande."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+        try:
+            declined_req = decline_connection_request(instance.id)
+            return Response(self.get_serializer(declined_req).data)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class NetworkDiscoveryView(APIView):
     """
     Moteur de recherche et d'exploration multicritère pour le Carrefour Professionnel (/network).
     Filtres combinables :
+    - intent : MENTORSHIP, SERVICE, PRO_HELP, JOB_INTERNSHIP
+    - available_only : 'true' ou '1'
     - sector : Catégorie de métier (ex: 'sante', 'commerce', 'informatique')
     - profession : Nom ou fragment du métier
     - skill : Nom ou fragment de compétence
@@ -257,6 +376,8 @@ class NetworkDiscoveryView(APIView):
     def get(self, request):
         qs = Member.objects.filter(is_deleted=False, status=MemberStatusChoices.ACTIVE).distinct()
 
+        intent = request.query_params.get('intent')
+        available_only = request.query_params.get('available_only')
         sector = request.query_params.get('sector')
         profession = request.query_params.get('profession')
         skill = request.query_params.get('skill')
@@ -266,6 +387,19 @@ class NetworkDiscoveryView(APIView):
         mentoring = request.query_params.get('mentoring')
         pro_help = request.query_params.get('pro_help')
         search = request.query_params.get('search')
+
+        # Portes d'entrée intentionnelles
+        if intent == 'MENTORSHIP':
+            qs = qs.filter(availability__open_for_mentoring=True)
+        elif intent == 'SERVICE':
+            qs = qs.filter(services_offered__is_active=True)
+        elif intent == 'PRO_HELP':
+            qs = qs.filter(availability__open_for_pro_help=True)
+        elif intent == 'JOB_INTERNSHIP':
+            qs = qs.filter(situation__in=['EMPLOYEE', 'ENTREPRENEUR', 'FREELANCE'])
+
+        if available_only and available_only.lower() in ['true', '1']:
+            qs = qs.filter(availability__status='AVAILABLE')
 
         if sector:
             qs = qs.filter(professions__profession__category__slug=sector)

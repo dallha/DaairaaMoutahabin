@@ -13,6 +13,8 @@ from .models import (
     RelationStatusChoices,
     MemberNeed,
     NeedStatusChoices,
+    ConnectionRequest,
+    ConnectionRequestStatusChoices,
 )
 
 
@@ -258,4 +260,90 @@ class MemberNeedSerializer(serializers.ModelSerializer):
             attrs['expires_at'] = timezone.now()
 
         return attrs
+
+
+class ConnectionRequestSerializer(serializers.ModelSerializer):
+    """
+    Sérialiseur pour les demandes de mise en relation.
+    Gère l'anonymat relatif : si le besoin lié est anonyme, le demandeur est anonymisé
+    pour le membre sollicité (target_member) tant que la demande n'est pas acceptée.
+    """
+    requester = serializers.PrimaryKeyRelatedField(
+        queryset=Member.objects.all(),
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    requester_name = serializers.SerializerMethodField()
+    requester_matricule = serializers.SerializerMethodField()
+    target_member_name = serializers.CharField(source='target_member.display_name', read_only=True)
+    target_member_matricule = serializers.CharField(source='target_member.matricule', read_only=True)
+    facilitator_email = serializers.EmailField(source='facilitator.email', read_only=True)
+    need_title = serializers.CharField(source='need.title', read_only=True)
+    need_type = serializers.CharField(source='need.need_type', read_only=True)
+    need_type_display = serializers.CharField(source='need.get_need_type_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    resulting_relation_id = serializers.UUIDField(source='resulting_relation.id', read_only=True)
+
+    class Meta:
+        model = ConnectionRequest
+        fields = [
+            'id',
+            'need',
+            'need_title',
+            'need_type',
+            'need_type_display',
+            'requester',
+            'requester_name',
+            'requester_matricule',
+            'facilitator',
+            'facilitator_email',
+            'target_member',
+            'target_member_name',
+            'target_member_matricule',
+            'status',
+            'status_display',
+            'message',
+            'resulting_relation',
+            'resulting_relation_id',
+            'created_at',
+            'responded_at',
+        ]
+        read_only_fields = ['status', 'resulting_relation', 'created_at', 'responded_at']
+
+    def _is_admin(self):
+        request = self.context.get('request')
+        return bool(request and request.user and (
+            request.user.is_superuser or
+            request.user.is_staff or
+            request.user.groups.filter(name__in=[UserRole.ADMIN, UserRole.SUPERADMIN]).exists()
+        ))
+
+    def get_requester_name(self, obj):
+        request = self.context.get('request')
+        if obj.need and obj.need.is_anonymous and obj.status != ConnectionRequestStatusChoices.ACCEPTED and not self._is_admin():
+            if request and hasattr(request.user, 'member_profile') and request.user.member_profile == obj.requester:
+                return f"{obj.requester.display_name} (Vous)"
+            return "Membre de la Dahirah (Confidentiel)"
+        return obj.requester.display_name
+
+    def get_requester_matricule(self, obj):
+        request = self.context.get('request')
+        if obj.need and obj.need.is_anonymous and obj.status != ConnectionRequestStatusChoices.ACCEPTED and not self._is_admin():
+            if request and hasattr(request.user, 'member_profile') and request.user.member_profile == obj.requester:
+                return obj.requester.matricule
+            return None
+        return obj.requester.matricule
+
+    def validate(self, attrs):
+        request = self.context.get('request')
+        if not attrs.get('requester'):
+            if request and hasattr(request.user, 'member_profile') and request.user.member_profile:
+                attrs['requester'] = request.user.member_profile
+        requester = attrs.get('requester')
+        target_member = attrs.get('target_member')
+        if requester and target_member and requester == target_member:
+            raise serializers.ValidationError("Un membre ne peut pas s'auto-solliciter.")
+        return attrs
+
 

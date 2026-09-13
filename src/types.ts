@@ -222,4 +222,52 @@ export interface MemberNeed {
   updatedAt?: string;
 }
 
+export type ConnectionRequestStatus = 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'CANCELLED';
+
+export interface ConnectionRequest {
+  id: string;
+  need?: string;
+  need_title?: string;
+  need_type?: NeedType;
+  need_type_display?: string;
+  requester?: string;
+  requester_name: string;
+  requester_matricule?: string;
+  facilitator?: string;
+  facilitator_email?: string;
+  target_member: string;
+  target_member_name: string;
+  target_member_matricule: string;
+  status: ConnectionRequestStatus;
+  status_display: string;
+  message?: string;
+  resulting_relation?: string;
+  resulting_relation_id?: string;
+  created_at: string;
+  responded_at?: string;
+}
+
+export interface NeedMatchCandidate {
+  member_id: string;
+  matricule: string;
+  display_name: string;
+  gender: Gender;
+  city: string;
+  primary_profession?: string;
+  score: number;
+  match_reasons: string[];
+  availability_status: string;
+  open_for_mentoring: boolean;
+}
+
+export interface ImpactMetrics {
+  needs_total: number;
+  needs_in_progress: number;
+  needs_resolved: number;
+  relations_active: number;
+  connection_requests_pending: number;
+  support_rate: number;
+  resolution_rate: number;
+}
+
 

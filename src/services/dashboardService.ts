@@ -6,6 +6,16 @@
 import { API_BASE_URL } from './apiConfig';
 import { getAuthHeaders } from './authService';
 
+export interface ImpactMetrics {
+  needs_total: number;
+  needs_in_progress: number;
+  needs_resolved: number;
+  relations_active: number;
+  connection_requests_pending: number;
+  support_rate: number;
+  resolution_rate: number;
+}
+
 export interface DashboardStats {
   metrics: {
     total_active_members: number;
@@ -18,6 +28,7 @@ export interface DashboardStats {
     total_inactive_members?: number;
     total_contacts?: number;
   };
+  impact_metrics?: ImpactMetrics;
   gender_distribution: Array<{ gender: string; count: number }>;
   situation_distribution: Array<{ situation: string; count: number }>;
   education_distribution: Array<{ level: string; count: number }>;
