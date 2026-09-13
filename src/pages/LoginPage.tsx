@@ -102,8 +102,7 @@ export const LoginPage: React.FC = () => {
                   autoComplete="username"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="ex: mrniass1987@gmail.com"
-                  className="w-full bg-[#090d14] text-[#e5e9f2] placeholder-[#788294]/60 text-xs sm:text-sm rounded-xl pl-10 pr-4 py-2.5 outline-none border border-[#2b3547] focus:border-[#f2ca50] focus:ring-1 focus:ring-[#f2ca50]/30 transition"
+                  className="w-full bg-[#090d14] text-[#e5e9f2] text-xs sm:text-sm rounded-xl pl-10 pr-4 py-2.5 outline-none border border-[#2b3547] focus:border-[#f2ca50] focus:ring-1 focus:ring-[#f2ca50]/30 transition"
                 />
               </div>
             </div>
@@ -125,8 +124,7 @@ export const LoginPage: React.FC = () => {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Votre mot de passe"
-                  className="w-full bg-[#090d14] text-[#e5e9f2] placeholder-[#788294]/60 text-xs sm:text-sm rounded-xl pl-10 pr-10 py-2.5 outline-none border border-[#2b3547] focus:border-[#f2ca50] focus:ring-1 focus:ring-[#f2ca50]/30 transition"
+                  className="w-full bg-[#090d14] text-[#e5e9f2] text-xs sm:text-sm rounded-xl pl-10 pr-10 py-2.5 outline-none border border-[#2b3547] focus:border-[#f2ca50] focus:ring-1 focus:ring-[#f2ca50]/30 transition"
                 />
                 <button
                   type="button"

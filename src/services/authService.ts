@@ -22,6 +22,27 @@ function getCsrfToken(): string {
   return match ? match[1] : '';
 }
 
+function normalizeAuthUser(user: any): AuthUser {
+  if (!user) return user;
+  let role = user.role;
+  if (!role || !['superadmin', 'admin', 'agent', 'member'].includes(role)) {
+    if (user.is_superuser || (Array.isArray(user.groups) && user.groups.some((g: string) => g.toLowerCase().includes('super')))) {
+      role = 'superadmin';
+    } else if (user.is_staff || (Array.isArray(user.groups) && user.groups.some((g: string) => g.toLowerCase().includes('admin')))) {
+      role = 'admin';
+    } else if (Array.isArray(user.groups) && user.groups.some((g: string) => g.toLowerCase().includes('agent'))) {
+      role = 'agent';
+    } else {
+      role = 'member';
+    }
+  }
+
+  return {
+    ...user,
+    role,
+  };
+}
+
 export async function loginApi(credentials: { email?: string; matricule?: string; password: string }): Promise<{ user: AuthUser; message?: string }> {
   const res = await fetch(`${API_BASE_URL}/auth/login/`, {
     method: 'POST',
@@ -42,7 +63,11 @@ export async function loginApi(credentials: { email?: string; matricule?: string
   }
 
   const data = await res.json();
-  return data;
+  const rawUser = data.user || data;
+  return {
+    ...data,
+    user: normalizeAuthUser(rawUser),
+  };
 }
 
 export async function getCurrentUserApi(): Promise<AuthUser | null> {
@@ -60,7 +85,8 @@ export async function getCurrentUserApi(): Promise<AuthUser | null> {
     }
 
     const data = await res.json();
-    return data.user || data;
+    const rawUser = data.user || data;
+    return normalizeAuthUser(rawUser);
   } catch (error) {
     console.warn('Impossible de récupérer la session courante:', error);
     return null;

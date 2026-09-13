@@ -38,6 +38,7 @@ class LoginSerializer(serializers.Serializer):
 class UserMeSerializer(serializers.ModelSerializer):
     """Sérialiseur du profil utilisateur connecté (/api/v1/auth/me/)."""
     groups = serializers.SlugRelatedField(many=True, read_only=True, slug_field='name')
+    role = serializers.SerializerMethodField()
     member_id = serializers.SerializerMethodField()
     member_matricule = serializers.SerializerMethodField()
     member_display_name = serializers.SerializerMethodField()
@@ -51,6 +52,7 @@ class UserMeSerializer(serializers.ModelSerializer):
             'last_name',
             'is_staff',
             'is_superuser',
+            'role',
             'groups',
             'member_id',
             'member_matricule',
@@ -59,6 +61,15 @@ class UserMeSerializer(serializers.ModelSerializer):
             'last_login',
         )
         read_only_fields = fields
+
+    def get_role(self, obj):
+        if obj.is_superuser or obj.groups.filter(name='Super-Administrateurs').exists():
+            return 'superadmin'
+        if obj.is_staff or obj.groups.filter(name='Administrateurs').exists():
+            return 'admin'
+        if obj.groups.filter(name='Agents').exists():
+            return 'agent'
+        return 'member'
 
     def get_member_id(self, obj):
         profile = getattr(obj, 'member_profile', None)
