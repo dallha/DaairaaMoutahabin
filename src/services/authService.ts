@@ -43,6 +43,23 @@ function normalizeAuthUser(user: any): AuthUser {
   };
 }
 
+export function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Accept': 'application/json',
+  };
+  if (typeof window !== 'undefined') {
+    const token = sessionStorage.getItem('dahirah_access_token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+  const csrf = getCsrfToken();
+  if (csrf) {
+    headers['X-CSRFToken'] = csrf;
+  }
+  return headers;
+}
+
 export async function loginApi(credentials: { email?: string; matricule?: string; password: string }): Promise<{ user: AuthUser; message?: string }> {
   const res = await fetch(`${API_BASE_URL}/auth/login/`, {
     method: 'POST',
@@ -63,6 +80,10 @@ export async function loginApi(credentials: { email?: string; matricule?: string
   }
 
   const data = await res.json();
+  if (data.access && typeof window !== 'undefined') {
+    sessionStorage.setItem('dahirah_access_token', data.access);
+  }
+
   const rawUser = data.user || data;
   return {
     ...data,
@@ -74,9 +95,7 @@ export async function getCurrentUserApi(): Promise<AuthUser | null> {
   try {
     const res = await fetch(`${API_BASE_URL}/auth/me/`, {
       method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
+      headers: getAuthHeaders(),
       credentials: 'include',
     });
 
@@ -94,12 +113,16 @@ export async function getCurrentUserApi(): Promise<AuthUser | null> {
 }
 
 export async function logoutApi(): Promise<void> {
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem('dahirah_access_token');
+  }
+
   try {
     await fetch(`${API_BASE_URL}/auth/logout/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCsrfToken(),
+        ...getAuthHeaders(),
       },
       credentials: 'include',
     });

@@ -12,7 +12,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import LoginSerializer, UserMeSerializer
 
 
-def set_jwt_cookies(response, access_token, refresh_token=None):
+def set_jwt_cookies(response, access_token, refresh_token=None, request=None):
     """
     Positionne les cookies HttpOnly sécurisés sur la réponse HTTP.
     Empêche toute lecture des jetons par le JavaScript client.
@@ -48,6 +48,18 @@ def set_jwt_cookies(response, access_token, refresh_token=None):
             path=refresh_path
         )
 
+    # Cookie CSRF pour requêtes mutantes du frontend
+    if request is not None:
+        response.set_cookie(
+            key='csrftoken',
+            value=get_token(request),
+            max_age=31449600,
+            httponly=False,
+            secure=cookie_secure,
+            samesite=samesite,
+            path='/'
+        )
+
 
 def clear_jwt_cookies(response):
     """Supprime les cookies d'authentification lors de la déconnexion."""
@@ -59,10 +71,11 @@ def clear_jwt_cookies(response):
     response.delete_cookie(refresh_cookie_name, path=refresh_path)
 
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class LoginView(APIView):
     """
     Endpoint de connexion sécurisé (/api/v1/auth/login/).
-    Pose les cookies HttpOnly 'access_token' et 'refresh_token'.
+    Pose les cookies HttpOnly 'access_token' et 'refresh_token' ainsi que le cookie 'csrftoken'.
     """
     authentication_classes = ()
     permission_classes = [AllowAny]
@@ -79,11 +92,13 @@ class LoginView(APIView):
         response_data = {
             'success': True,
             'message': 'Connexion réussie.',
+            'access': str(access),
+            'refresh': str(refresh),
             'user': UserMeSerializer(user).data
         }
 
         response = Response(response_data, status=status.HTTP_200_OK)
-        set_jwt_cookies(response, access_token=access, refresh_token=refresh)
+        set_jwt_cookies(response, access_token=access, refresh_token=refresh, request=request)
         return response
 
 
@@ -159,18 +174,35 @@ class LogoutView(APIView):
         return response
 
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class MeView(APIView):
     """
     Endpoint retournant l'identité et les autorisations de l'utilisateur connecté (/api/v1/auth/me/).
+    Assure également la présence du cookie csrftoken pour les requêtes mutantes.
     """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
+        csrf_val = get_token(request)
         serializer = UserMeSerializer(request.user)
-        return Response({
+        response = Response({
             'success': True,
-            'user': serializer.data
+            'user': serializer.data,
+            'csrfToken': csrf_val
         }, status=status.HTTP_200_OK)
+
+        cookie_secure = getattr(settings, 'JWT_AUTH_COOKIE_SECURE', False)
+        samesite = getattr(settings, 'JWT_AUTH_COOKIE_SAMESITE', 'Lax')
+        response.set_cookie(
+            key='csrftoken',
+            value=csrf_val,
+            max_age=31449600,
+            httponly=False,
+            secure=cookie_secure,
+            samesite=samesite,
+            path='/'
+        )
+        return response
 
 
 class CsrfTokenView(APIView):

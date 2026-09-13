@@ -3,12 +3,14 @@
  */
 
 import { ActivityLogItem } from '../types';
+import { getAuthHeaders } from './authService';
 
 const API_BASE = '/api/v1';
 
 export async function getAuditLogs(): Promise<ActivityLogItem[]> {
   try {
     const res = await fetch(`${API_BASE}/audit/`, {
+      headers: getAuthHeaders(),
       credentials: 'include',
     });
     if (!res.ok) return [];

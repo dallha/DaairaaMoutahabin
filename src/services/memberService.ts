@@ -5,15 +5,9 @@
 
 import { Member, SituationType, Formation, Profession, FonctionDahirah } from '../types';
 import { API_BASE_URL } from './apiConfig';
+import { getAuthHeaders } from './authService';
 
 const API_BASE = API_BASE_URL;
-
-// Extraction du token CSRF des cookies posés par Django
-function getCsrfToken(): string {
-  if (typeof document === 'undefined') return '';
-  const match = document.cookie.match(/csrftoken=([^;]+)/);
-  return match ? match[1] : '';
-}
 
 const SITUATION_TO_FRONTEND: Record<string, SituationType> = {
   PUPIL: 'ELEVE',
@@ -102,6 +96,7 @@ export async function getMembers(
 ): Promise<{ members: Member[]; totalCount: number }> {
   try {
     const res = await fetch(`${API_BASE}/members/?page_size=${pageSize}&page=${page}`, {
+      headers: getAuthHeaders(),
       credentials: 'include',
     });
     if (!res.ok) {
@@ -123,6 +118,7 @@ export async function getMembers(
 export async function searchMembers(searchTerm: string): Promise<Member[]> {
   try {
     const res = await fetch(`${API_BASE}/members/?search=${encodeURIComponent(searchTerm)}`, {
+      headers: getAuthHeaders(),
       credentials: 'include',
     });
     if (!res.ok) throw new Error(`Erreur recherche ${res.status}`);
@@ -138,6 +134,7 @@ export async function searchMembers(searchTerm: string): Promise<Member[]> {
 export async function getMemberById(id: string): Promise<Member | null> {
   try {
     const res = await fetch(`${API_BASE}/members/${id}/`, {
+      headers: getAuthHeaders(),
       credentials: 'include',
     });
     if (!res.ok) return null;
@@ -169,7 +166,7 @@ export async function addMember(member: Omit<Member, 'id' | 'createdAt' | 'updat
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': getCsrfToken(),
+      ...getAuthHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),
@@ -177,7 +174,7 @@ export async function addMember(member: Omit<Member, 'id' | 'createdAt' | 'updat
 
   if (!res.ok) {
     const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.message || `Erreur création membre : ${res.status}`);
+    throw new Error(errData.detail || errData.message || `Erreur création membre : ${res.status}`);
   }
 
   const json = await res.json();
@@ -198,7 +195,7 @@ export async function updateMember(id: string, member: Partial<Member>): Promise
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': getCsrfToken(),
+      ...getAuthHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),
@@ -206,16 +203,14 @@ export async function updateMember(id: string, member: Partial<Member>): Promise
 
   if (!res.ok) {
     const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.message || `Erreur mise à jour membre : ${res.status}`);
+    throw new Error(errData.detail || errData.message || `Erreur mise à jour membre : ${res.status}`);
   }
 }
 
 export async function deleteMember(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/members/${id}/`, {
     method: 'DELETE',
-    headers: {
-      'X-CSRFToken': getCsrfToken(),
-    },
+    headers: getAuthHeaders(),
     credentials: 'include',
   });
 

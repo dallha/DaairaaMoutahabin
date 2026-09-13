@@ -4,6 +4,7 @@
  */
 
 import { API_BASE_URL } from './apiConfig';
+import { getAuthHeaders } from './authService';
 
 export interface DashboardStats {
   metrics: {
@@ -34,7 +35,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   const res = await fetch(`${API_BASE_URL}/dashboard/stats/`, {
     method: 'GET',
     headers: {
-      'Accept': 'application/json',
+      ...getAuthHeaders(),
     },
     credentials: 'include',
   });
