@@ -22,6 +22,7 @@ import {
   SystemSettingsPage,
   NotFoundPage,
 } from './pages/AdminPages';
+import { NetworkDirectoryPage } from './pages/NetworkDirectoryPage';
 
 export default function App() {
   return (
@@ -54,6 +55,7 @@ export default function App() {
 
             {/* Annuaire & Fiches Individuelles */}
             <Route path="/members" element={<MembersDirectoryPage />} />
+            <Route path="/network" element={<NetworkDirectoryPage />} />
             <Route
               path="/members/new"
               element={

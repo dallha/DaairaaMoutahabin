@@ -38,6 +38,8 @@ export const AppLayout: React.FC = () => {
         return 'Tableau de Bord';
       case 'members':
         return 'Membres';
+      case 'network':
+        return 'Carrefour Entraide';
       case 'new':
         return 'Nouvel Enrôlement';
       case 'edit':
@@ -268,6 +270,21 @@ export const AppLayout: React.FC = () => {
           >
             <span className="material-symbols-outlined text-[19px] group-hover:scale-110 transition-transform">group</span>
             <span className="hidden sm:inline">Membres</span>
+          </NavLink>
+
+          {/* Carrefour Entraide */}
+          <NavLink
+            to="/network"
+            className={({ isActive }) =>
+              `group flex items-center gap-2 px-3.5 py-2 rounded-full font-semibold text-xs transition-all ${
+                isActive
+                  ? 'bg-[#f2ca50]/15 text-[#f2ca50] border border-[#f2ca50]/40 font-bold shadow-inner'
+                  : 'text-[#9ca7b8] hover:text-[#f2ca50] hover:bg-[#1b2332]/60'
+              }`
+            }
+          >
+            <span className="material-symbols-outlined text-[19px] group-hover:scale-110 transition-transform">hub</span>
+            <span className="hidden sm:inline">Entraide</span>
           </NavLink>
 
           {/* Bouton Central Surélevé : Nouvel Enrôlement */}

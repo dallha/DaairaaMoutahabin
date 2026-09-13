@@ -1,6 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getMemberById } from '../services/memberService';
+import {
+  MemberSkill,
+  MemberServiceOffer,
+  MemberAvailability,
+  MemberRelation,
+  getMemberSkills,
+  getMemberServices,
+  getMemberAvailability,
+  getMemberRelations,
+  getSkills,
+  getServicesCatalog,
+  addMemberSkill,
+  deleteMemberSkill,
+  verifyMemberSkill,
+  addMemberService,
+  deleteMemberService,
+  saveMemberAvailability,
+  declareMemberRelation,
+  approveMemberRelation,
+  Skill,
+  ServiceCatalogItem,
+} from '../services/networkService';
 import { Member } from '../types';
 import { useAuth } from '../context/AuthContext';
 
@@ -13,9 +35,59 @@ export const MemberDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Données 360° Network
+  const [skills, setSkills] = useState<MemberSkill[]>([]);
+  const [services, setServices] = useState<MemberServiceOffer[]>([]);
+  const [availability, setAvailability] = useState<MemberAvailability | null>(null);
+  const [relations, setRelations] = useState<MemberRelation[]>([]);
+
+  // Modals & Formularires
+  const [availableSkillsList, setAvailableSkillsList] = useState<Skill[]>([]);
+  const [servicesCatalogList, setServicesCatalogList] = useState<ServiceCatalogItem[]>([]);
+  const [showSkillModal, setShowSkillModal] = useState(false);
+  const [showServiceModal, setShowServiceModal] = useState(false);
+  const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
+  const [showRelationModal, setShowRelationModal] = useState(false);
+
+  // Form states
+  const [selectedSkillId, setSelectedSkillId] = useState('');
+  const [skillLevel, setSkillLevel] = useState<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT'>('INTERMEDIATE');
+  const [skillYears, setSkillYears] = useState<number>(2);
+
+  const [serviceCatalogId, setServiceCatalogId] = useState('');
+  const [serviceTitle, setServiceTitle] = useState('');
+  const [serviceDesc, setServiceDesc] = useState('');
+  const [serviceType, setServiceType] = useState<'VOLUNTEER' | 'DAHIRAH_RATE' | 'STANDARD' | 'MENTORSHIP'>('DAHIRAH_RATE');
+  const [serviceTerms, setServiceTerms] = useState('');
+  const [serviceContactMode, setServiceContactMode] = useState<'INTERNAL_MESSAGE' | 'WHATSAPP' | 'PHONE' | 'OTHER'>('INTERNAL_MESSAGE');
+
+  const [availStatus, setAvailStatus] = useState<any>('AVAILABLE');
+  const [availMentoring, setAvailMentoring] = useState(true);
+  const [availEvents, setAvailEvents] = useState(true);
+  const [availProHelp, setAvailProHelp] = useState(true);
+  const [availVolunteer, setAvailVolunteer] = useState(false);
+  const [availHours, setAvailHours] = useState<number>(4);
+
+  const [relationTargetMatricule, setRelationTargetMatricule] = useState('');
+  const [relationType, setRelationType] = useState<'SPONSOR' | 'MENTOR' | 'COLLABORATOR' | 'FRATERNAL'>('MENTOR');
+  const [relationNotes, setRelationNotes] = useState('');
+
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const isSuperAdmin = user?.role === 'superadmin';
+  const isAdmin = user?.role === 'admin' || isSuperAdmin;
+  const isOwner = Boolean(
+    member && user && (
+      (user.email && member.email && user.email.toLowerCase() === member.email.toLowerCase()) ||
+      (user.member_id && String(user.member_id) === String(member.id))
+    )
+  );
+  const canEdit = isAdmin || isOwner;
+
   useEffect(() => {
     let isMounted = true;
-    async function loadMember() {
+    async function loadData() {
       if (!id) return;
       setIsLoading(true);
       setError(null);
@@ -24,13 +96,33 @@ export const MemberDetailPage: React.FC = () => {
         if (isMounted) {
           if (found) {
             setMember(found);
+            // Charger les données 360° en parallèle
+            const lookupKey = found.matricule || found.id;
+            const [sk, srv, av, rel] = await Promise.all([
+              getMemberSkills(lookupKey),
+              getMemberServices(lookupKey),
+              getMemberAvailability(lookupKey),
+              getMemberRelations(lookupKey),
+            ]);
+            setSkills(sk);
+            setServices(srv);
+            setAvailability(av);
+            if (av) {
+              setAvailStatus(av.status);
+              setAvailMentoring(av.open_for_mentoring);
+              setAvailEvents(av.open_for_dahirah_events);
+              setAvailProHelp(av.open_for_pro_help);
+              setAvailVolunteer(av.open_for_volunteer);
+              setAvailHours(av.weekly_hours_available || 4);
+            }
+            setRelations(rel);
           } else {
-            setError(`Fiche membre introuvable pour l'identifiant ou le matricule "${id}".`);
+            setError(`Fiche membre introuvable pour "${id}".`);
           }
         }
       } catch (err: any) {
         if (isMounted) {
-          setError(err.message || 'Erreur lors de la récupération de la fiche.');
+          setError(err.message || 'Erreur lors de la récupération de la fiche 360°.');
         }
       } finally {
         if (isMounted) {
@@ -39,19 +131,175 @@ export const MemberDetailPage: React.FC = () => {
       }
     }
 
-    loadMember();
+    loadData();
     return () => {
       isMounted = false;
     };
   }, [id]);
 
-  const isEditor = user?.role === 'admin' || user?.role === 'superadmin' || user?.role === 'agent';
+  // Chargement paresseux des référentiels pour les modals
+  const ensureReferentials = async () => {
+    if (availableSkillsList.length === 0) {
+      const list = await getSkills();
+      setAvailableSkillsList(list);
+      if (list.length > 0 && !selectedSkillId) setSelectedSkillId(list[0].id);
+    }
+    if (servicesCatalogList.length === 0) {
+      const cats = await getServicesCatalog();
+      setServicesCatalogList(cats);
+      if (cats.length > 0 && !serviceCatalogId) setServiceCatalogId(cats[0].id);
+    }
+  };
+
+  const handleAddSkill = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!member || !selectedSkillId) return;
+    try {
+      setActionError(null);
+      await addMemberSkill({
+        member: member.id,
+        skill: selectedSkillId,
+        level: skillLevel,
+        years_experience: skillYears,
+      });
+      const updated = await getMemberSkills(member.matricule || member.id);
+      setSkills(updated);
+      setShowSkillModal(false);
+      setActionSuccess('Compétence ajoutée avec succès.');
+      setTimeout(() => setActionSuccess(null), 4000);
+    } catch (err: any) {
+      setActionError(err.message || 'Impossible d’ajouter cette compétence.');
+    }
+  };
+
+  const handleVerifySkill = async (skillAssocId: string) => {
+    try {
+      await verifyMemberSkill(skillAssocId);
+      if (member) {
+        const updated = await getMemberSkills(member.matricule || member.id);
+        setSkills(updated);
+        setActionSuccess('Compétence officiellement certifiée.');
+        setTimeout(() => setActionSuccess(null), 4000);
+      }
+    } catch (err: any) {
+      setActionError(err.message || 'Erreur lors de la validation.');
+    }
+  };
+
+  const handleDeleteSkill = async (skillAssocId: string) => {
+    try {
+      await deleteMemberSkill(skillAssocId);
+      if (member) {
+        setSkills(skills.filter((s) => s.id !== skillAssocId));
+      }
+    } catch (err: any) {
+      setActionError(err.message || 'Erreur suppression.');
+    }
+  };
+
+  const handleAddService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!member || !serviceCatalogId || !serviceTitle) return;
+    try {
+      setActionError(null);
+      await addMemberService({
+        member: member.id,
+        service: serviceCatalogId,
+        title: serviceTitle,
+        description: serviceDesc,
+        service_type: serviceType,
+        terms: serviceTerms || undefined,
+        contact_mode: serviceContactMode,
+      });
+      const updated = await getMemberServices(member.matricule || member.id);
+      setServices(updated);
+      setShowServiceModal(false);
+      setServiceTitle('');
+      setServiceDesc('');
+      setActionSuccess('Offre de service enregistrée avec succès.');
+      setTimeout(() => setActionSuccess(null), 4000);
+    } catch (err: any) {
+      setActionError(err.message || 'Erreur publication du service.');
+    }
+  };
+
+  const handleDeleteService = async (serviceId: string) => {
+    try {
+      await deleteMemberService(serviceId);
+      setServices(services.filter((s) => s.id !== serviceId));
+    } catch (err: any) {
+      setActionError(err.message || 'Erreur suppression.');
+    }
+  };
+
+  const handleSaveAvailability = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!member) return;
+    try {
+      setActionError(null);
+      const saved = await saveMemberAvailability(availability?.id, {
+        member: member.id,
+        status: availStatus,
+        open_for_mentoring: availMentoring,
+        open_for_dahirah_events: availEvents,
+        open_for_pro_help: availProHelp,
+        open_for_volunteer: availVolunteer,
+        weekly_hours_available: availHours,
+      });
+      setAvailability(saved);
+      setShowAvailabilityModal(false);
+      setActionSuccess('Statut de disponibilité mis à jour.');
+      setTimeout(() => setActionSuccess(null), 4000);
+    } catch (err: any) {
+      setActionError(err.message || 'Erreur mise à jour disponibilité.');
+    }
+  };
+
+  const handleDeclareRelation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!member || !relationTargetMatricule.trim()) return;
+    try {
+      setActionError(null);
+      const target = await getMemberById(relationTargetMatricule.trim().toUpperCase());
+      if (!target) throw new Error(`Membre cible "${relationTargetMatricule}" introuvable.`);
+
+      await declareMemberRelation({
+        from_member: member.id,
+        to_member: target.id,
+        relation_type: relationType,
+        notes: relationNotes || undefined,
+      });
+      const updated = await getMemberRelations(member.matricule || member.id);
+      setRelations(updated);
+      setShowRelationModal(false);
+      setRelationTargetMatricule('');
+      setRelationNotes('');
+      setActionSuccess('Relation déclarée. Elle apparaîtra une fois validée par un administrateur.');
+      setTimeout(() => setActionSuccess(null), 5000);
+    } catch (err: any) {
+      setActionError(err.message || 'Erreur lors de la déclaration du lien.');
+    }
+  };
+
+  const handleApproveRelation = async (relId: string) => {
+    try {
+      await approveMemberRelation(relId);
+      if (member) {
+        const updated = await getMemberRelations(member.matricule || member.id);
+        setRelations(updated);
+        setActionSuccess('Relation approuvée avec succès.');
+        setTimeout(() => setActionSuccess(null), 4000);
+      }
+    } catch (err: any) {
+      setActionError(err.message || 'Erreur approbation.');
+    }
+  };
 
   if (isLoading) {
     return (
-      <div className="py-20 flex flex-col items-center justify-center text-[#f2ca50] gap-3">
-        <span className="material-symbols-outlined text-[36px] animate-spin">refresh</span>
-        <span className="text-sm text-[#9ca7b8]">Chargement de la fiche {id}...</span>
+      <div className="py-24 flex flex-col items-center justify-center text-[#f2ca50] gap-3">
+        <span className="material-symbols-outlined text-[40px] animate-spin">sync</span>
+        <span className="text-xs text-[#9ca7b8] tracking-wide font-medium">Chargement du profil 360°...</span>
       </div>
     );
   }
@@ -75,21 +323,46 @@ export const MemberDetailPage: React.FC = () => {
     );
   }
 
+  const primaryProf = member.professions?.[0];
+  const isPhoneVisible = member.privacy?.showPhone === 'MEMBRES' || isAdmin || isOwner;
+  const whatsappClean = member.telephone ? member.telephone.replace(/[^0-9]/g, '') : null;
+
   return (
-    <div className="flex flex-col gap-6 max-w-5xl mx-auto">
+    <div className="flex flex-col gap-6 max-w-5xl mx-auto pb-12">
       
-      {/* Barre d'Action & Navigation Fiche */}
+      {/* Messages Notifications */}
+      {actionSuccess && (
+        <div className="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2 animate-fadeIn">
+          <span className="material-symbols-outlined text-[18px]">check_circle</span>
+          <span>{actionSuccess}</span>
+        </div>
+      )}
+      {actionError && (
+        <div className="p-3.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-xs flex items-center gap-2 animate-fadeIn">
+          <span className="material-symbols-outlined text-[18px]">error</span>
+          <span>{actionError}</span>
+        </div>
+      )}
+
+      {/* Barre de Navigation Supérieure */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate('/members')}
           className="inline-flex items-center gap-1.5 text-xs text-[#9ca7b8] hover:text-[#f2ca50] transition font-medium"
         >
           <span className="material-symbols-outlined text-[17px]">arrow_back</span>
-          <span>Annuaire des membres</span>
+          <span>Annuaire communautaire</span>
         </button>
 
         <div className="flex items-center gap-2">
-          {isEditor && (
+          <Link
+            to="/network"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#242e40] text-[#bfcfed] hover:text-[#f2ca50] text-xs font-semibold border border-[#2b3547] transition"
+          >
+            <span className="material-symbols-outlined text-[16px]">hub</span>
+            <span>Carrefour Entraide</span>
+          </Link>
+          {canEdit && (
             <Link
               to={`/members/${member.matricule || member.id}/edit`}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#f2ca50] text-slate-950 text-xs font-bold shadow-md hover:brightness-110 transition"
@@ -101,7 +374,7 @@ export const MemberDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Carte d'Identité Souveraine */}
+      {/* 1. CARTE D'IDENTITÉ 360° SOUVERAINE */}
       <div className="rounded-2xl bg-[#151c28]/95 border border-[#2b3547]/80 shadow-2xl p-6 sm:p-8 relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#f2ca50]/70 to-transparent"></div>
 
@@ -112,7 +385,10 @@ export const MemberDetailPage: React.FC = () => {
             ) : (
               <span>{member.prenom[0]}</span>
             )}
-            <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-[#151c28]"></span>
+            <span className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full ring-2 ring-[#151c28] ${
+              availability?.status === 'AVAILABLE' ? 'bg-emerald-500' :
+              availability?.status === 'LIMITED' ? 'bg-amber-500' : 'bg-slate-500'
+            }`}></span>
           </div>
 
           <div className="flex flex-col min-w-0 flex-1">
@@ -123,6 +399,15 @@ export const MemberDetailPage: React.FC = () => {
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
                 {member.statutCompte || 'ACTIF'}
               </span>
+              {availability && availability.status !== 'NOT_SPECIFIED' && (
+                <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                  availability.status === 'AVAILABLE'
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                    : 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+                }`}>
+                  {availability.status === 'AVAILABLE' ? 'Disponible pour entraide' : 'Disponibilité partielle'}
+                </span>
+              )}
             </div>
 
             <h1 className="font-headline-lg text-2xl sm:text-3xl font-semibold text-[#e5e9f2] tracking-tight">
@@ -135,38 +420,53 @@ export const MemberDetailPage: React.FC = () => {
               </span>
             )}
           </div>
+
+          {/* Bouton Contact Rapide WhatsApp si consenti */}
+          {isPhoneVisible && member.telephone && (
+            <div className="mt-2 sm:mt-0">
+              <a
+                href={`https://wa.me/${whatsappClean}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[17px]">chat</span>
+                <span>Échanger sur WhatsApp</span>
+              </a>
+            </div>
+          )}
         </div>
 
-        {/* Détails en Grille Bento 2x2 */}
+        {/* Grille 360° en 2 colonnes */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
           
-          {/* Section 1 : État Civil & Identité */}
+          {/* Section A : Situation Civile & Activité Professionnelle */}
           <div className="space-y-4 p-5 rounded-xl bg-[#111722]/80 border border-[#2b3547]/40">
             <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">badge</span>
-              État Civil &amp; Situation
+              <span className="material-symbols-outlined text-[18px]">work</span>
+              Activité Professionnelle &amp; Statut
             </h3>
             <div className="space-y-2.5 text-xs">
-              <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
-                <span className="text-[#9ca7b8]">Genre :</span>
-                <span className="font-medium text-[#e5e9f2]">{member.sexe === 'F' ? 'Femme' : 'Homme'}</span>
-              </div>
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
                 <span className="text-[#9ca7b8]">Situation :</span>
                 <span className="font-medium text-[#e5e9f2]">{member.situation || 'Non précisé'}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
                 <span className="text-[#9ca7b8]">Profession :</span>
-                <span className="font-medium text-[#e5e9f2]">{member.professionActuelle || 'Adhérent'}</span>
+                <span className="font-medium text-[#e5e9f2]">{primaryProf?.metier || member.professionActuelle || 'Adhérent'}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
+                <span className="text-[#9ca7b8]">Entreprise / Organisation :</span>
+                <span className="font-medium text-[#e5e9f2]">{primaryProf?.activite || 'Indépendant / Non précisé'}</span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-[#9ca7b8]">Date d'affiliation :</span>
-                <span className="font-medium text-[#e5e9f2] font-mono">{member.dateInscription || '2026-01-01'}</span>
+                <span className="text-[#9ca7b8]">Secteur :</span>
+                <span className="font-medium text-[#f2ca50]">{primaryProf?.secteur || 'Secteur général'}</span>
               </div>
             </div>
           </div>
 
-          {/* Section 2 : Coordonnées & Localisation */}
+          {/* Section B : Coordonnées avec Consentement */}
           <div className="space-y-4 p-5 rounded-xl bg-[#111722]/80 border border-[#2b3547]/40">
             <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
               <span className="material-symbols-outlined text-[18px]">contact_phone</span>
@@ -176,7 +476,14 @@ export const MemberDetailPage: React.FC = () => {
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
                 <span className="text-[#9ca7b8]">Téléphone :</span>
                 <span className="font-medium text-[#e5e9f2] font-mono">
-                  {member.telephone ? member.telephone : <span className="text-[#788294] italic">Confidentiel / Non renseigné</span>}
+                  {isPhoneVisible && member.telephone ? (
+                    member.telephone
+                  ) : (
+                    <span className="text-[#788294] italic flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[14px]">lock</span>
+                      Coordonnée protégée (Admin uniquement)
+                    </span>
+                  )}
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
@@ -196,28 +503,523 @@ export const MemberDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 3 : Fonctions Dahirah */}
-          <div className="space-y-4 p-5 rounded-xl bg-[#111722]/80 border border-[#2b3547]/40 md:col-span-2">
-            <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">verified</span>
-              Fonctions &amp; Commissions Dahirah
-            </h3>
-            {member.fonctionsDahirah && member.fonctionsDahirah.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {member.fonctionsDahirah.map((f) => (
-                  <div key={f.id} className="p-3 rounded-lg bg-[#151c28] border border-[#2b3547]/50 text-xs">
-                    <p className="font-semibold text-[#e5e9f2]">{f.role}</p>
-                    <p className="text-[#9ca7b8] text-[11px]">{f.pole || 'Commission Générale'}</p>
+          {/* Section C : Savoir-Faire & Compétences */}
+          <div className="p-5 rounded-xl bg-[#111722]/80 border border-[#2b3547]/40 md:col-span-2 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">psychology</span>
+                Compétences &amp; Expertises ({skills.length})
+              </h3>
+              {canEdit && (
+                <button
+                  onClick={() => {
+                    ensureReferentials();
+                    setShowSkillModal(true);
+                  }}
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#242e40] hover:bg-[#f2ca50] hover:text-slate-950 text-xs font-semibold text-[#f2ca50] transition"
+                >
+                  <span className="material-symbols-outlined text-[15px]">add</span>
+                  <span>Ajouter</span>
+                </button>
+              )}
+            </div>
+
+            {skills.length === 0 ? (
+              <p className="text-xs text-[#9ca7b8] italic">Aucune compétence spécifique déclarée pour le moment.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
+                {skills.map((ms) => (
+                  <div key={ms.id} className="p-3.5 rounded-xl bg-[#151c28] border border-[#2b3547]/60 flex flex-col justify-between gap-2 text-xs">
+                    <div>
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="font-semibold text-[#e5e9f2] truncate">{ms.skill_name}</span>
+                        {ms.is_verified ? (
+                          <span className="material-symbols-outlined text-emerald-400 text-[16px]" title="Vérifié par l'administration">
+                            verified
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-[#9ca7b8] italic">Déclaratif</span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-[#f2ca50] mt-0.5">{ms.level_display}</p>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-[#2b3547]/30 text-[11px]">
+                      <span className="text-[#9ca7b8]">{ms.years_experience ? `${ms.years_experience} ans exp.` : 'Exp. pratique'}</span>
+                      <div className="flex items-center gap-1">
+                        {isAdmin && !ms.is_verified && (
+                          <button
+                            onClick={() => handleVerifySkill(ms.id)}
+                            className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 font-bold transition"
+                            title="Certifier cette compétence"
+                          >
+                            Certifier
+                          </button>
+                        )}
+                        {canEdit && (
+                          <button
+                            onClick={() => handleDeleteSkill(ms.id)}
+                            className="text-[#9ca7b8] hover:text-red-400 p-1"
+                            title="Retirer"
+                          >
+                            <span className="material-symbols-outlined text-[15px]">delete</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+
+          {/* Section D : Services Proposés & Entraide */}
+          <div className="p-5 rounded-xl bg-[#111722]/80 border border-[#2b3547]/40 md:col-span-2 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">handshake</span>
+                Services &amp; Entraide Communautaire ({services.length})
+              </h3>
+              {canEdit && (
+                <button
+                  onClick={() => {
+                    ensureReferentials();
+                    setShowServiceModal(true);
+                  }}
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#242e40] hover:bg-[#f2ca50] hover:text-slate-950 text-xs font-semibold text-[#f2ca50] transition"
+                >
+                  <span className="material-symbols-outlined text-[15px]">add</span>
+                  <span>Proposer un service</span>
+                </button>
+              )}
+            </div>
+
+            {services.length === 0 ? (
+              <p className="text-xs text-[#9ca7b8] italic">Aucune offre de service ou de mentorat publiée pour le moment.</p>
             ) : (
-              <p className="text-xs text-[#9ca7b8]">Membre affilié à la communauté générale de la Dahirah.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                {services.map((srv) => (
+                  <div key={srv.id} className="p-4 rounded-xl bg-[#151c28] border border-[#2b3547]/60 flex flex-col justify-between gap-3 text-xs">
+                    <div>
+                      <div className="flex items-start justify-between gap-2">
+                        <h4 className="font-bold text-[#e5e9f2] text-sm leading-snug">{srv.title}</h4>
+                        <span className="px-2 py-0.5 rounded-full bg-[#f2ca50]/15 text-[#f2ca50] font-bold text-[10px] whitespace-nowrap">
+                          {srv.service_type_display}
+                        </span>
+                      </div>
+                      <p className="text-[#9ca7b8] text-xs mt-1.5 line-clamp-3">{srv.description}</p>
+                    </div>
+
+                    <div className="pt-2.5 border-t border-[#2b3547]/30 flex items-center justify-between text-[11px]">
+                      <div className="flex items-center gap-1.5 text-emerald-400">
+                        <span className="material-symbols-outlined text-[14px]">call</span>
+                        <span>Mode : {srv.contact_mode_display}</span>
+                      </div>
+                      {canEdit && (
+                        <button
+                          onClick={() => handleDeleteService(srv.id)}
+                          className="text-[#9ca7b8] hover:text-red-400 p-1"
+                          title="Supprimer l'offre"
+                        >
+                          <span className="material-symbols-outlined text-[15px]">delete</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Section E : Disponibilité & Engagements */}
+          <div className="p-5 rounded-xl bg-[#111722]/80 border border-[#2b3547]/40 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">event_available</span>
+                Disponibilité &amp; Mobilisation
+              </h3>
+              {canEdit && (
+                <button
+                  onClick={() => setShowAvailabilityModal(true)}
+                  className="text-xs text-[#f2ca50] hover:underline font-semibold"
+                >
+                  Ajuster
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-2.5 text-xs">
+              <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
+                <span className="text-[#9ca7b8]">Statut :</span>
+                <span className="font-semibold text-[#e5e9f2]">
+                  {availability?.status_display || 'Non renseigné'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-[#2b3547]/20">
+                <span className="text-[#9ca7b8]">Mentorat étudiants :</span>
+                <span className={availability?.open_for_mentoring ? 'text-emerald-400 font-bold' : 'text-[#788294]'}>
+                  {availability?.open_for_mentoring ? 'Oui (Actif)' : 'Non'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-[#2b3547]/20">
+                <span className="text-[#9ca7b8]">Événements Dahirah :</span>
+                <span className={availability?.open_for_dahirah_events ? 'text-emerald-400 font-bold' : 'text-[#788294]'}>
+                  {availability?.open_for_dahirah_events ? 'Oui (Mobilisable)' : 'Non'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-1">
+                <span className="text-[#9ca7b8]">Conseil Pro :</span>
+                <span className={availability?.open_for_pro_help ? 'text-emerald-400 font-bold' : 'text-[#788294]'}>
+                  {availability?.open_for_pro_help ? 'Oui (Disponible)' : 'Non'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Section F : Ancrage Dahirah & Réseau Relationnel */}
+          <div className="p-5 rounded-xl bg-[#111722]/80 border border-[#2b3547]/40 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">group</span>
+                Réseau &amp; Relations ({relations.length})
+              </h3>
+              {canEdit && (
+                <button
+                  onClick={() => setShowRelationModal(true)}
+                  className="text-xs text-[#f2ca50] hover:underline font-semibold"
+                >
+                  + Déclarer lien
+                </button>
+              )}
+            </div>
+
+            {relations.length === 0 ? (
+              <p className="text-xs text-[#9ca7b8] italic">Aucun parrainage ou lien formel enregistré.</p>
+            ) : (
+              <div className="space-y-2 pt-1 text-xs">
+                {relations.map((rel) => (
+                  <div key={rel.id} className="p-2.5 rounded-lg bg-[#151c28] border border-[#2b3547]/50 flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-[#e5e9f2]">
+                        {rel.to_member_matricule === member.matricule ? rel.from_member_name : rel.to_member_name}
+                      </span>
+                      <p className="text-[11px] text-[#f2ca50]">{rel.relation_type_display}</p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        rel.status === 'APPROVED' ? 'bg-emerald-500/15 text-emerald-400' :
+                        rel.status === 'PENDING' ? 'bg-amber-500/15 text-amber-300' : 'bg-red-500/15 text-red-400'
+                      }`}>
+                        {rel.status_display}
+                      </span>
+                      {isAdmin && rel.status === 'PENDING' && (
+                        <button
+                          onClick={() => handleApproveRelation(rel.id)}
+                          className="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-bold text-[10px]"
+                        >
+                          Valider
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 
         </div>
       </div>
+
+      {/* MODAL 1 : AJOUT DE COMPÉTENCE */}
+      {showSkillModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#151c28] border border-[#2b3547] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">Ajouter une Compétence</h3>
+            <form onSubmit={handleAddSkill} className="space-y-4 text-xs">
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Compétence de référence</label>
+                <select
+                  value={selectedSkillId}
+                  onChange={(e) => setSelectedSkillId(e.target.value)}
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                >
+                  {availableSkillsList.map((sk) => (
+                    <option key={sk.id} value={sk.id}>{sk.name} ({sk.category_name})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Niveau de maîtrise</label>
+                <select
+                  value={skillLevel}
+                  onChange={(e) => setSkillLevel(e.target.value as any)}
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                >
+                  <option value="BEGINNER">Débutant / Notions</option>
+                  <option value="INTERMEDIATE">Intermédiaire / Pratiquant</option>
+                  <option value="ADVANCED">Avancé / Confirmé</option>
+                  <option value="EXPERT">Expert / Référent</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Années d'expérience</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="50"
+                  value={skillYears}
+                  onChange={(e) => setSkillYears(Number(e.target.value))}
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSkillModal(false)}
+                  className="px-4 py-2 rounded-xl bg-[#242e40] text-[#9ca7b8] hover:text-[#e5e9f2]"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#f2ca50] text-slate-950 font-bold"
+                >
+                  Enregistrer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2 : AJOUT DE SERVICE */}
+      {showServiceModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#151c28] border border-[#2b3547] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">Proposer un Service ou Entraide</h3>
+            <form onSubmit={handleAddService} className="space-y-3.5 text-xs">
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Type de service</label>
+                <select
+                  value={serviceCatalogId}
+                  onChange={(e) => setServiceCatalogId(e.target.value)}
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                >
+                  {servicesCatalogList.map((sc) => (
+                    <option key={sc.id} value={sc.id}>{sc.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Titre de l'offre</label>
+                <input
+                  type="text"
+                  required
+                  value={serviceTitle}
+                  onChange={(e) => setServiceTitle(e.target.value)}
+                  placeholder="Ex: Soutien scolaire en mathématiques ou Réparation..."
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                />
+              </div>
+
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Modalité</label>
+                <select
+                  value={serviceType}
+                  onChange={(e) => setServiceType(e.target.value as any)}
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                >
+                  <option value="VOLUNTEER">Entraide Communautaire & Bénévolat</option>
+                  <option value="DAHIRAH_RATE">Prestation Pro (Tarif Préférentiel Dahirah)</option>
+                  <option value="MENTORSHIP">Mentorat & Partage d’expérience</option>
+                  <option value="STANDARD">Prestation Commerciale Standard</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Mode de contact souhaité</label>
+                <select
+                  value={serviceContactMode}
+                  onChange={(e) => setServiceContactMode(e.target.value as any)}
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                >
+                  <option value="INTERNAL_MESSAGE">Message interne (Coordonnées protégées)</option>
+                  <option value="WHATSAPP">WhatsApp</option>
+                  <option value="PHONE">Appel téléphonique</option>
+                  <option value="OTHER">Autre</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Description</label>
+                <textarea
+                  required
+                  rows={3}
+                  value={serviceDesc}
+                  onChange={(e) => setServiceDesc(e.target.value)}
+                  placeholder="Précisez votre prestation ou accompagnement..."
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowServiceModal(false)}
+                  className="px-4 py-2 rounded-xl bg-[#242e40] text-[#9ca7b8] hover:text-[#e5e9f2]"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#f2ca50] text-slate-950 font-bold"
+                >
+                  Publier l'Offre
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3 : DISPONIBILITÉ */}
+      {showAvailabilityModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#151c28] border border-[#2b3547] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">Ajuster la Disponibilité</h3>
+            <form onSubmit={handleSaveAvailability} className="space-y-4 text-xs">
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Statut global</label>
+                <select
+                  value={availStatus}
+                  onChange={(e) => setAvailStatus(e.target.value)}
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                >
+                  <option value="NOT_SPECIFIED">Non renseigné</option>
+                  <option value="AVAILABLE">Disponible</option>
+                  <option value="LIMITED">Disponibilité partielle</option>
+                  <option value="BUSY">Très peu disponible</option>
+                  <option value="UNAVAILABLE">Non disponible actuellement</option>
+                </select>
+              </div>
+
+              <div className="space-y-2 pt-2 border-t border-[#2b3547]/40">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={availMentoring}
+                    onChange={(e) => setAvailMentoring(e.target.checked)}
+                    className="rounded text-[#f2ca50]"
+                  />
+                  <span>Ouvert au mentorat d’étudiants &amp; élèves</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={availEvents}
+                    onChange={(e) => setAvailEvents(e.target.checked)}
+                    className="rounded text-[#f2ca50]"
+                  />
+                  <span>Mobilisable pour événements Dahirah</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={availProHelp}
+                    onChange={(e) => setAvailProHelp(e.target.checked)}
+                    className="rounded text-[#f2ca50]"
+                  />
+                  <span>Disponible pour conseil pro entre disciples</span>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAvailabilityModal(false)}
+                  className="px-4 py-2 rounded-xl bg-[#242e40] text-[#9ca7b8] hover:text-[#e5e9f2]"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#f2ca50] text-slate-950 font-bold"
+                >
+                  Mettre à jour
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4 : DÉCLARER RELATION */}
+      {showRelationModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#151c28] border border-[#2b3547] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">Déclarer un Lien Relationnel</h3>
+            <form onSubmit={handleDeclareRelation} className="space-y-4 text-xs">
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Matricule ou identifiant de l'autre membre</label>
+                <input
+                  type="text"
+                  required
+                  value={relationTargetMatricule}
+                  onChange={(e) => setRelationTargetMatricule(e.target.value)}
+                  placeholder="Ex: DAM-2023-001"
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                />
+              </div>
+
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Nature de la relation</label>
+                <select
+                  value={relationType}
+                  onChange={(e) => setRelationType(e.target.value as any)}
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                >
+                  <option value="SPONSOR">Parrain / Marraine d’intégration</option>
+                  <option value="MENTOR">Mentor / Accompagnateur</option>
+                  <option value="COLLABORATOR">Collaborateur / Associé</option>
+                  <option value="FRATERNAL">Lien Fraternel / Recommandation</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Précisions (optionnel)</label>
+                <input
+                  type="text"
+                  value={relationNotes}
+                  onChange={(e) => setRelationNotes(e.target.value)}
+                  placeholder="Contexte ou commission de parrainage..."
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowRelationModal(false)}
+                  className="px-4 py-2 rounded-xl bg-[#242e40] text-[#9ca7b8] hover:text-[#e5e9f2]"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#f2ca50] text-slate-950 font-bold"
+                >
+                  Déclarer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );
