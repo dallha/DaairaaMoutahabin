@@ -92,7 +92,7 @@ export default function App() {
             <Route
               path="/users"
               element={
-                <RoleGuard allowed={['superadmin']}>
+                <RoleGuard allowed={['admin', 'superadmin']}>
                   <UserManagementPage />
                 </RoleGuard>
               }

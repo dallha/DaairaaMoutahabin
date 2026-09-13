@@ -223,3 +223,37 @@ export async function deleteMember(id: string): Promise<void> {
     throw new Error(`Erreur suppression membre : ${res.status}`);
   }
 }
+
+export async function restoreMember(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/members/${id}/restore/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders(),
+    },
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || err.detail || 'Impossible de restaurer le membre.');
+  }
+}
+
+export async function hardDeleteMember(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/members/${id}/hard_delete/`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders(),
+    },
+    credentials: 'include',
+    body: JSON.stringify({ confirm_hard_delete: true }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || err.detail || 'Impossible de supprimer définitivement le membre.');
+  }
+}
+

@@ -235,6 +235,87 @@ export const DashboardOverviewPage: React.FC = () => {
 
       </section>
 
+      {/* 2.5 Bento : Actions Rapides & Accélérateurs */}
+      <section className="rounded-2xl bg-[#111722]/80 border border-[#2b3547]/60 p-5 shadow-xl space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[#f2ca50] text-[22px]">bolt</span>
+            <h2 className="font-headline-sm text-base font-semibold text-[#e5e9f2]">
+              Actions Rapides &amp; Pilotage Communautaire
+            </h2>
+          </div>
+          <span className="text-[11px] text-[#9ca7b8]">Raccourcis exécutifs</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {['admin', 'superadmin', 'agent'].includes(user?.role || '') && (
+            <Link
+              to="/members/new"
+              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/60 hover:border-[#f2ca50]/50 transition group"
+            >
+              <div className="w-10 h-10 rounded-lg bg-[#f2ca50]/15 text-[#f2ca50] flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                <span className="material-symbols-outlined text-[22px]">person_add</span>
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-semibold text-[#e5e9f2] group-hover:text-[#f2ca50] truncate">
+                  + Nouvel Enrôlement
+                </span>
+                <span className="text-[10px] text-[#9ca7b8] truncate">Générer matricule officiel</span>
+              </div>
+            </Link>
+          )}
+
+          {['admin', 'superadmin'].includes(user?.role || '') && (
+            <Link
+              to="/users?action=create"
+              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/60 hover:border-blue-400/50 transition group"
+            >
+              <div className="w-10 h-10 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                <span className="material-symbols-outlined text-[22px]">manage_accounts</span>
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-semibold text-[#e5e9f2] group-hover:text-blue-400 truncate">
+                  + Créer Compte Accès
+                </span>
+                <span className="text-[10px] text-[#9ca7b8] truncate">Lier utilisateur à un membre</span>
+              </div>
+            </Link>
+          )}
+
+          <Link
+            to="/network"
+            className="flex items-center gap-3 p-3.5 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/60 hover:border-emerald-400/50 transition group"
+          >
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+              <span className="material-symbols-outlined text-[22px]">hub</span>
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-xs font-semibold text-[#e5e9f2] group-hover:text-emerald-400 truncate">
+                Carrefour d'Entraide
+              </span>
+              <span className="text-[10px] text-[#9ca7b8] truncate">Trouver compétences &amp; services</span>
+            </div>
+          </Link>
+
+          {['admin', 'superadmin'].includes(user?.role || '') && (
+            <Link
+              to="/audit"
+              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/60 hover:border-purple-400/50 transition group"
+            >
+              <div className="w-10 h-10 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                <span className="material-symbols-outlined text-[22px]">verified_user</span>
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-semibold text-[#e5e9f2] group-hover:text-purple-400 truncate">
+                  Journal de Sécurité
+                </span>
+                <span className="text-[10px] text-[#9ca7b8] truncate">Traçabilité Neon immuable</span>
+              </div>
+            </Link>
+          )}
+        </div>
+      </section>
+
       {/* 3. Zone Centrale : Activité Récente & Distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-7">
         

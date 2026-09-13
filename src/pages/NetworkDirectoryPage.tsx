@@ -238,9 +238,9 @@ export const NetworkDirectoryPage: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <span className="text-xs text-[#9ca7b8]">
-              <strong className="text-[#f2ca50]">{totalCount}</strong> disciples correspondants
+              <strong className="text-[#f2ca50]">{totalCount}</strong> membres recensés • <strong className="text-emerald-400">{members.filter(m => (m.skills && m.skills.length > 0) || m.services_count > 0).length}</strong> profil{members.filter(m => (m.skills && m.skills.length > 0) || m.services_count > 0).length > 1 ? 's' : ''} enrichi{members.filter(m => (m.skills && m.skills.length > 0) || m.services_count > 0).length > 1 ? 's' : ''}
             </span>
             {hasActiveFilters && (
               <button
@@ -359,7 +359,10 @@ export const NetworkDirectoryPage: React.FC = () => {
                       ))}
                     </div>
                   ) : (
-                    <span className="text-[11px] text-[#788294] italic">Généraliste / En cours d'enrichissement</span>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#111722] border border-amber-500/20 text-amber-300/80 text-[10px] font-medium">
+                      <span className="material-symbols-outlined text-[13px] text-amber-400">pending</span>
+                      <span>Profil communautaire en cours d’enrichissement</span>
+                    </span>
                   )}
                 </div>
               </div>
