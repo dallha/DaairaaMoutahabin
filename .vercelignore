@@ -1,4 +1,8 @@
-# Vercel Ignore: exclut le backend Django du build frontend Vercel
-backend
+# Vercel Ignore: exclusions locales et caches
 .venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+db.sqlite3
 Procfile
