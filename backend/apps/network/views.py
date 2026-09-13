@@ -16,6 +16,9 @@ from .models import (
     MemberAvailability,
     MemberRelation,
     RelationStatusChoices,
+    MemberNeed,
+    NeedVisibilityChoices,
+    NeedStatusChoices,
 )
 from .permissions import IsAdminUserRole, IsOwnerOrAdmin
 from .serializers import (
@@ -27,6 +30,7 @@ from .serializers import (
     MemberAvailabilitySerializer,
     MemberRelationSerializer,
     NetworkMemberCardSerializer,
+    MemberNeedSerializer,
 )
 
 
@@ -176,6 +180,62 @@ class MemberRelationViewSet(viewsets.ModelViewSet):
         instance.approved_at = timezone.now()
         instance.save(update_fields=['status', 'approved_by', 'approved_at'])
         return Response(self.get_serializer(instance).data)
+
+
+class MemberNeedViewSet(viewsets.ModelViewSet):
+    """
+    Gestion des besoins et demandes d'entraide formulées par les disciples.
+    Supporte le filtrage par type, statut, urgence, et applique les restrictions de visibilité.
+    """
+    queryset = MemberNeed.objects.all().select_related('member')
+    serializer_class = MemberNeedSerializer
+    permission_classes = [IsOwnerOrAdmin]
+
+    def get_queryset(self):
+        user = self.request.user
+        is_admin = bool(
+            user.is_superuser or user.is_staff or
+            user.groups.filter(name__in=['admin', 'superadmin', 'Super-Administrateurs', 'Administrateurs']).exists()
+        )
+        qs = super().get_queryset()
+
+        member_param = self.request.query_params.get('member')
+        if member_param:
+            qs = qs.filter(Q(member__matricule=member_param) | Q(member__id=member_param))
+
+        status_param = self.request.query_params.get('status')
+        if status_param:
+            qs = qs.filter(status=status_param)
+
+        need_type = self.request.query_params.get('type')
+        if need_type:
+            qs = qs.filter(need_type=need_type)
+
+        urgency = self.request.query_params.get('urgency')
+        if urgency:
+            qs = qs.filter(urgency_level=urgency)
+
+        # Les utilisateurs ordinaires ne voient pas les besoins confidentiels administration
+        # à moins d'en être le demandeur
+        if not is_admin:
+            if hasattr(user, 'member_profile') and user.member_profile:
+                qs = qs.filter(
+                    ~Q(visibility_level=NeedVisibilityChoices.RESTRICTED_ADMIN) |
+                    Q(member=user.member_profile)
+                )
+            else:
+                qs = qs.exclude(visibility_level=NeedVisibilityChoices.RESTRICTED_ADMIN)
+
+        return qs
+
+    @action(detail=True, methods=['post'], permission_classes=[IsOwnerOrAdmin])
+    def resolve(self, request, pk=None):
+        """Marque une demande d'entraide comme pourvue / résolue."""
+        need = self.get_object()
+        need.status = NeedStatusChoices.RESOLVED
+        need.resolved_at = timezone.now()
+        need.save(update_fields=['status', 'resolved_at', 'updated_at'])
+        return Response(self.get_serializer(need).data)
 
 
 class NetworkDiscoveryView(APIView):

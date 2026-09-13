@@ -61,7 +61,7 @@ class Education(models.Model):
         choices=EducationStatusChoices.choices,
         default=EducationStatusChoices.IN_PROGRESS
     )
-    start_year = models.PositiveSmallIntegerField(_('Année de début'))
+    start_year = models.PositiveSmallIntegerField(_('Année de début'), null=True, blank=True)
     end_year = models.PositiveSmallIntegerField(_('Année de fin (ou prévue)'), null=True, blank=True)
 
     class Meta:

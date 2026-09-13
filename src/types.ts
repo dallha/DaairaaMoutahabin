@@ -181,3 +181,42 @@ export interface PermissionDefinition {
 
 export type RolePermissionsConfig = Record<UserRole, Record<string, boolean>>;
 
+export type NeedType =
+  | 'MENTORSHIP'
+  | 'INTERNSHIP'
+  | 'JOB_SEARCH'
+  | 'PRO_SERVICE'
+  | 'LEGAL_ADMIN'
+  | 'ACADEMIC'
+  | 'COMMUNITY_AID'
+  | 'OTHER';
+
+export type NeedUrgency = 'NORMAL' | 'HIGH' | 'CRITICAL';
+
+export type NeedStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'EXPIRED' | 'CANCELLED';
+
+export type NeedVisibility = 'PUBLIC' | 'INTERNAL' | 'RESTRICTED_ADMIN';
+
+export interface MemberNeed {
+  id: string;
+  member: string;
+  memberName?: string;
+  memberMatricule?: string;
+  needType: NeedType;
+  needTypeDisplay?: string;
+  title: string;
+  description: string;
+  urgencyLevel: NeedUrgency;
+  urgencyLevelDisplay?: string;
+  status: NeedStatus;
+  statusDisplay?: string;
+  visibilityLevel: NeedVisibility;
+  visibilityLevelDisplay?: string;
+  isAnonymous: boolean;
+  expiresAt?: string;
+  resolvedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+

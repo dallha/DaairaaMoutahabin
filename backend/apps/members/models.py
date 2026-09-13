@@ -307,7 +307,7 @@ class Contact(models.Model):
         related_name='contacts',
         verbose_name=_('Membre')
     )
-    phone = models.CharField(_('Téléphone'), max_length=30)
+    phone = models.CharField(_('Téléphone'), max_length=30, blank=True, default='')
     phone_visible_to_members = models.BooleanField(
         _('Téléphone visible aux membres'),
         default=False,

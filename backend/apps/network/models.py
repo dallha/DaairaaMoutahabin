@@ -363,3 +363,119 @@ class MemberRelation(models.Model):
 
     def __str__(self):
         return f"{self.from_member} ➔ {self.to_member} ({self.get_relation_type_display()} - {self.get_status_display()})"
+
+
+# ==============================================================================
+# 5. BESOINS & RECHERCHE D'ENTRAIDE COMMUNAUTAIRE (MEMBER NEED)
+# ==============================================================================
+
+class NeedTypeChoices(models.TextChoices):
+    MENTORSHIP = 'MENTORSHIP', _('Recherche de mentorat')
+    INTERNSHIP = 'INTERNSHIP', _('Recherche de stage')
+    JOB_SEARCH = 'JOB_SEARCH', _('Recherche d’emploi')
+    PRO_SERVICE = 'PRO_SERVICE', _('Prestation / Artisan de confiance')
+    LEGAL_ADMIN = 'LEGAL_ADMIN', _('Conseil juridique ou administratif')
+    ACADEMIC = 'ACADEMIC', _('Aide scolaire & universitaire')
+    COMMUNITY_AID = 'COMMUNITY_AID', _('Entraide fraternelle')
+    OTHER = 'OTHER', _('Autre besoin')
+
+
+class NeedUrgencyChoices(models.TextChoices):
+    NORMAL = 'NORMAL', _('Normal')
+    HIGH = 'HIGH', _('Prioritaire')
+    CRITICAL = 'CRITICAL', _('Urgent')
+
+
+class NeedStatusChoices(models.TextChoices):
+    OPEN = 'OPEN', _('Ouvert')
+    IN_PROGRESS = 'IN_PROGRESS', _('En cours de traitement')
+    RESOLVED = 'RESOLVED', _('Résolu / Pourvu')
+    EXPIRED = 'EXPIRED', _('Expiré')
+    CANCELLED = 'CANCELLED', _('Annulé')
+
+
+class NeedVisibilityChoices(models.TextChoices):
+    PUBLIC = 'PUBLIC', _('Visible à tous les membres connectés')
+    INTERNAL = 'INTERNAL', _('Visible uniquement au réseau ciblé')
+    RESTRICTED_ADMIN = 'RESTRICTED_ADMIN', _('Confidentiel (Administration uniquement)')
+
+
+class MemberNeed(models.Model):
+    """
+    Expression d'un besoin ou d'une demande d'entraide formulée par un membre.
+    Articulée avec MemberService et MemberSkill pour animer les mises en relation dans /network.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    member = models.ForeignKey(
+        'members.Member',
+        on_delete=models.CASCADE,
+        related_name='needs',
+        verbose_name=_('Membre demandeur')
+    )
+    need_type = models.CharField(
+        _('Type de besoin'),
+        max_length=30,
+        choices=NeedTypeChoices.choices,
+        default=NeedTypeChoices.OTHER
+    )
+    title = models.CharField(_('Intitulé de la demande'), max_length=150)
+    description = models.TextField(_('Détails & Précisions'))
+    urgency_level = models.CharField(
+        _('Degré d’urgence'),
+        max_length=20,
+        choices=NeedUrgencyChoices.choices,
+        default=NeedUrgencyChoices.NORMAL
+    )
+    status = models.CharField(
+        _('Statut'),
+        max_length=20,
+        choices=NeedStatusChoices.choices,
+        default=NeedStatusChoices.OPEN
+    )
+    visibility_level = models.CharField(
+        _('Visibilité'),
+        max_length=25,
+        choices=NeedVisibilityChoices.choices,
+        default=NeedVisibilityChoices.PUBLIC
+    )
+    is_anonymous = models.BooleanField(
+        _('Anonymiser auprès des pairs'),
+        default=False,
+        help_text=_('Masque le nom du membre pour les autres adhérents, mais reste obligatoirement visible aux administrateurs.')
+    )
+    expires_at = models.DateTimeField(_('Date d’expiration'), null=True, blank=True)
+    resolved_at = models.DateTimeField(_('Date de résolution'), null=True, blank=True)
+    created_at = models.DateTimeField(_('Créé le'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Modifié le'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Besoin / Demande d’entraide')
+        verbose_name_plural = _('Besoins / Demandes d’entraide')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status', 'need_type'], name='idx_needs_status_type'),
+            models.Index(fields=['urgency_level'], name='idx_needs_urgency'),
+            models.Index(fields=['expires_at'], name='idx_needs_expires'),
+        ]
+
+    def clean(self):
+        super().clean()
+        from django.utils import timezone
+        # Règle métier : RESOLVED => resolved_at obligatoire
+        if self.status == NeedStatusChoices.RESOLVED:
+            if not self.resolved_at:
+                self.resolved_at = timezone.now()
+        elif self.status in [NeedStatusChoices.OPEN, NeedStatusChoices.IN_PROGRESS]:
+            self.resolved_at = None
+
+        if self.status == NeedStatusChoices.EXPIRED:
+            if not self.expires_at:
+                self.expires_at = timezone.now()
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"[{self.get_need_type_display()}] {self.title} - {self.get_status_display()}"
+

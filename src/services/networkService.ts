@@ -390,3 +390,79 @@ export async function searchNetwork(params: NetworkSearchParams): Promise<{
     return { count: 0, results: [] };
   }
 }
+
+// ----------------------------------------------------------------------
+// Besoins & Demandes d'Entraide (MemberNeed)
+// ----------------------------------------------------------------------
+
+export interface MemberNeedDTO {
+  id: string;
+  member: string;
+  member_name?: string;
+  member_matricule?: string;
+  need_type: string;
+  need_type_display?: string;
+  title: string;
+  description: string;
+  urgency_level: 'NORMAL' | 'HIGH' | 'CRITICAL';
+  urgency_level_display?: string;
+  status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'EXPIRED' | 'CANCELLED';
+  status_display?: string;
+  visibility_level: 'PUBLIC' | 'INTERNAL' | 'RESTRICTED_ADMIN';
+  visibility_level_display?: string;
+  is_anonymous: boolean;
+  expires_at?: string | null;
+  resolved_at?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export async function fetchMemberNeeds(memberIdOrMatricule?: string): Promise<MemberNeedDTO[]> {
+  try {
+    const url = memberIdOrMatricule
+      ? `${API_BASE}/member-needs/?member=${encodeURIComponent(memberIdOrMatricule)}`
+      : `${API_BASE}/member-needs/`;
+    const res = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : (data.results || []);
+  } catch {
+    return [];
+  }
+}
+
+export async function createMemberNeed(data: Partial<MemberNeedDTO>): Promise<MemberNeedDTO | null> {
+  try {
+    const res = await fetch(`${API_BASE}/member-needs/`, {
+      method: 'POST',
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function resolveMemberNeed(needId: string): Promise<MemberNeedDTO | null> {
+  try {
+    const res = await fetch(`${API_BASE}/member-needs/${needId}/resolve/`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+

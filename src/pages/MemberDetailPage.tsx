@@ -22,6 +22,10 @@ import {
   approveMemberRelation,
   Skill,
   ServiceCatalogItem,
+  MemberNeedDTO,
+  fetchMemberNeeds,
+  createMemberNeed,
+  resolveMemberNeed,
 } from '../services/networkService';
 import { Member } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -40,6 +44,7 @@ export const MemberDetailPage: React.FC = () => {
   const [services, setServices] = useState<MemberServiceOffer[]>([]);
   const [availability, setAvailability] = useState<MemberAvailability | null>(null);
   const [relations, setRelations] = useState<MemberRelation[]>([]);
+  const [needs, setNeeds] = useState<MemberNeedDTO[]>([]);
 
   // Modals & Formularires
   const [availableSkillsList, setAvailableSkillsList] = useState<Skill[]>([]);
@@ -48,8 +53,15 @@ export const MemberDetailPage: React.FC = () => {
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
   const [showRelationModal, setShowRelationModal] = useState(false);
+  const [showNeedModal, setShowNeedModal] = useState(false);
 
   // Form states
+  const [needTitle, setNeedTitle] = useState('');
+  const [needDescription, setNeedDescription] = useState('');
+  const [needType, setNeedType] = useState('SOLIDARITY');
+  const [needUrgency, setNeedUrgency] = useState<'NORMAL' | 'HIGH' | 'CRITICAL'>('NORMAL');
+  const [needVisibility, setNeedVisibility] = useState<'INTERNAL' | 'RESTRICTED_ADMIN'>('INTERNAL');
+  const [needIsAnonymous, setNeedIsAnonymous] = useState(false);
   const [selectedSkillId, setSelectedSkillId] = useState('');
   const [skillLevel, setSkillLevel] = useState<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT'>('INTERMEDIATE');
   const [skillYears, setSkillYears] = useState<number>(2);
@@ -98,11 +110,12 @@ export const MemberDetailPage: React.FC = () => {
             setMember(found);
             // Charger les données 360° en parallèle
             const lookupKey = found.matricule || found.id;
-            const [sk, srv, av, rel] = await Promise.all([
+            const [sk, srv, av, rel, nds] = await Promise.all([
               getMemberSkills(lookupKey),
               getMemberServices(lookupKey),
               getMemberAvailability(lookupKey),
               getMemberRelations(lookupKey),
+              fetchMemberNeeds(lookupKey),
             ]);
             setSkills(sk);
             setServices(srv);
@@ -116,6 +129,7 @@ export const MemberDetailPage: React.FC = () => {
               setAvailHours(av.weekly_hours_available || 4);
             }
             setRelations(rel);
+            setNeeds(nds);
           } else {
             setError(`Fiche membre introuvable pour "${id}".`);
           }
@@ -292,6 +306,54 @@ export const MemberDetailPage: React.FC = () => {
       }
     } catch (err: any) {
       setActionError(err.message || 'Erreur approbation.');
+    }
+  };
+
+  const handleCreateNeed = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!member || !needTitle) return;
+    try {
+      setActionError(null);
+      const created = await createMemberNeed({
+        member: member.id,
+        title: needTitle,
+        description: needDescription,
+        need_type: needType,
+        urgency_level: needUrgency,
+        visibility_level: needVisibility,
+        is_anonymous: needIsAnonymous,
+      });
+      if (created) {
+        const lookupKey = member.matricule || member.id;
+        const updated = await fetchMemberNeeds(lookupKey);
+        setNeeds(updated);
+        setShowNeedModal(false);
+        setNeedTitle('');
+        setNeedDescription('');
+        setNeedIsAnonymous(false);
+        setActionSuccess("Demande d'entraide formulée avec succès.");
+        setTimeout(() => setActionSuccess(null), 4000);
+      } else {
+        setActionError("Erreur lors de l'enregistrement de la demande.");
+      }
+    } catch (err: any) {
+      setActionError(err.message || "Erreur lors de l'enregistrement du besoin.");
+    }
+  };
+
+  const handleResolveNeed = async (needId: string) => {
+    try {
+      setActionError(null);
+      const resolved = await resolveMemberNeed(needId);
+      if (resolved && member) {
+        const lookupKey = member.matricule || member.id;
+        const updated = await fetchMemberNeeds(lookupKey);
+        setNeeds(updated);
+        setActionSuccess('Demande marquée comme résolue (clôturée avec succès).');
+        setTimeout(() => setActionSuccess(null), 4000);
+      }
+    } catch (err: any) {
+      setActionError(err.message || 'Erreur lors de la résolution du besoin.');
     }
   };
 
@@ -728,6 +790,99 @@ export const MemberDetailPage: React.FC = () => {
             )}
           </div>
 
+          {/* Section G : Besoins & Demandes d'Entraide */}
+          <div className="p-5 rounded-xl bg-[#111722]/80 border border-[#2b3547]/40 md:col-span-2 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">handshake</span>
+                Besoins &amp; Demandes d'Entraide ({needs.length})
+              </h3>
+              {canEdit && (
+                <button
+                  onClick={() => setShowNeedModal(true)}
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#242e40] hover:bg-[#f2ca50] hover:text-slate-950 text-xs font-semibold text-[#f2ca50] transition"
+                >
+                  <span className="material-symbols-outlined text-[15px]">add</span>
+                  <span>Exprimer un besoin</span>
+                </button>
+              )}
+            </div>
+
+            {needs.length === 0 ? (
+              <p className="text-xs text-[#9ca7b8] italic">Aucune demande d'entraide ou de mise en relation active.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                {needs.map((nd) => (
+                  <div
+                    key={nd.id}
+                    className="p-3.5 rounded-xl bg-[#151c28] border border-[#2b3547]/60 flex flex-col justify-between gap-2.5 text-xs"
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <h4 className="font-bold text-[#e5e9f2] text-sm leading-snug">{nd.title}</h4>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            nd.urgency_level === 'CRITICAL' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                            nd.urgency_level === 'HIGH' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                            'bg-blue-500/15 text-blue-300'
+                          }`}>
+                            {nd.urgency_level_display || nd.urgency_level}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            nd.status === 'RESOLVED' ? 'bg-emerald-500/20 text-emerald-400' :
+                            nd.status === 'IN_PROGRESS' ? 'bg-indigo-500/20 text-indigo-300' :
+                            nd.status === 'CANCELLED' || nd.status === 'EXPIRED' ? 'bg-slate-500/20 text-slate-400' :
+                            'bg-[#f2ca50]/15 text-[#f2ca50]'
+                          }`}>
+                            {nd.status_display || nd.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      <p className="text-[#9ca7b8] text-xs leading-relaxed">{nd.description}</p>
+
+                      <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] text-[#788294]">
+                        <span className="px-1.5 py-0.5 rounded bg-[#111722] border border-[#2b3547]/40 text-[#f2ca50]">
+                          {nd.need_type_display || nd.need_type}
+                        </span>
+                        {nd.is_anonymous && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-300 font-medium">
+                            <span className="material-symbols-outlined text-[12px]">visibility_off</span>
+                            Anonymat préservé
+                          </span>
+                        )}
+                        {nd.created_at && (
+                          <span>Publié le {new Date(nd.created_at).toLocaleDateString('fr-FR')}</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-[#2b3547]/30 flex items-center justify-between">
+                      <span className="text-[11px] text-[#9ca7b8]">
+                        {nd.status === 'RESOLVED' && nd.resolved_at ? (
+                          <span className="text-emerald-400 font-medium">
+                            Résolu le {new Date(nd.resolved_at).toLocaleDateString('fr-FR')}
+                          </span>
+                        ) : (
+                          `Visibilité : ${nd.visibility_level_display || nd.visibility_level}`
+                        )}
+                      </span>
+                      {canEdit && (nd.status === 'OPEN' || nd.status === 'IN_PROGRESS') && (
+                        <button
+                          onClick={() => handleResolveNeed(nd.id)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-300 text-[11px] font-semibold transition"
+                        >
+                          <span className="material-symbols-outlined text-[13px]">check_circle</span>
+                          <span>Marquer résolu</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
 
@@ -1014,6 +1169,115 @@ export const MemberDetailPage: React.FC = () => {
                   className="px-4 py-2 rounded-xl bg-[#f2ca50] text-slate-950 font-bold"
                 >
                   Déclarer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 5 : EXPRIMER UN BESOIN */}
+      {showNeedModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#151c28] border border-[#2b3547] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">Exprimer un Besoin / Entraide</h3>
+            <form onSubmit={handleCreateNeed} className="space-y-4 text-xs">
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Intitulé de la demande *</label>
+                <input
+                  type="text"
+                  required
+                  value={needTitle}
+                  onChange={(e) => setNeedTitle(e.target.value)}
+                  placeholder="Ex: Recherche stage juriste, Appui matériel..."
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[#9ca7b8] font-medium block mb-1">Nature du besoin</label>
+                  <select
+                    value={needType}
+                    onChange={(e) => setNeedType(e.target.value)}
+                    className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                  >
+                    <option value="EMPLOYMENT">Emploi &amp; Recrutement</option>
+                    <option value="INTERNSHIP">Stage &amp; Alternance</option>
+                    <option value="MENTORSHIP">Mentorat &amp; Conseil</option>
+                    <option value="BUSINESS_PARTNER">Partenariat d'affaires</option>
+                    <option value="SERVICE_REQUEST">Demande de prestation</option>
+                    <option value="SOLIDARITY">Solidarité &amp; Entraide</option>
+                    <option value="OTHER">Autre démarche</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[#9ca7b8] font-medium block mb-1">Degré d'urgence</label>
+                  <select
+                    value={needUrgency}
+                    onChange={(e) => setNeedUrgency(e.target.value as any)}
+                    className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                  >
+                    <option value="NORMAL">Normal</option>
+                    <option value="HIGH">Prioritaire / Urgent</option>
+                    <option value="CRITICAL">Critique / Vital</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Visibilité de la demande</label>
+                <select
+                  value={needVisibility}
+                  onChange={(e) => setNeedVisibility(e.target.value as any)}
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                >
+                  <option value="INTERNAL">Membres de la Dahirah</option>
+                  <option value="RESTRICTED_ADMIN">Direction &amp; Admins uniquement</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[#9ca7b8] font-medium block mb-1">Description détaillée *</label>
+                <textarea
+                  required
+                  rows={3}
+                  value={needDescription}
+                  onChange={(e) => setNeedDescription(e.target.value)}
+                  placeholder="Précisez les attentes, les critères ou les démarches..."
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                />
+              </div>
+
+              <div className="p-3 rounded-xl bg-[#111722] border border-[#2b3547]/60">
+                <label className="flex items-start gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={needIsAnonymous}
+                    onChange={(e) => setNeedIsAnonymous(e.target.checked)}
+                    className="mt-0.5 rounded text-[#f2ca50]"
+                  />
+                  <span className="text-[11px] text-[#9ca7b8]">
+                    <strong className="text-[#e5e9f2] block">Préserver l'anonymat face aux pairs</strong>
+                    Votre identité ne sera visible que par les administrateurs pour traitement bienveillant et discret.
+                  </span>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowNeedModal(false)}
+                  className="px-4 py-2 rounded-xl bg-[#242e40] text-[#9ca7b8] hover:text-[#e5e9f2]"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#f2ca50] text-slate-950 font-bold"
+                >
+                  Publier la Demande
                 </button>
               </div>
             </form>

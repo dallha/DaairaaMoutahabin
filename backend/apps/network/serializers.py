@@ -11,6 +11,8 @@ from .models import (
     MemberAvailability,
     MemberRelation,
     RelationStatusChoices,
+    MemberNeed,
+    NeedStatusChoices,
 )
 
 
@@ -188,3 +190,72 @@ class NetworkMemberCardSerializer(serializers.ModelSerializer):
         if hasattr(obj, 'availability') and obj.availability:
             return obj.availability.open_for_pro_help
         return False
+
+
+class MemberNeedSerializer(serializers.ModelSerializer):
+    """
+    Sérialiseur pour les besoins et demandes d'entraide communautaire.
+    Applique l'anonymat relatif : masque l'identité pour les pairs si is_anonymous=True,
+    mais la restitue systématiquement aux Administrateurs et Super-Administrateurs.
+    """
+    member_name = serializers.SerializerMethodField()
+    member_matricule = serializers.SerializerMethodField()
+    need_type_display = serializers.CharField(source='get_need_type_display', read_only=True)
+    urgency_level_display = serializers.CharField(source='get_urgency_level_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    visibility_level_display = serializers.CharField(source='get_visibility_level_display', read_only=True)
+
+    class Meta:
+        model = MemberNeed
+        fields = [
+            'id', 'member', 'member_name', 'member_matricule',
+            'need_type', 'need_type_display',
+            'title', 'description',
+            'urgency_level', 'urgency_level_display',
+            'status', 'status_display',
+            'visibility_level', 'visibility_level_display',
+            'is_anonymous', 'expires_at', 'resolved_at',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['created_at', 'updated_at']
+
+    def _is_admin(self):
+        request = self.context.get('request')
+        return bool(request and request.user and (
+            request.user.is_superuser or
+            request.user.is_staff or
+            request.user.groups.filter(name__in=[UserRole.ADMIN, UserRole.SUPERADMIN]).exists()
+        ))
+
+    def get_member_name(self, obj):
+        request = self.context.get('request')
+        if obj.is_anonymous and not self._is_admin():
+            if request and hasattr(request.user, 'member_profile') and request.user.member_profile == obj.member:
+                return f"{obj.member.display_name} (Vous - anonymisé)"
+            return "Membre de la Dahirah (Anonyme)"
+        return obj.member.display_name
+
+    def get_member_matricule(self, obj):
+        request = self.context.get('request')
+        if obj.is_anonymous and not self._is_admin():
+            if request and hasattr(request.user, 'member_profile') and request.user.member_profile == obj.member:
+                return obj.member.matricule
+            return None
+        return obj.member.matricule
+
+    def validate(self, attrs):
+        from django.utils import timezone
+        status_val = attrs.get('status', getattr(self.instance, 'status', None))
+        resolved_at = attrs.get('resolved_at', getattr(self.instance, 'resolved_at', None))
+        expires_at = attrs.get('expires_at', getattr(self.instance, 'expires_at', None))
+
+        if status_val == NeedStatusChoices.RESOLVED and not resolved_at:
+            attrs['resolved_at'] = timezone.now()
+        elif status_val in [NeedStatusChoices.OPEN, NeedStatusChoices.IN_PROGRESS]:
+            attrs['resolved_at'] = None
+
+        if status_val == NeedStatusChoices.EXPIRED and not expires_at:
+            attrs['expires_at'] = timezone.now()
+
+        return attrs
+
