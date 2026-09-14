@@ -9,7 +9,7 @@ import { Member } from '../types';
 
 export const DashboardOverviewPage: React.FC = () => {
   const { user } = useAuth();
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, tControlled } = useLanguage();
 
   const isSuperAdmin = user?.role === 'superadmin';
   const isAdmin = user?.role === 'admin' || isSuperAdmin;
@@ -45,7 +45,7 @@ export const DashboardOverviewPage: React.FC = () => {
 
           if (membersData.status === 'fulfilled') {
             const list = membersData.value.members || [];
-            setRecentMembers(list.slice(0, 5));
+            setRecentMembers(list.slice(0, 6));
             const foundPresident = list.find(
               (m) => m.isPresident || m.institutionalRoleCode === 'PRESIDENT'
             );
@@ -708,125 +708,84 @@ export const DashboardOverviewPage: React.FC = () => {
               </Link>
             </div>
 
-            {/* Vue Desktop : Tableau complet */}
-            <div className="hidden md:block w-full overflow-x-auto">
-              <table className="w-full text-left text-xs font-body-md">
-                <thead>
-                  <tr className="bg-[#111722]/70 text-[#9ca7b8] text-[11px] font-bold uppercase tracking-wider border-b border-[#2b3547]/40">
-                    <th className="py-3 px-5">{t('members')} &amp; Matricule</th>
-                    <th className="py-3 px-4">{t('situation')}</th>
-                    <th className="py-3 px-4">{t('location')}</th>
-                    <th className="py-3 px-5 text-right">{t('actions')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#2b3547]/20">
-                  {recentMembers.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="py-8 text-center text-[#9ca7b8]">
-                        {isLoading ? t('loading') : t('emptyState')}
-                      </td>
-                    </tr>
-                  ) : (
-                    recentMembers.map((member) => (
-                      <tr key={member.id} className="group hover:bg-[#1b2332]/60 transition-colors">
-                        <td className="py-3.5 px-5">
-                          <div className="flex items-center gap-3">
-                            <MemberAvatar
-                              photoUrl={member.photo}
-                              name={`${member.prenom} ${member.nom}`}
-                              matricule={member.matricule}
-                              size="sm"
-                            />
-                            <div className="flex flex-col min-w-0">
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="font-semibold text-[#e5e9f2] text-sm group-hover:text-[#f2ca50] transition-colors">
-                                  {member.prenom} {member.nom}
-                                </span>
-                                {member.is_founder && (
-                                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#f2ca50]/20 text-[#f2ca50] border border-[#f2ca50]/40">
-                                    {t('founderBadge')}
-                                  </span>
-                                )}
-                                {member.is_president && (
-                                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                                    {t('presidentBadge')}
-                                  </span>
-                                )}
-                              </div>
-                              <span className="text-[11px] text-[#9ca7b8] font-mono ltr-tech">{member.matricule}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-4 text-[#e5e9f2]">
-                          {member.situation || t('members')}
-                        </td>
-                        <td className="py-3.5 px-4 text-[#9ca7b8]">
-                          {member.ville || 'Sénégal'}
-                        </td>
-                        <td className="py-3.5 px-5 text-right">
-                          <Link
-                            to={`/members/${member.matricule || member.id}`}
-                            className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#242e40] hover:bg-[#f2ca50] hover:text-slate-950 text-[#e5e9f2] text-xs font-medium transition"
-                          >
-                            <span>{t('viewProfile')}</span>
-                            <span className="material-symbols-outlined text-[13px]">arrow_forward</span>
-                          </Link>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Vue Mobile : Cartes verticales fluides (P0 Responsiveness) */}
-            <div className="block md:hidden divide-y divide-[#2b3547]/30">
+            {/* Grille de Cartes Membres (Card View moderne) */}
+            <div className="p-4 sm:p-5">
               {recentMembers.length === 0 ? (
-                <div className="py-8 text-center text-[#9ca7b8] text-xs">
+                <div className="py-12 text-center text-[#9ca7b8] text-xs">
                   {isLoading ? t('loading') : t('emptyState')}
                 </div>
               ) : (
-                recentMembers.map((member) => (
-                  <Link
-                    key={member.id}
-                    to={`/members/${member.matricule || member.id}`}
-                    className="flex items-center justify-between p-4 hover:bg-[#1b2332]/60 transition-colors gap-3 group"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <MemberAvatar
-                        photoUrl={member.photo}
-                        name={`${member.prenom} ${member.nom}`}
-                        matricule={member.matricule}
-                        size="md"
-                      />
-                      <div className="flex flex-col min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="font-semibold text-[#e5e9f2] text-sm group-hover:text-[#f2ca50] transition-colors truncate">
-                            {member.prenom} {member.nom}
-                          </span>
-                          {member.is_founder && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#f2ca50]/20 text-[#f2ca50] border border-[#f2ca50]/40 shrink-0">
-                              {t('founderBadge')}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {recentMembers.map((member) => (
+                    <div
+                      key={member.id}
+                      className="relative rounded-2xl bg-gradient-to-br from-[#121926] to-[#0e1522] border border-[#2b3547]/60 hover:border-[#f2ca50]/50 p-4 shadow-md hover:shadow-xl transition-all duration-200 group flex flex-col justify-between gap-3.5"
+                    >
+                      {/* Haut de la carte : Avatar + Infos d'identité + Badges */}
+                      <div className="flex items-start gap-3 min-w-0">
+                        <MemberAvatar
+                          photoUrl={member.photo}
+                          name={`${member.prenom} ${member.nom}`}
+                          matricule={member.matricule}
+                          size="md"
+                          className="shrink-0 group-hover:scale-105 transition-transform"
+                        />
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-semibold text-[#e5e9f2] text-sm group-hover:text-[#f2ca50] transition-colors truncate">
+                              {member.prenom} {member.nom}
+                            </span>
+                            {member.is_founder && (
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#f2ca50]/20 text-[#f2ca50] border border-[#f2ca50]/40 shrink-0">
+                                {t('founderBadge')}
+                              </span>
+                            )}
+                            {member.is_president && (
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0">
+                                {t('presidentBadge')}
+                              </span>
+                            )}
+                          </div>
+
+                          {member.nomArabe && (
+                            <span className="text-xs text-[#c8a44d] font-headline-sm truncate mt-0.5">
+                              {member.nomArabe}
                             </span>
                           )}
-                          {member.is_president && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0">
-                              {t('presidentBadge')}
+
+                          <div className="flex items-center gap-2 text-[11px] text-[#9ca7b8] mt-1 flex-wrap">
+                            <span className="px-1.5 py-0.5 rounded bg-[#1b2636] border border-[#2b3547] text-[#f2ca50] font-mono font-semibold ltr-tech">
+                              {member.matricule}
                             </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 text-[11px] text-[#9ca7b8] mt-1">
-                          <span className="font-mono ltr-tech text-[#f2ca50] font-semibold">{member.matricule}</span>
-                          <span>•</span>
-                          <span className="truncate">{member.situation || member.ville || 'Dahirah'}</span>
+                            <span>•</span>
+                            <span className="truncate">{member.professionActuelle || member.situation || t('members')}</span>
+                          </div>
                         </div>
                       </div>
+
+                      {/* Métadonnées : Ville & Statut */}
+                      <div className="flex items-center justify-between text-xs pt-2 border-t border-[#2b3547]/30 text-[#9ca7b8]">
+                        <div className="flex items-center gap-1 truncate">
+                          <span className="material-symbols-outlined text-[15px] text-[#bfcfed]">location_on</span>
+                          <span className="truncate">{member.ville || 'Sénégal'}</span>
+                        </div>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#f2ca50]/10 border border-[#f2ca50]/20 text-[#f2ca50] text-[10px] font-bold shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#f2ca50]"></span>
+                          {tControlled('member_status', member.statutCompte) || 'ACTIF'}
+                        </span>
+                      </div>
+
+                      {/* Action : Voir profil */}
+                      <Link
+                        to={`/members/${member.matricule || member.id}`}
+                        className="inline-flex items-center justify-center gap-2 w-full px-3 py-2 rounded-xl bg-[#242e40]/70 group-hover:bg-[#f2ca50] group-hover:text-slate-950 text-[#e5e9f2] text-xs font-semibold transition border border-[#2b3547]/60 group-hover:border-[#f2ca50]"
+                      >
+                        <span>{t('viewProfile')}</span>
+                        <span className="material-symbols-outlined text-[15px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                      </Link>
                     </div>
-                    <div className="shrink-0 text-[#9ca7b8] group-hover:text-[#f2ca50] transition-colors">
-                      <span className="material-symbols-outlined text-[20px]">chevron_right</span>
-                    </div>
-                  </Link>
-                ))
+                  ))}
+                </div>
               )}
             </div>
           </section>
