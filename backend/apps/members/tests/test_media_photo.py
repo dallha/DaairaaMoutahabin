@@ -362,3 +362,39 @@ class MemberMediaPhotoTests(APITestCase):
             self.assertIn("STRICTEMENT OBLIGATOIRE", str(ctx.exception))
             self.assertIn("Aucun fallback local silencieux", str(ctx.exception))
 
+    def test_11_mpo_smartphone_photo_converted_to_webp(self):
+        """
+        Vérifie qu'une photo au format MPO (Multi-Picture Object généré par les smartphones/iPhone)
+        est acceptée en entrée, que sa frame principale est extraite, redimensionnée <= 1600px
+        et enregistrée sous format canonique WebP <= 2 Mo.
+        """
+        self.client.force_authenticate(user=self.user_a)
+
+        # Création d'une image multi-vues MPO (2 frames, 2000x2000)
+        img1 = Image.new('RGB', (2000, 2000), color=(100, 150, 200))
+        img2 = Image.new('RGB', (500, 500), color=(200, 150, 100))
+        buf = io.BytesIO()
+        img1.save(buf, format='MPO', save_all=True, append_images=[img2])
+        buf.seek(0)
+
+        uploaded_mpo = SimpleUploadedFile("iphone_portrait.jpg", buf.read(), content_type="image/jpeg")
+
+        url = f"/api/v1/members/{self.member_a.id}/photo/"
+        response = self.client.post(url, {'photo': uploaded_mpo}, format='multipart')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        media_data = response.data['data']
+
+        # Vérification des caractéristiques canoniques WebP
+        self.assertEqual(media_data['mime_type'], 'image/webp')
+        self.assertTrue(media_data['photo_url'].endswith('.webp'))
+        self.assertLessEqual(media_data['width'], 1600)
+        self.assertLessEqual(media_data['height'], 1600)
+        self.assertLessEqual(media_data['size'], 2 * 1024 * 1024)
+
+        # Vérification en base
+        media_record = MemberMedia.objects.get(id=media_data['media_id'])
+        self.assertEqual(media_record.mime_type, 'image/webp')
+        self.assertTrue(media_record.is_current_profile_photo)
+
+

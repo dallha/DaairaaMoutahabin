@@ -24,11 +24,12 @@ Image.MAX_IMAGE_PIXELS = 50_000_000
 MAX_RAW_UPLOAD_BYTES = 10 * 1024 * 1024       # 10 Mo max en entrée brute pour prévenir le DoS
 MAX_TARGET_BYTES = 2 * 1024 * 1024           # 2 Mo max requis par la politique Dahirah
 MAX_DIMENSION = 1600                         # 1600x1600 px max
-ALLOWED_FORMATS = {'JPEG', 'PNG', 'WEBP'}
+ALLOWED_FORMATS = {'JPEG', 'PNG', 'WEBP', 'MPO'}
 MIME_MAP = {
     'JPEG': 'image/jpeg',
     'PNG': 'image/png',
-    'WEBP': 'image/webp'
+    'WEBP': 'image/webp',
+    'MPO': 'image/jpeg',
 }
 
 
@@ -38,7 +39,8 @@ def validate_and_inspect_image(uploaded_file):
     1. Contrôle de taille brute avant chargement mémoire.
     2. Inspection binaire réelle des magic bytes via Pillow (ne fait jamais confiance au header HTTP).
     3. Protection contre les Decompression Bombs.
-    4. Validation du format d'image intrinsèque.
+    4. Validation du format d'image intrinsèque (JPEG, PNG, WebP, MPO smartphones).
+    5. Pour les conteneurs multi-images MPO (iPhone Portrait/HDR), extraction de l'image principale.
     """
     if uploaded_file.size > MAX_RAW_UPLOAD_BYTES:
         raise ValidationError(_("Le fichier excède la limite maximale autorisée de 10 Mo avant traitement."))
@@ -55,8 +57,17 @@ def validate_and_inspect_image(uploaded_file):
 
     if image_format not in ALLOWED_FORMATS:
         raise ValidationError(
-            _("Format %(format)s non supporté. Seuls JPEG, PNG et WebP sont autorisés.") % {'format': image_format}
+            _("Format %(format)s non supporté. Seuls JPEG, PNG, WebP et MPO sont autorisés.") % {'format': image_format}
         )
+
+    # Si conteneur multi-images MPO (smartphones iPhone Portrait/Live), extraction sécurisée de la frame principale
+    if image_format == 'MPO':
+        try:
+            image.seek(0)
+        except Exception as e:
+            logger.debug(f"Impossible de positionner sur la première frame MPO : {e}")
+        # Détacher la photo principale du conteneur multi-frames
+        image = image.copy()
 
     return image, image_format
 
