@@ -43,3 +43,51 @@ else:
         'http://localhost:5173',
     ]
 CORS_ALLOW_CREDENTIALS = True
+
+# -----------------------------------------------------------------------------
+# Stockage Objet Découplé (S3, Cloudflare R2, Supabase Storage)
+# Neon PostgreSQL ne stocke AUCUN binaire ; les médias sont acheminés
+# vers le stockage objet distant (ou /tmp sécurisé en serverless Vercel).
+# -----------------------------------------------------------------------------
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL')  # Requis pour Cloudflare R2, Supabase S3, MinIO
+AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'auto')
+AWS_S3_CUSTOM_DOMAIN = os.environ.get('AWS_S3_CUSTOM_DOMAIN')  # CDN personnalisé ou pub-xxx.r2.dev
+AWS_DEFAULT_ACL = None  # Bucket Owner Enforced
+AWS_QUERYSTRING_AUTH = False
+AWS_S3_FILE_OVERWRITE = False
+
+if AWS_STORAGE_BUCKET_NAME and AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
+    if 'storages' not in INSTALLED_APPS:
+        INSTALLED_APPS = list(INSTALLED_APPS) + ['storages']
+
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+            "OPTIONS": {
+                "location": "media",
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+else:
+    # Fallback pour staging / dev sans bucket configuré
+    # Sur Vercel Serverless, utilise /tmp/media pour éviter l'erreur de filesystem en lecture seule
+    storage_location = "/tmp/media" if os.environ.get('VERCEL') else str(MEDIA_ROOT)
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+            "OPTIONS": {
+                "location": storage_location,
+                "base_url": "/media/",
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+

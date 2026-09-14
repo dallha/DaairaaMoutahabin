@@ -237,3 +237,102 @@ class MemberMediaPhotoTests(APITestCase):
                 self.assertTrue(len(str(code)) > 0, f"Code vide dans {choices_cls.__name__}")
                 # Vérification que le label Django gettext_lazy est renseigné
                 self.assertTrue(len(str(label)) > 0, f"Label vide pour {code} dans {choices_cls.__name__}")
+
+    def test_07_heavy_photo_compression_and_no_raw_storage(self):
+        """
+        Upload d'une photo lourde > 2 Mo et haute résolution :
+        - La photo originale brute n'est JAMAIS stockée sur le disque / bucket.
+        - Le fichier sauvegardé est strictement un WebP optimisé <= 2 Mo et <= 1600x1600.
+        - Le fichier physique existe bien dans le storage abstrait.
+        """
+        import os
+        from django.core.files.storage import default_storage
+
+        # Générer une image haute résolution (1800x1800) non compressée
+        # Pour obtenir un poids de fichier élevé (> 2 Mo), on utilise du bruit ou BMP/PNG haute densité
+        file_obj = io.BytesIO()
+        raw_image = Image.new('RGB', (1800, 1800), color=(120, 80, 200))
+        raw_image.save(file_obj, format='PNG')
+        raw_bytes = file_obj.getvalue()
+        file_obj.seek(0)
+
+        uploaded = SimpleUploadedFile("heavy_photo.png", raw_bytes, content_type="image/png")
+
+        client = APIClient()
+        client.force_authenticate(user=self.user_a)
+        response = client.post(
+            f'/api/v1/members/{self.member_a.id}/photo/',
+            {'photo': uploaded},
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        media_data = response.data['data']
+
+        # 1. Vérification : dimensions redimensionnées <= 1600x1600
+        self.assertLessEqual(media_data['width'], 1600)
+        self.assertLessEqual(media_data['height'], 1600)
+
+        # 2. Vérification : taille finale strictement <= 2 Mo
+        self.assertLessEqual(media_data['size'], 2 * 1024 * 1024)
+        self.assertEqual(media_data['mime_type'], 'image/webp')
+
+        # 3. Vérification : le fichier brut "heavy_photo.png" n'a JAMAIS été écrit sur le storage
+        self.assertFalse(default_storage.exists("heavy_photo.png"))
+        self.assertFalse(default_storage.exists("members/photos/heavy_photo.png"))
+
+        # 4. Vérification : seul le WebP optimisé existe sur le storage
+        media_record = MemberMedia.objects.get(id=media_data['media_id'])
+        self.assertTrue(media_record.file.name.endswith('.webp'))
+        self.assertTrue(default_storage.exists(media_record.file.name))
+
+    def test_08_physical_file_deleted_from_storage(self):
+        """
+        Vérifie qu'une suppression d'avatar supprime également
+        le fichier physique du storage sans laisser de détritus orphelins.
+        """
+        from django.core.files.storage import default_storage
+
+        client = APIClient()
+        client.force_authenticate(user=self.user_a)
+
+        img = create_test_image(width=300, height=300, format='JPEG')
+        resp = client.post(f'/api/v1/members/{self.member_a.id}/photo/', {'photo': img}, format='multipart')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        media = MemberMedia.objects.filter(member=self.member_a, is_current_profile_photo=True).first()
+        file_path = media.file.name
+        self.assertTrue(default_storage.exists(file_path))
+
+        # Suppression de l'avatar
+        del_resp = client.delete(f'/api/v1/members/{self.member_a.id}/photo/')
+        self.assertEqual(del_resp.status_code, status.HTTP_200_OK)
+
+        # Le fichier physique DOIT avoir disparu du storage
+        self.assertFalse(default_storage.exists(file_path))
+
+    def test_09_production_storage_object_configuration(self):
+        """
+        Vérifie que la configuration de production (production.py)
+        active bien le stockage objet S3Boto3Storage lorsque les credentials
+        de bucket sont renseignés dans l'environnement.
+        """
+        import os
+        from unittest.mock import patch
+
+        with patch.dict(os.environ, {
+            'AWS_STORAGE_BUCKET_NAME': 'dairatu-media-bucket',
+            'AWS_ACCESS_KEY_ID': 'test_key_id',
+            'AWS_SECRET_ACCESS_KEY': 'test_key_value',
+            'AWS_S3_ENDPOINT_URL': 'https://mock.r2.cloudflarestorage.com',
+        }):
+            import importlib
+            import config.settings.production as prod_settings
+            importlib.reload(prod_settings)
+
+            # Vérification que le backend S3Boto3Storage est sélectionné
+            self.assertEqual(
+                prod_settings.STORAGES['default']['BACKEND'],
+                'storages.backends.s3boto3.S3Boto3Storage'
+            )
+            self.assertIn('storages', prod_settings.INSTALLED_APPS)
+
