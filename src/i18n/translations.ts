@@ -389,6 +389,7 @@ export const TRANSLATIONS = {
     executiveSecurityEvents: 'Événements de sécurité audités',
     examineAuditEventsBtn: 'Examiner le journal d’audit',
     compactMemberViewLabel: 'Voir le profil complet',
+    visibilityLabel: 'Niveau de visibilité',
 
     // Generic Actions & Messages
     save: 'Enregistrer',
@@ -791,6 +792,7 @@ export const TRANSLATIONS = {
     executiveSecurityEvents: 'أحداث الأمان المدققة',
     examineAuditEventsBtn: 'مراجعة سجل التدقيق',
     compactMemberViewLabel: 'عرض الملف الكامل',
+    visibilityLabel: 'مستوى الرؤية',
 
     // Generic Actions & Messages
     save: 'حفظ التغييرات',

@@ -7,7 +7,11 @@ interface LanguageContextType {
   toggleLanguage: () => void;
   isRTL: boolean;
   dir: 'ltr' | 'rtl';
-  t: (key: keyof typeof TRANSLATIONS.fr, fallback?: string) => string;
+  t: (
+    key: keyof typeof TRANSLATIONS.fr,
+    fallbackOrParams?: string | Record<string, string | number>,
+    maybeParams?: Record<string, string | number>
+  ) => string;
   tControlled: (category: keyof typeof CONTROLLED_TRANSLATIONS.fr, codeKey: string) => string;
 }
 

@@ -601,7 +601,7 @@ export const MemberDetailPage: React.FC = () => {
                 className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition shadow-sm"
               >
                 <span className="material-symbols-outlined text-[17px]">chat</span>
-                <span>{t('whatsapp')}</span>
+                <span>{t('whatsappLabel')}</span>
               </a>
             </div>
           )}
@@ -623,7 +623,7 @@ export const MemberDetailPage: React.FC = () => {
               </div>
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
                 <span className="text-[#9ca7b8]">{t('professionLabel')}</span>
-                <span className="font-medium text-[#e5e9f2]">{primaryProf?.metier || member.professionActuelle || t('role_member')}</span>
+                <span className="font-medium text-[#e5e9f2]">{primaryProf?.metier || member.professionActuelle || t('roleMember')}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
                 <span className="text-[#9ca7b8]">{t('companyLabel')}</span>
@@ -1372,7 +1372,7 @@ export const MemberDetailPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">{t('visibility')}</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('visibilityLabel')}</label>
                 <select
                   value={needVisibility}
                   onChange={(e) => setNeedVisibility(e.target.value as any)}

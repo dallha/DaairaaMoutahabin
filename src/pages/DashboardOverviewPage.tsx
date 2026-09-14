@@ -11,6 +11,10 @@ export const DashboardOverviewPage: React.FC = () => {
   const { user } = useAuth();
   const { t, isRTL } = useLanguage();
 
+  const isSuperAdmin = user?.role === 'superadmin';
+  const isAdmin = user?.role === 'admin' || isSuperAdmin;
+  const isStaffOrAdmin = ['admin', 'superadmin', 'agent'].includes(user?.role || '');
+
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentMembers, setRecentMembers] = useState<Member[]>([]);
   const [founder, setFounder] = useState<Member | null>(null);
@@ -740,12 +744,12 @@ export const DashboardOverviewPage: React.FC = () => {
                                 </span>
                                 {member.is_founder && (
                                   <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#f2ca50]/20 text-[#f2ca50] border border-[#f2ca50]/40">
-                                    {t('badgeFounder')}
+                                    {t('founderBadge')}
                                   </span>
                                 )}
                                 {member.is_president && (
                                   <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                                    {t('badgePresident')}
+                                    {t('presidentBadge')}
                                   </span>
                                 )}
                               </div>
@@ -802,12 +806,12 @@ export const DashboardOverviewPage: React.FC = () => {
                           </span>
                           {member.is_founder && (
                             <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#f2ca50]/20 text-[#f2ca50] border border-[#f2ca50]/40 shrink-0">
-                              {t('badgeFounder')}
+                              {t('founderBadge')}
                             </span>
                           )}
                           {member.is_president && (
                             <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0">
-                              {t('badgePresident')}
+                              {t('presidentBadge')}
                             </span>
                           )}
                         </div>
