@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 from pathlib import Path
 
 # Add backend directory to sys.path
@@ -13,3 +14,11 @@ from django.core.wsgi import get_wsgi_application
 
 # Vercel Serverless Python runtime looks for `app` WSGI callable
 app = get_wsgi_application()
+
+# Execute pending database migrations automatically in production
+try:
+    from django.core.management import call_command
+    call_command('migrate', interactive=False)
+except Exception as exc:
+    logging.getLogger('django').warning(f"Auto-migration on startup: {exc}")
+
