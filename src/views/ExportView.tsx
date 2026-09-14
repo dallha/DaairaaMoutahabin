@@ -121,7 +121,7 @@ export const ExportView: React.FC<ExportViewProps> = ({
             {[
               { id: 'CSV', label: 'CSV Universel', desc: 'Pour Excel, Google Sheets ou LibreOffice', icon: FileSpreadsheet },
               { id: 'EXCEL', label: 'Feuille Tableur', desc: 'Structure tabulaire avec en-têtes', icon: FileSpreadsheet },
-              { id: 'JSON', label: 'JSON Structuré', desc: 'Format compatible API Django & Neon', icon: FileCode },
+              { id: 'JSON', label: 'JSON Structuré', desc: 'Format de données universel', icon: FileCode },
             ].map((fmt) => {
               const Icon = fmt.icon;
               return (

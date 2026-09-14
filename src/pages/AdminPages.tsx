@@ -97,10 +97,10 @@ export const AuditLogsPage: React.FC = () => {
         <div>
           <h1 className="font-headline-lg text-2xl font-semibold text-[#e5e9f2] flex items-center gap-2">
             <span className="material-symbols-outlined text-[#f2ca50] text-[28px]">verified_user</span>
-            Journal d'Audit Immuable &amp; Traçabilité
+            Historique des actions de la direction
           </h1>
           <p className="text-xs text-[#9ca7b8] mt-1">
-            Enregistrement inaltérable de chaque événement sur PostgreSQL Neon (CRUD, élévation, sessions).
+            Enregistrement chronologique et sécurisé de chaque action de la direction.
           </p>
         </div>
         <button
@@ -360,7 +360,7 @@ export const AuditLogsPage: React.FC = () => {
 
 
 // ==============================================================================
-// 2. PAGE GESTION COMPLÈTE DES COMPTES UTILISATEURS (CRUD + RBAC + MEMBRE ≠ USER)
+// 2. PAGE GESTION COMPLÈTE DES COMPTES UTILISATEURS (RBAC + MEMBRE ≠ USER)
 // ==============================================================================
 
 export const UserManagementPage: React.FC = () => {
@@ -1145,7 +1145,7 @@ export const UserManagementPage: React.FC = () => {
 
 
 // ==============================================================================
-// 3. PARAMÈTRES SYSTÈME & INFRASTRUCTURE NEON
+// 3. PARAMÈTRES SYSTÈME & CONFIGURATION PLATEFORME
 // ==============================================================================
 
 export const SystemSettingsPage: React.FC = () => {
@@ -1154,30 +1154,28 @@ export const SystemSettingsPage: React.FC = () => {
       <div className="p-5 rounded-2xl bg-[#151c28]/90 border border-[#2b3547]/60 shadow-xl">
         <h1 className="font-headline-lg text-2xl font-semibold text-[#e5e9f2] flex items-center gap-2">
           <span className="material-symbols-outlined text-[#f2ca50] text-[26px]">settings</span>
-          Paramètres &amp; Infrastructure Système
+          Configuration &amp; État de la Plateforme
         </h1>
-        <p className="text-xs text-[#9ca7b8] mt-1">Configuration du cluster Neon PostgreSQL et intégrité applicative.</p>
+        <p className="text-xs text-[#9ca7b8] mt-1">Surveillance des services et intégrité applicative.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="p-5 rounded-2xl bg-[#151c28]/90 border border-[#2b3547]/60 text-xs space-y-2">
           <div className="flex items-center gap-2 text-emerald-400 font-bold">
             <span className="material-symbols-outlined text-[18px]">dns</span>
-            <span>Cluster PostgreSQL Neon</span>
+            <span>Base de données centrale</span>
           </div>
-          <p className="text-[#9ca7b8]">Statut : <span className="text-emerald-400 font-bold">Connecté &amp; Opérationnel</span></p>
-          <p className="text-[#9ca7b8]">Host : <span className="font-mono text-[#e5e9f2]">ep-holy-butterfly-...aws.neon.tech</span></p>
-          <p className="text-[#9ca7b8]">Mode SSL : <span className="font-mono text-[#e5e9f2]">require</span></p>
+          <p className="text-[#9ca7b8]">Statut : <span className="text-emerald-400 font-bold">Connectée &amp; Opérationnelle</span></p>
+          <p className="text-[#9ca7b8]">Sécurité des flux : <span className="font-mono text-[#e5e9f2]">Chiffrement SSL actif</span></p>
         </div>
 
         <div className="p-5 rounded-2xl bg-[#151c28]/90 border border-[#2b3547]/60 text-xs space-y-2">
           <div className="flex items-center gap-2 text-[#f2ca50] font-bold">
             <span className="material-symbols-outlined text-[18px]">cloud</span>
-            <span>Distribution Vercel SPA</span>
+            <span>Hébergement et distribution web</span>
           </div>
-          <p className="text-[#9ca7b8]">Stack : <span className="text-[#e5e9f2] font-semibold">React 19 + Vite 6 + React Router v7</span></p>
-          <p className="text-[#9ca7b8]">Deep Linking : <span className="text-emerald-400 font-bold">Actif (F5 fallback index.html)</span></p>
-          <p className="text-[#9ca7b8]">Headers de Sécurité : <span className="text-emerald-400 font-bold">DENY, nosniff, strict-origin</span></p>
+          <p className="text-[#9ca7b8]">Navigation fluide : <span className="text-emerald-400 font-bold">Active</span></p>
+          <p className="text-[#9ca7b8]">Protection des accès : <span className="text-emerald-400 font-bold">Sécurisée</span></p>
         </div>
       </div>
     </div>

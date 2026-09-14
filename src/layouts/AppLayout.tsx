@@ -494,8 +494,8 @@ export const AppLayout: React.FC = () => {
                   className="flex flex-col items-center justify-center text-center p-3 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/50 hover:border-emerald-400/50 transition group"
                 >
                   <span className="material-symbols-outlined text-[26px] text-emerald-400 group-hover:scale-110 transition-transform mb-1">verified_user</span>
-                  <span className="text-xs font-semibold text-[#e5e9f2]">Journal d'Audit</span>
-                  <span className="text-[10px] text-[#9ca7b8]">Traçabilité immuable</span>
+                  <span className="text-xs font-semibold text-[#e5e9f2]">{t('breadcrumbAudit')}</span>
+                  <span className="text-[10px] text-[#9ca7b8]">{t('immutableNeonTraceDesc')}</span>
                 </Link>
               )}
 
@@ -506,7 +506,7 @@ export const AppLayout: React.FC = () => {
                   className="col-span-2 flex items-center justify-center gap-2 p-3 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/50 hover:border-[#f2ca50]/50 transition group"
                 >
                   <span className="material-symbols-outlined text-[20px] text-[#f2ca50]">settings</span>
-                  <span className="text-xs font-semibold text-[#e5e9f2]">Paramètres Système &amp; Neon</span>
+                  <span className="text-xs font-semibold text-[#e5e9f2]">{t('platformSettingsTitle')}</span>
                 </Link>
               )}
             </div>
@@ -525,7 +525,7 @@ export const AppLayout: React.FC = () => {
                 autoFocus
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Matricule (ex: DAMF-0001) ou nom..."
+                placeholder={t('searchPlaceholder')}
                 className="w-full bg-transparent text-[#e5e9f2] placeholder-[#788294] outline-none text-sm"
               />
               <button
@@ -537,7 +537,7 @@ export const AppLayout: React.FC = () => {
               </button>
             </form>
             <div className="p-3 text-[11px] text-[#788294] flex items-center justify-between">
-              <span>Astuce : Entrez un matricule direct pour ouvrir la fiche</span>
+              <span>{t('quickSearchTip')}</span>
               <kbd className="px-1.5 py-0.5 rounded bg-[#1b2332] border border-[#2b3547]">Entrée ↵</kbd>
             </div>
           </div>

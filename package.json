@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test:i18n": "tsx scripts/test_i18n_parity.ts"
+    "test:i18n": "tsx scripts/test_i18n_parity.ts",
+    "test:jargon": "tsx scripts/test_zero_jargon.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

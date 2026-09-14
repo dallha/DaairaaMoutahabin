@@ -149,7 +149,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <span>Infrastructure & Schéma de Base de Données</span>
             </h3>
             <p className="text-xs text-stone-500">
-              État de la compatibilité avec la stack cible (Django REST Framework + PostgreSQL Neon)
+              État de la compatibilité avec les services de la plateforme
             </p>
           </div>
 

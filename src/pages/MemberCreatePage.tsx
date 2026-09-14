@@ -77,7 +77,7 @@ export const MemberCreatePage: React.FC = () => {
             </h1>
           </div>
           <p className="text-xs text-[#9ca7b8]">
-            Enregistrement officiel dans le registre souverain de la Dahirah (PostgreSQL Neon).
+            Enregistrement officiel dans le registre souverain de la Dahirah.
           </p>
         </div>
 
