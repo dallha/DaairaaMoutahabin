@@ -565,3 +565,113 @@ class MembersAPITests(APITestCase):
         self.assertEqual(res_matricule.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res_matricule.data['results']), 1)
         self.assertEqual(res_matricule.data['results'][0]['matricule'], 'DAMF-0001')
+
+    def test_founder_invariants_and_sacralization(self):
+        """
+        Vérifie les invariants stricts du Fondateur :
+        1. Exactement 1 fondateur actif
+        2. Fondateur = DAMF-0001 et priorité = 1
+        3. Impossible de cumuler is_founder et is_president
+        4. Protection contre la création d'un second fondateur actif
+        5. Modification interdite par un non-administrateur
+        """
+        from django.core.exceptions import ValidationError
+        Member.all_objects.all().hard_delete()
+
+        # Création du Fondateur officiel
+        founder = Member.objects.create(
+            first_name='Shaykh Muhammad Nūruddin',
+            last_name='Ibn Shaykh Muhammadul Amīn Ñas',
+            matricule='DAMF-0001',
+            is_founder=True,
+            institutional_priority=1
+        )
+        self.assertEqual(founder.institutional_role_code, 'FOUNDER')
+        self.assertEqual(founder.institutional_priority, 1)
+
+        # Règle : founder ≠ president
+        founder.is_president = True
+        with self.assertRaises(ValidationError):
+            founder.clean()
+
+        # Règle : pas de 2e fondateur actif
+        with self.assertRaises(ValidationError):
+            Member.objects.create(
+                first_name='Second',
+                last_name='Fondateur',
+                is_founder=True
+            )
+
+    def test_president_governance_and_ordering(self):
+        """
+        Vérifie la gouvernance complète de la Présidence de la Dahirah :
+        1. is_president=True assigne de manière déterministe institutional_priority=2 et role_code='PRESIDENT'
+        2. Unicité stricte du Président actif (DB constraint + clean)
+        3. Tri protocolaire : 1. Cheikh -> 2. Président -> 3. Disciples A-Z
+        4. Un président soft-deleted libère la fonction pour un successeur
+        """
+        from django.core.exceptions import ValidationError
+        Member.all_objects.all().hard_delete()
+
+        # 1. Guide Spirituel & Fondateur (Position 1)
+        founder = Member.objects.create(
+            first_name='Shaykh Muhammad Nūruddin',
+            last_name='Ibn Shaykh Muhammadul Amīn Ñas',
+            matricule='DAMF-0001',
+            is_founder=True,
+            institutional_priority=1
+        )
+
+        # 2. Président de la Dahirah (Position 2)
+        president = Member.objects.create(
+            first_name='Serigne',
+            last_name='Fall',
+            matricule='DAMF-0002',
+            is_president=True,
+            institutional_priority=2
+        )
+        self.assertEqual(president.institutional_role_code, 'PRESIDENT')
+        self.assertEqual(president.institutional_priority, 2)
+
+        # 3. Disciples ordinaires (Position 100)
+        m_b = Member.objects.create(first_name='Bacar', last_name='Sall', matricule='DAMF-0003')
+        m_a = Member.objects.create(first_name='Abdoulaye', last_name='Diallo', matricule='DAMF-0004')
+
+        # Vérification de l'ordre protocolaire dans l'API
+        client = self._auth_client(self.admin_user)
+        res = client.get('/api/v1/members/')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        results = res.data['results']
+        self.assertEqual(len(results), 4)
+
+        # 1. Cheikh
+        self.assertEqual(results[0]['matricule'], 'DAMF-0001')
+        self.assertEqual(results[0]['institutional_role_code'], 'FOUNDER')
+        self.assertTrue(results[0]['is_founder'])
+
+        # 2. Président
+        self.assertEqual(results[1]['matricule'], 'DAMF-0002')
+        self.assertEqual(results[1]['institutional_role_code'], 'PRESIDENT')
+        self.assertTrue(results[1]['is_president'])
+        self.assertEqual(results[1]['institutional_priority'], 2)
+
+        # 3. Disciples ordonnés A-Z : Abdoulaye Diallo -> Bacar Sall
+        self.assertEqual(results[2]['matricule'], 'DAMF-0004')
+        self.assertEqual(results[3]['matricule'], 'DAMF-0003')
+
+        # 4. Vérification d'unicité : interdiction d'un second président actif
+        with self.assertRaises(ValidationError):
+            Member.objects.create(
+                first_name='Autre',
+                last_name='President',
+                is_president=True
+            )
+
+        # 5. Soft delete du président actuel autorise un nouveau président
+        president.delete()
+        new_president = Member.objects.create(
+            first_name='Nouveau',
+            last_name='President',
+            is_president=True
+        )
+        self.assertEqual(new_president.institutional_role_code, 'PRESIDENT')

@@ -87,9 +87,11 @@ export function transformDjangoMember(item: any): Member {
     statutCompte: item.status === 'SUSPENDED' ? 'SUSPENDU' : 'ACTIF',
     notesInternes: item.notes || undefined,
     dataQualityIssues: [],
-    isFounder: Boolean(item.is_founder || item.institutional_priority === 1),
+    isFounder: Boolean(item.is_founder),
+    isPresident: Boolean(item.is_president),
     institutionalPriority: item.institutional_priority ?? 100,
-    institutionalRoleName: item.institutional_role_name || (item.is_founder ? 'Guide Spirituel & Fondateur' : undefined),
+    institutionalRoleCode: (item.institutional_role_code as 'FOUNDER' | 'PRESIDENT' | 'MEMBER') || (item.is_founder ? 'FOUNDER' : item.is_president ? 'PRESIDENT' : 'MEMBER'),
+    institutionalRoleName: item.institutional_role_name || (item.is_founder ? 'Guide Spirituel & Fondateur' : item.is_president ? 'Président de la Dahirah' : undefined),
   };
 }
 

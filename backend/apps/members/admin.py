@@ -11,10 +11,10 @@ class ContactInline(admin.TabularInline):
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
-    list_display = ('matricule', 'first_name', 'last_name', 'gender', 'situation', 'status', 'visibility_level', 'joined_at', 'is_deleted')
-    list_filter = ('status', 'situation', 'gender', 'visibility_level', 'is_deleted')
+    list_display = ('matricule', 'first_name', 'last_name', 'is_founder', 'is_president', 'institutional_priority', 'status', 'visibility_level', 'joined_at', 'is_deleted')
+    list_filter = ('is_founder', 'is_president', 'status', 'situation', 'gender', 'visibility_level', 'is_deleted')
     search_fields = ('matricule', 'first_name', 'last_name', 'contacts__phone')
-    ordering = ('last_name', 'first_name')
+    ordering = ('institutional_priority', 'last_name', 'first_name')
     readonly_fields = ('matricule', 'created_at', 'updated_at')
     inlines = [ContactInline]
     actions = ['restore_members', 'soft_delete_members']
@@ -22,6 +22,9 @@ class MemberAdmin(admin.ModelAdmin):
     fieldsets = (
         (_('Identification'), {
             'fields': ('matricule', 'user', 'first_name', 'last_name', 'gender', 'birth_date', 'photo')
+        }),
+        (_('Statut Protocolaire & Institutionnel'), {
+            'fields': ('is_founder', 'is_president', 'institutional_priority')
         }),
         (_('Situation & Statut'), {
             'fields': ('situation', 'status', 'visibility_level', 'joined_at', 'notes')

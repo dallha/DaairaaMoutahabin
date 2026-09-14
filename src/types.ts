@@ -78,7 +78,9 @@ export interface Member {
   notesInternes?: string;
   dataQualityIssues?: string[]; // E.g. "Numéro de téléphone manquant", "Nom incomplet"
   isFounder?: boolean;
+  isPresident?: boolean;
   institutionalPriority?: number;
+  institutionalRoleCode?: 'FOUNDER' | 'PRESIDENT' | 'MEMBER';
   institutionalRoleName?: string;
 }
 

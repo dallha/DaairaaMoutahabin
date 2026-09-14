@@ -168,11 +168,17 @@ class Member(models.Model):
         db_index=True,
         help_text=_('Priorité institutionnelle et protocolaire majeure.')
     )
+    is_president = models.BooleanField(
+        _('Président de la Dahirah'),
+        default=False,
+        db_index=True,
+        help_text=_('Direction exécutive et organisationnelle de la Dahirah.')
+    )
     institutional_priority = models.PositiveSmallIntegerField(
         _('Priorité protocolaire'),
         default=100,
         db_index=True,
-        help_text=_('1 = Guide Spirituel / Fondateur, 100 = Membres ordinaires.')
+        help_text=_('1 = Guide Spirituel / Fondateur, 2 = Président de la Dahirah, 100 = Membres ordinaires.')
     )
     canonical_name = models.CharField(
         _('Nom canonique de tri'),
@@ -202,11 +208,41 @@ class Member(models.Model):
             models.Index(fields=['situation'], name='idx_members_situation'),
             models.Index(fields=['status', 'is_deleted'], name='idx_members_status_del'),
         ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['is_founder'],
+                condition=models.Q(is_founder=True, is_deleted=False),
+                name='unique_active_founder_per_dahirah'
+            ),
+            models.UniqueConstraint(
+                fields=['is_president'],
+                condition=models.Q(is_president=True, is_deleted=False),
+                name='unique_active_president_per_dahirah'
+            ),
+        ]
 
     @property
     def display_name(self) -> str:
         """Propriété calculée combinant prénom et nom (aucune colonne en base)."""
         return f"{self.first_name} {self.last_name}".strip()
+
+    @property
+    def institutional_role_code(self) -> str:
+        """Code institutionnel canonique pour le frontend (FOUNDER, PRESIDENT, MEMBER)."""
+        if self.is_founder:
+            return 'FOUNDER'
+        if self.is_president:
+            return 'PRESIDENT'
+        return 'MEMBER'
+
+    @property
+    def institutional_role_name(self) -> str:
+        """Libellé officiel du rôle institutionnel."""
+        if self.is_founder:
+            return str(_('Guide Spirituel & Fondateur'))
+        if self.is_president:
+            return str(_('Président de la Dahirah'))
+        return str(_('Membre de la Dahirah'))
 
     @property
     def current_profile_photo(self):
@@ -233,9 +269,8 @@ class Member(models.Model):
     @classmethod
     def generate_next_matricule(cls, prefix: str = 'DAMF', year: int = None) -> str:
         """
-        Génération atomique et concurremment sûre du matricule séquentiel institutionnel DAMF-XXXX.
-        Utilise SELECT FOR UPDATE dans une transaction atomique pour verrouiller la ligne
-        de séquence sous PostgreSQL, éliminant tout risque de collision entre administrateurs.
+        Génère de manière atomique et thread-safe le prochain matricule officiel séquentiel.
+        Format normalisé : DAMF-0001, DAMF-0002, etc.
         """
         with transaction.atomic():
             sequence_record, _ = MatriculeSequence.objects.select_for_update().get_or_create(
@@ -248,15 +283,35 @@ class Member(models.Model):
 
     def clean(self):
         super().clean()
+        if self.is_founder and self.is_president:
+            raise ValidationError({
+                'is_president': _('Le Guide Spirituel & Fondateur et le Président de la Dahirah sont deux entités distinctes.')
+            })
         if self.is_founder:
-            existing_founder = Member.all_objects.filter(is_founder=True).exclude(pk=self.pk)
+            existing_founder = Member.all_objects.filter(is_founder=True, is_deleted=False).exclude(pk=self.pk)
             if existing_founder.exists():
                 raise ValidationError({
                     'is_founder': _('Un seul membre de la Dahirah peut porter le statut de Fondateur (DAMF-0001).')
                 })
+            self.institutional_priority = 1
+        elif self.is_president:
+            existing_president = Member.all_objects.filter(is_president=True, is_deleted=False).exclude(pk=self.pk)
+            if existing_president.exists():
+                raise ValidationError({
+                    'is_president': _('Un seul membre de la Dahirah peut être Président en exercice à la fois.')
+                })
+            self.institutional_priority = 2
+        else:
+            if self.institutional_priority in (1, 2):
+                self.institutional_priority = 100
+
         if self.institutional_priority == 1 and not self.is_founder:
             raise ValidationError({
                 'institutional_priority': _('La priorité protocolaire 1 est strictement réservée au Fondateur.')
+            })
+        if self.institutional_priority == 2 and not self.is_president:
+            raise ValidationError({
+                'institutional_priority': _('La priorité protocolaire 2 est strictement réservée au Président de la Dahirah.')
             })
 
     def save(self, *args, **kwargs):
@@ -269,17 +324,17 @@ class Member(models.Model):
         self.canonical_name = norm.upper()
 
         if self.pk:
-            orig = Member.all_objects.filter(pk=self.pk).values('is_founder', 'institutional_priority').first()
+            orig = Member.all_objects.filter(pk=self.pk).values('is_founder', 'is_president', 'institutional_priority').first()
             if orig:
-                if (orig['is_founder'] != self.is_founder or orig['institutional_priority'] != self.institutional_priority) and not getattr(self, '_allow_institutional_override', False):
+                if (orig['is_founder'] != self.is_founder or orig['is_president'] != self.is_president or orig['institutional_priority'] != self.institutional_priority) and not getattr(self, '_allow_institutional_override', False):
                     import logging
                     logger = logging.getLogger('security.governance')
                     logger.warning(
-                        "SECURITY AUDIT: Tentative non autorisée de modification des attributs institutionnels du membre %s (PK: %s) : founder (%s -> %s), priority (%s -> %s)",
-                        self.matricule, self.pk, orig['is_founder'], self.is_founder, orig['institutional_priority'], self.institutional_priority
+                        "SECURITY AUDIT: Tentative non autorisée de modification des attributs institutionnels du membre %s (PK: %s) : founder (%s -> %s), president (%s -> %s), priority (%s -> %s)",
+                        self.matricule, self.pk, orig['is_founder'], self.is_founder, orig['is_president'], self.is_president, orig['institutional_priority'], self.institutional_priority
                     )
                     raise ValidationError(
-                        _("Modification interdite : les attributs institutionnels (Fondateur, Priorité) sont sacralisés et protégés.")
+                        _("Modification interdite : les attributs institutionnels (Fondateur, Président, Priorité) sont sacralisés et protégés.")
                     )
 
         self.clean()

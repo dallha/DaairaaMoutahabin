@@ -57,6 +57,8 @@ def get_institutional_role(obj):
         return role_assignment.role.name
     if getattr(obj, 'is_founder', False):
         return "Guide Spirituel & Fondateur"
+    if getattr(obj, 'is_president', False):
+        return "Président de la Dahirah"
     return None
 
 
@@ -64,6 +66,7 @@ class MemberPublicSerializer(serializers.ModelSerializer):
     """Sérialiseur minimal pour les visiteurs anonymes (profils publics uniquement)."""
     display_name = serializers.CharField(read_only=True)
     institutional_role_name = serializers.SerializerMethodField()
+    institutional_role_code = serializers.CharField(read_only=True)
 
     class Meta:
         model = Member
@@ -74,7 +77,9 @@ class MemberPublicSerializer(serializers.ModelSerializer):
             'situation',
             'photo',
             'is_founder',
+            'is_president',
             'institutional_priority',
+            'institutional_role_code',
             'institutional_role_name',
         ]
 
@@ -87,6 +92,7 @@ class MemberDirectorySerializer(serializers.ModelSerializer):
     display_name = serializers.CharField(read_only=True)
     primary_contact = serializers.SerializerMethodField()
     institutional_role_name = serializers.SerializerMethodField()
+    institutional_role_code = serializers.CharField(read_only=True)
 
     class Meta:
         model = Member
@@ -101,7 +107,9 @@ class MemberDirectorySerializer(serializers.ModelSerializer):
             'photo',
             'status',
             'is_founder',
+            'is_president',
             'institutional_priority',
+            'institutional_role_code',
             'institutional_role_name',
             'primary_contact',
         ]
@@ -121,6 +129,7 @@ class MemberDetailSerializer(serializers.ModelSerializer):
     display_name = serializers.CharField(read_only=True)
     contacts = ContactNestedSerializer(many=True, read_only=True)
     institutional_role_name = serializers.SerializerMethodField()
+    institutional_role_code = serializers.CharField(read_only=True)
 
     class Meta:
         model = Member
@@ -137,7 +146,9 @@ class MemberDetailSerializer(serializers.ModelSerializer):
             'status',
             'visibility_level',
             'is_founder',
+            'is_president',
             'institutional_priority',
+            'institutional_role_code',
             'institutional_role_name',
             'joined_at',
             'created_at',
@@ -155,6 +166,7 @@ class MemberAdminSerializer(serializers.ModelSerializer):
     contacts = ContactNestedSerializer(many=True, read_only=True)
     user_email = serializers.EmailField(source='user.email', read_only=True)
     institutional_role_name = serializers.SerializerMethodField()
+    institutional_role_code = serializers.CharField(read_only=True)
 
     class Meta:
         model = Member
@@ -173,7 +185,9 @@ class MemberAdminSerializer(serializers.ModelSerializer):
             'status',
             'visibility_level',
             'is_founder',
+            'is_president',
             'institutional_priority',
+            'institutional_role_code',
             'institutional_role_name',
             'joined_at',
             'notes',
@@ -182,7 +196,7 @@ class MemberAdminSerializer(serializers.ModelSerializer):
             'updated_at',
             'contacts',
         ]
-        read_only_fields = ['id', 'matricule', 'is_founder', 'institutional_priority', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'matricule', 'is_founder', 'is_president', 'institutional_priority', 'institutional_role_code', 'created_at', 'updated_at']
 
     def get_institutional_role_name(self, obj):
         return get_institutional_role(obj)

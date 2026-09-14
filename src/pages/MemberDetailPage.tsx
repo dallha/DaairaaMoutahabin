@@ -410,7 +410,7 @@ export const MemberDetailPage: React.FC = () => {
     return (
       <div className="py-24 flex flex-col items-center justify-center text-[#f2ca50] gap-3">
         <span className="material-symbols-outlined text-[40px] animate-spin">sync</span>
-        <span className="text-xs text-[#9ca7b8] tracking-wide font-medium">Chargement du profil 360°...</span>
+        <span className="text-xs text-[#9ca7b8] tracking-wide font-medium">{t('loadingSheet')}</span>
       </div>
     );
   }
@@ -421,14 +421,14 @@ export const MemberDetailPage: React.FC = () => {
         <div className="w-14 h-14 rounded-full bg-amber-500/10 text-[#f2ca50] flex items-center justify-center">
           <span className="material-symbols-outlined text-[32px]">person_off</span>
         </div>
-        <h2 className="font-headline-sm text-xl font-bold text-[#e5e9f2]">Fiche Non Trouvée</h2>
-        <p className="text-xs text-[#9ca7b8]">{error || 'Le membre demandé n’existe pas dans les registres officiels.'}</p>
+        <h2 className="font-headline-sm text-xl font-bold text-[#e5e9f2]">{t('sheetNotFoundTitle')}</h2>
+        <p className="text-xs text-[#9ca7b8]">{error || t('sheetNotFoundDesc')}</p>
         <Link
           to="/members"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#242e40] text-[#f2ca50] font-semibold text-xs hover:bg-[#f2ca50] hover:text-slate-950 transition"
         >
           <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-          <span>Retourner à l'Annuaire</span>
+          <span>{t('returnToDirectory')}</span>
         </Link>
       </div>
     );
@@ -462,7 +462,7 @@ export const MemberDetailPage: React.FC = () => {
           className="inline-flex items-center gap-1.5 text-xs text-[#9ca7b8] hover:text-[#f2ca50] transition font-medium"
         >
           <span className="material-symbols-outlined text-[17px]">arrow_back</span>
-          <span>Annuaire communautaire</span>
+          <span>{t('backToDirectory')}</span>
         </button>
 
         <div className="flex items-center gap-2">
@@ -471,7 +471,7 @@ export const MemberDetailPage: React.FC = () => {
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#242e40] text-[#bfcfed] hover:text-[#f2ca50] text-xs font-semibold border border-[#2b3547] transition"
           >
             <span className="material-symbols-outlined text-[16px]">hub</span>
-            <span>Carrefour Entraide</span>
+            <span>{t('crossroadsLink')}</span>
           </Link>
           {canEdit && (
             <Link
@@ -479,7 +479,7 @@ export const MemberDetailPage: React.FC = () => {
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#f2ca50] text-slate-950 text-xs font-bold shadow-md hover:brightness-110 transition"
             >
               <span className="material-symbols-outlined text-[16px]">edit</span>
-              <span>Modifier la Fiche</span>
+              <span>{t('editSheetBtn')}</span>
             </Link>
           )}
         </div>
@@ -549,6 +549,23 @@ export const MemberDetailPage: React.FC = () => {
               <span className="px-2.5 py-0.5 rounded-full bg-[#f2ca50]/15 border border-[#f2ca50]/30 text-[#f2ca50] text-xs font-mono font-bold tracking-wider ltr-tech">
                 {member.matricule}
               </span>
+
+              {/* Badge Fondateur si applicable */}
+              {(member.isFounder || member.institutionalRoleCode === 'FOUNDER') && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#c8a44d]/15 border border-[#c8a44d]/40 text-[#c8a44d] text-xs font-bold tracking-wider uppercase">
+                  <span className="material-symbols-outlined text-[14px]">stars</span>
+                  {t('founderBadge')}
+                </span>
+              )}
+
+              {/* Badge Président si applicable */}
+              {(member.isPresident || member.institutionalRoleCode === 'PRESIDENT') && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-xs font-bold tracking-wider uppercase">
+                  <span className="material-symbols-outlined text-[14px]">workspace_premium</span>
+                  {t('presidentBadge')}
+                </span>
+              )}
+
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
                 {tControlled('member_status', member.statutCompte) || 'ACTIF'}
               </span>
@@ -558,7 +575,7 @@ export const MemberDetailPage: React.FC = () => {
                     ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                     : 'bg-amber-500/10 border-amber-500/30 text-amber-300'
                 }`}>
-                  {availability.status === 'AVAILABLE' ? 'Disponible pour entraide' : 'Disponibilité partielle'}
+                  {availability.status === 'AVAILABLE' ? t('availableForHelp') : t('partialAvailability')}
                 </span>
               )}
             </div>
@@ -584,7 +601,7 @@ export const MemberDetailPage: React.FC = () => {
                 className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition shadow-sm"
               >
                 <span className="material-symbols-outlined text-[17px]">chat</span>
-                <span>Échanger sur WhatsApp</span>
+                <span>{t('whatsapp')}</span>
               </a>
             </div>
           )}
@@ -597,24 +614,24 @@ export const MemberDetailPage: React.FC = () => {
           <div className="space-y-4 p-5 rounded-xl bg-[#111722]/80 border border-[#2b3547]/40">
             <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
               <span className="material-symbols-outlined text-[18px]">work</span>
-              Activité Professionnelle &amp; Statut
+              {t('workAndStatusSection')}
             </h3>
             <div className="space-y-2.5 text-xs">
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
-                <span className="text-[#9ca7b8]">Situation :</span>
-                <span className="font-medium text-[#e5e9f2]">{tControlled('situation', member.situation) || member.situation || 'Non précisé'}</span>
+                <span className="text-[#9ca7b8]">{t('situation')} :</span>
+                <span className="font-medium text-[#e5e9f2]">{tControlled('situation', member.situation) || member.situation || t('notSpecified')}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
-                <span className="text-[#9ca7b8]">Profession :</span>
-                <span className="font-medium text-[#e5e9f2]">{primaryProf?.metier || member.professionActuelle || 'Adhérent'}</span>
+                <span className="text-[#9ca7b8]">{t('professionLabel')}</span>
+                <span className="font-medium text-[#e5e9f2]">{primaryProf?.metier || member.professionActuelle || t('role_member')}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
-                <span className="text-[#9ca7b8]">Entreprise / Organisation :</span>
-                <span className="font-medium text-[#e5e9f2]">{primaryProf?.activite || 'Indépendant / Non précisé'}</span>
+                <span className="text-[#9ca7b8]">{t('companyLabel')}</span>
+                <span className="font-medium text-[#e5e9f2]">{primaryProf?.activite || t('independent')}</span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-[#9ca7b8]">Secteur :</span>
-                <span className="font-medium text-[#f2ca50]">{primaryProf?.secteur || 'Secteur général'}</span>
+                <span className="text-[#9ca7b8]">{t('sectorLabel')}</span>
+                <span className="font-medium text-[#f2ca50]">{primaryProf?.secteur || t('generalSector')}</span>
               </div>
             </div>
           </div>
@@ -623,34 +640,34 @@ export const MemberDetailPage: React.FC = () => {
           <div className="space-y-4 p-5 rounded-xl bg-[#111722]/80 border border-[#2b3547]/40">
             <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
               <span className="material-symbols-outlined text-[18px]">contact_phone</span>
-              Coordonnées &amp; Localisation
+              {t('contactsAndLocationSection')}
             </h3>
             <div className="space-y-2.5 text-xs">
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
-                <span className="text-[#9ca7b8]">Téléphone :</span>
-                <span className="font-medium text-[#e5e9f2] font-mono">
+                <span className="text-[#9ca7b8]">{t('phoneFieldLabel')}</span>
+                <span className="font-medium text-[#e5e9f2] font-mono ltr-tech">
                   {isPhoneVisible && member.telephone ? (
                     member.telephone
                   ) : (
                     <span className="text-[#788294] italic flex items-center gap-1">
                       <span className="material-symbols-outlined text-[14px]">lock</span>
-                      Coordonnée protégée (Admin uniquement)
+                      {t('protectedContactNotice')}
                     </span>
                   )}
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
-                <span className="text-[#9ca7b8]">Courriel :</span>
-                <span className="font-medium text-[#e5e9f2]">
-                  {member.email ? member.email : <span className="text-[#788294] italic">Non renseigné</span>}
+                <span className="text-[#9ca7b8]">{t('emailFieldLabel')}</span>
+                <span className="font-medium text-[#e5e9f2] ltr-tech">
+                  {member.email ? member.email : <span className="text-[#788294] italic">{t('notProvided')}</span>}
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
-                <span className="text-[#9ca7b8]">Ville / Pôle :</span>
+                <span className="text-[#9ca7b8]">{t('cityFieldLabel')}</span>
                 <span className="font-medium text-[#e5e9f2]">{member.ville || 'Dakar'}</span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-[#9ca7b8]">Pays :</span>
+                <span className="text-[#9ca7b8]">{t('countryFieldLabel')}</span>
                 <span className="font-medium text-[#e5e9f2]">{member.pays || 'Sénégal'}</span>
               </div>
             </div>
@@ -661,31 +678,31 @@ export const MemberDetailPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
                 <span className="material-symbols-outlined text-[18px]">school</span>
-                Formations &amp; Cursus Académique ({member.formations?.length || 0})
+                {t('academicEducationSection')} ({member.formations?.length || 0})
               </h3>
             </div>
 
             {!member.formations || member.formations.length === 0 ? (
-              <p className="text-xs text-[#9ca7b8] italic">Aucune formation académique ou coranique renseignée pour le moment.</p>
+              <p className="text-xs text-[#9ca7b8] italic">{t('noFormationsNotice')}</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
                 {member.formations.map((form) => (
                   <div key={form.id} className="p-3.5 rounded-xl bg-[#151c28] border border-[#2b3547]/60 flex flex-col justify-between gap-2 text-xs">
                     <div>
                       <div className="flex items-center justify-between gap-1">
-                        <span className="font-semibold text-[#e5e9f2] truncate">{form.diplome || form.niveau || 'Formation'}</span>
+                        <span className="font-semibold text-[#e5e9f2] truncate">{form.diplome || form.niveau || t('formation')}</span>
                         {form.annee && (
                           <span className="px-2 py-0.5 rounded bg-[#242e40] text-[10px] text-[#f2ca50] font-mono ltr-tech font-bold">
                             {form.annee}
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-[#f2ca50] mt-0.5">{form.domaine || 'Domaine général'}</p>
+                      <p className="text-[11px] text-[#f2ca50] mt-0.5">{form.domaine || t('generalSector')}</p>
                     </div>
 
                     <div className="flex items-center gap-1.5 pt-2 border-t border-[#2b3547]/30 text-[11px] text-[#9ca7b8]">
                       <span className="material-symbols-outlined text-[14px] text-sky-400">account_balance</span>
-                      <span className="truncate">{form.etablissement || 'Établissement non précisé'}</span>
+                      <span className="truncate">{form.etablissement || t('notSpecified')}</span>
                     </div>
                   </div>
                 ))}
@@ -698,7 +715,7 @@ export const MemberDetailPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
                 <span className="material-symbols-outlined text-[18px]">psychology</span>
-                Compétences &amp; Expertises ({skills.length})
+                {t('skillsAndExpertiseSection')} ({skills.length})
               </h3>
               {canEdit && (
                 <button
@@ -709,13 +726,13 @@ export const MemberDetailPage: React.FC = () => {
                   className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#242e40] hover:bg-[#f2ca50] hover:text-slate-950 text-xs font-semibold text-[#f2ca50] transition"
                 >
                   <span className="material-symbols-outlined text-[15px]">add</span>
-                  <span>Ajouter</span>
+                  <span>{t('addBtn')}</span>
                 </button>
               )}
             </div>
 
             {skills.length === 0 ? (
-              <p className="text-xs text-[#9ca7b8] italic">Aucune compétence spécifique déclarée pour le moment.</p>
+              <p className="text-xs text-[#9ca7b8] italic">{t('noSkillsNotice')}</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
                 {skills.map((ms) => (
@@ -724,33 +741,33 @@ export const MemberDetailPage: React.FC = () => {
                       <div className="flex items-center justify-between gap-1">
                         <span className="font-semibold text-[#e5e9f2] truncate">{ms.skill_name}</span>
                         {ms.is_verified ? (
-                          <span className="material-symbols-outlined text-emerald-400 text-[16px]" title="Vérifié par l'administration">
+                          <span className="material-symbols-outlined text-emerald-400 text-[16px]" title={t('verifiedSkill')}>
                             verified
                           </span>
                         ) : (
-                          <span className="text-[10px] text-[#9ca7b8] italic">Déclaratif</span>
+                          <span className="text-[10px] text-[#9ca7b8] italic">{t('declarativeSkill')}</span>
                         )}
                       </div>
                       <p className="text-[11px] text-[#f2ca50] mt-0.5">{ms.level_display}</p>
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-[#2b3547]/30 text-[11px]">
-                      <span className="text-[#9ca7b8]">{ms.years_experience ? `${ms.years_experience} ans exp.` : 'Exp. pratique'}</span>
+                      <span className="text-[#9ca7b8]">{ms.years_experience ? t('yearsExp', { count: ms.years_experience }) : t('practicalExp')}</span>
                       <div className="flex items-center gap-1">
                         {isAdmin && !ms.is_verified && (
                           <button
                             onClick={() => handleVerifySkill(ms.id)}
                             className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 font-bold transition"
-                            title="Certifier cette compétence"
+                            title={t('certifyBtn')}
                           >
-                            Certifier
+                            {t('certifyBtn')}
                           </button>
                         )}
                         {canEdit && (
                           <button
                             onClick={() => handleDeleteSkill(ms.id)}
                             className="text-[#9ca7b8] hover:text-red-400 p-1"
-                            title="Retirer"
+                            title={t('removeBtn')}
                           >
                             <span className="material-symbols-outlined text-[15px]">delete</span>
                           </button>
@@ -768,7 +785,7 @@ export const MemberDetailPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
                 <span className="material-symbols-outlined text-[18px]">handshake</span>
-                Services &amp; Entraide Communautaire ({services.length})
+                {t('servicesAndAidSection')} ({services.length})
               </h3>
               {canEdit && (
                 <button
@@ -779,13 +796,13 @@ export const MemberDetailPage: React.FC = () => {
                   className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#242e40] hover:bg-[#f2ca50] hover:text-slate-950 text-xs font-semibold text-[#f2ca50] transition"
                 >
                   <span className="material-symbols-outlined text-[15px]">add</span>
-                  <span>Proposer un service</span>
+                  <span>{t('proposeServiceBtn')}</span>
                 </button>
               )}
             </div>
 
             {services.length === 0 ? (
-              <p className="text-xs text-[#9ca7b8] italic">Aucune offre de service ou de mentorat publiée pour le moment.</p>
+              <p className="text-xs text-[#9ca7b8] italic">{t('noServicesNotice')}</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 {services.map((srv) => (
@@ -803,13 +820,13 @@ export const MemberDetailPage: React.FC = () => {
                     <div className="pt-2.5 border-t border-[#2b3547]/30 flex items-center justify-between text-[11px]">
                       <div className="flex items-center gap-1.5 text-emerald-400">
                         <span className="material-symbols-outlined text-[14px]">call</span>
-                        <span>Mode : {srv.contact_mode_display}</span>
+                        <span>{t('contactModeLabel')} {srv.contact_mode_display}</span>
                       </div>
                       {canEdit && (
                         <button
                           onClick={() => handleDeleteService(srv.id)}
                           className="text-[#9ca7b8] hover:text-red-400 p-1"
-                          title="Supprimer l'offre"
+                          title={t('removeBtn')}
                         >
                           <span className="material-symbols-outlined text-[15px]">delete</span>
                         </button>
@@ -826,41 +843,41 @@ export const MemberDetailPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
                 <span className="material-symbols-outlined text-[18px]">event_available</span>
-                Disponibilité &amp; Mobilisation
+                {t('availabilityAndEngagementSection')}
               </h3>
               {canEdit && (
                 <button
                   onClick={() => setShowAvailabilityModal(true)}
                   className="text-xs text-[#f2ca50] hover:underline font-semibold"
                 >
-                  Ajuster
+                  {t('adjustBtn')}
                 </button>
               )}
             </div>
 
             <div className="space-y-2.5 text-xs">
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
-                <span className="text-[#9ca7b8]">Statut :</span>
+                <span className="text-[#9ca7b8]">{t('status')} :</span>
                 <span className="font-semibold text-[#e5e9f2]">
-                  {availability?.status_display || 'Non renseigné'}
+                  {availability?.status_display || t('notProvided')}
                 </span>
               </div>
               <div className="flex items-center justify-between py-1 border-b border-[#2b3547]/20">
-                <span className="text-[#9ca7b8]">Mentorat étudiants :</span>
+                <span className="text-[#9ca7b8]">{t('statusMentoringLabel')}</span>
                 <span className={availability?.open_for_mentoring ? 'text-emerald-400 font-bold' : 'text-[#788294]'}>
-                  {availability?.open_for_mentoring ? 'Oui (Actif)' : 'Non'}
+                  {availability?.open_for_mentoring ? t('activeYes') : t('activeNo')}
                 </span>
               </div>
               <div className="flex items-center justify-between py-1 border-b border-[#2b3547]/20">
-                <span className="text-[#9ca7b8]">Événements Dahirah :</span>
+                <span className="text-[#9ca7b8]">{t('statusEventsLabel')}</span>
                 <span className={availability?.open_for_dahirah_events ? 'text-emerald-400 font-bold' : 'text-[#788294]'}>
-                  {availability?.open_for_dahirah_events ? 'Oui (Mobilisable)' : 'Non'}
+                  {availability?.open_for_dahirah_events ? t('mobilizableYes') : t('activeNo')}
                 </span>
               </div>
               <div className="flex items-center justify-between py-1">
-                <span className="text-[#9ca7b8]">Conseil Pro :</span>
+                <span className="text-[#9ca7b8]">{t('statusProAdviceLabel')}</span>
                 <span className={availability?.open_for_pro_help ? 'text-emerald-400 font-bold' : 'text-[#788294]'}>
-                  {availability?.open_for_pro_help ? 'Oui (Disponible)' : 'Non'}
+                  {availability?.open_for_pro_help ? t('availableYes') : t('activeNo')}
                 </span>
               </div>
             </div>
@@ -871,20 +888,20 @@ export const MemberDetailPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
                 <span className="material-symbols-outlined text-[18px]">group</span>
-                Réseau &amp; Relations ({relations.length})
+                {t('networkAndRelationsSection')} ({relations.length})
               </h3>
               {canEdit && (
                 <button
                   onClick={() => setShowRelationModal(true)}
                   className="text-xs text-[#f2ca50] hover:underline font-semibold"
                 >
-                  + Déclarer lien
+                  {t('declareRelationBtn')}
                 </button>
               )}
             </div>
 
             {relations.length === 0 ? (
-              <p className="text-xs text-[#9ca7b8] italic">Aucun parrainage ou lien formel enregistré.</p>
+              <p className="text-xs text-[#9ca7b8] italic">{t('noRelationsNotice')}</p>
             ) : (
               <div className="space-y-2 pt-1 text-xs">
                 {relations.map((rel) => (
@@ -908,7 +925,7 @@ export const MemberDetailPage: React.FC = () => {
                           onClick={() => handleApproveRelation(rel.id)}
                           className="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-bold text-[10px]"
                         >
-                          Valider
+                          {t('validateBtn')}
                         </button>
                       )}
                     </div>
@@ -923,7 +940,7 @@ export const MemberDetailPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
                 <span className="material-symbols-outlined text-[18px]">handshake</span>
-                Besoins &amp; Demandes d'Entraide ({needs.length})
+                {t('activeNeedsSection')} ({needs.length})
               </h3>
               {canEdit && (
                 <button
@@ -931,13 +948,13 @@ export const MemberDetailPage: React.FC = () => {
                   className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#242e40] hover:bg-[#f2ca50] hover:text-slate-950 text-xs font-semibold text-[#f2ca50] transition"
                 >
                   <span className="material-symbols-outlined text-[15px]">add</span>
-                  <span>Exprimer un besoin</span>
+                  <span>{t('expressNeedBtn')}</span>
                 </button>
               )}
             </div>
 
             {needs.length === 0 ? (
-              <p className="text-xs text-[#9ca7b8] italic">Aucune demande d'entraide ou de mise en relation active.</p>
+              <p className="text-xs text-[#9ca7b8] italic">{t('noNeedsNotice')}</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 {needs.map((nd) => (
@@ -1018,10 +1035,10 @@ export const MemberDetailPage: React.FC = () => {
       {showSkillModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#151c28] border border-[#2b3547] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">Ajouter une Compétence</h3>
+            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">{t('modalAddSkillTitle')}</h3>
             <form onSubmit={handleAddSkill} className="space-y-4 text-xs">
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Compétence de référence</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('skillNameLabel')}</label>
                 <select
                   value={selectedSkillId}
                   onChange={(e) => setSelectedSkillId(e.target.value)}
@@ -1034,7 +1051,7 @@ export const MemberDetailPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Niveau de maîtrise</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('skillLevelLabel')}</label>
                 <select
                   value={skillLevel}
                   onChange={(e) => setSkillLevel(e.target.value as any)}
@@ -1048,7 +1065,7 @@ export const MemberDetailPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Années d'expérience</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('skillYearsLabel')}</label>
                 <input
                   type="number"
                   min="0"
@@ -1065,13 +1082,13 @@ export const MemberDetailPage: React.FC = () => {
                   onClick={() => setShowSkillModal(false)}
                   className="px-4 py-2 rounded-xl bg-[#242e40] text-[#9ca7b8] hover:text-[#e5e9f2]"
                 >
-                  Annuler
+                  {t('cancelBtn')}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-[#f2ca50] text-slate-950 font-bold"
                 >
-                  Enregistrer
+                  {t('saveBtn')}
                 </button>
               </div>
             </form>
@@ -1083,10 +1100,10 @@ export const MemberDetailPage: React.FC = () => {
       {showServiceModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#151c28] border border-[#2b3547] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
-            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">Proposer un Service ou Entraide</h3>
+            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">{t('modalProposeServiceTitle')}</h3>
             <form onSubmit={handleAddService} className="space-y-3.5 text-xs">
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Type de service</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('serviceTypeLabel')}</label>
                 <select
                   value={serviceCatalogId}
                   onChange={(e) => setServiceCatalogId(e.target.value)}
@@ -1099,7 +1116,7 @@ export const MemberDetailPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Titre de l'offre</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('serviceTitleLabel')}</label>
                 <input
                   type="text"
                   required
@@ -1111,7 +1128,7 @@ export const MemberDetailPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Modalité</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('serviceTypeLabel')}</label>
                 <select
                   value={serviceType}
                   onChange={(e) => setServiceType(e.target.value as any)}
@@ -1125,7 +1142,7 @@ export const MemberDetailPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Mode de contact souhaité</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('serviceContactModeLabel')}</label>
                 <select
                   value={serviceContactMode}
                   onChange={(e) => setServiceContactMode(e.target.value as any)}
@@ -1139,7 +1156,7 @@ export const MemberDetailPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Description</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('serviceDescriptionLabel')}</label>
                 <textarea
                   required
                   rows={3}
@@ -1156,13 +1173,13 @@ export const MemberDetailPage: React.FC = () => {
                   onClick={() => setShowServiceModal(false)}
                   className="px-4 py-2 rounded-xl bg-[#242e40] text-[#9ca7b8] hover:text-[#e5e9f2]"
                 >
-                  Annuler
+                  {t('cancelBtn')}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-[#f2ca50] text-slate-950 font-bold"
                 >
-                  Publier l'Offre
+                  {t('publishBtn')}
                 </button>
               </div>
             </form>
@@ -1174,10 +1191,10 @@ export const MemberDetailPage: React.FC = () => {
       {showAvailabilityModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#151c28] border border-[#2b3547] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">Ajuster la Disponibilité</h3>
+            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">{t('modalAdjustAvailabilityTitle')}</h3>
             <form onSubmit={handleSaveAvailability} className="space-y-4 text-xs">
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Statut global</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('generalAvailabilityStatusLabel')}</label>
                 <select
                   value={availStatus}
                   onChange={(e) => setAvailStatus(e.target.value)}
@@ -1199,7 +1216,7 @@ export const MemberDetailPage: React.FC = () => {
                     onChange={(e) => setAvailMentoring(e.target.checked)}
                     className="rounded text-[#f2ca50]"
                   />
-                  <span>Ouvert au mentorat d’étudiants &amp; élèves</span>
+                  <span>{t('openForMentoringCheckbox')}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -1208,7 +1225,7 @@ export const MemberDetailPage: React.FC = () => {
                     onChange={(e) => setAvailEvents(e.target.checked)}
                     className="rounded text-[#f2ca50]"
                   />
-                  <span>Mobilisable pour événements Dahirah</span>
+                  <span>{t('openForEventsCheckbox')}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -1217,7 +1234,7 @@ export const MemberDetailPage: React.FC = () => {
                     onChange={(e) => setAvailProHelp(e.target.checked)}
                     className="rounded text-[#f2ca50]"
                   />
-                  <span>Disponible pour conseil pro entre disciples</span>
+                  <span>{t('openForProHelpCheckbox')}</span>
                 </label>
               </div>
 
@@ -1227,13 +1244,13 @@ export const MemberDetailPage: React.FC = () => {
                   onClick={() => setShowAvailabilityModal(false)}
                   className="px-4 py-2 rounded-xl bg-[#242e40] text-[#9ca7b8] hover:text-[#e5e9f2]"
                 >
-                  Annuler
+                  {t('cancelBtn')}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-[#f2ca50] text-slate-950 font-bold"
                 >
-                  Mettre à jour
+                  {t('saveBtn')}
                 </button>
               </div>
             </form>
@@ -1245,22 +1262,22 @@ export const MemberDetailPage: React.FC = () => {
       {showRelationModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#151c28] border border-[#2b3547] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">Déclarer un Lien Relationnel</h3>
+            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">{t('modalDeclareRelationTitle')}</h3>
             <form onSubmit={handleDeclareRelation} className="space-y-4 text-xs">
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Matricule ou identifiant de l'autre membre</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('targetMemberMatriculeLabel')}</label>
                 <input
                   type="text"
                   required
                   value={relationTargetMatricule}
                   onChange={(e) => setRelationTargetMatricule(e.target.value)}
                   placeholder="Ex: DAMF-0001"
-                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2]"
+                  className="w-full bg-[#111722] border border-[#2b3547] rounded-xl p-2.5 text-[#e5e9f2] font-mono ltr-tech"
                 />
               </div>
 
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Nature de la relation</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('relationTypeLabel')}</label>
                 <select
                   value={relationType}
                   onChange={(e) => setRelationType(e.target.value as any)}
@@ -1274,7 +1291,7 @@ export const MemberDetailPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Précisions (optionnel)</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('relationNotesLabel')}</label>
                 <input
                   type="text"
                   value={relationNotes}
@@ -1290,13 +1307,13 @@ export const MemberDetailPage: React.FC = () => {
                   onClick={() => setShowRelationModal(false)}
                   className="px-4 py-2 rounded-xl bg-[#242e40] text-[#9ca7b8] hover:text-[#e5e9f2]"
                 >
-                  Annuler
+                  {t('cancelBtn')}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-[#f2ca50] text-slate-950 font-bold"
                 >
-                  Déclarer
+                  {t('saveBtn')}
                 </button>
               </div>
             </form>
@@ -1308,10 +1325,10 @@ export const MemberDetailPage: React.FC = () => {
       {showNeedModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#151c28] border border-[#2b3547] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">Exprimer un Besoin / Entraide</h3>
+            <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">{t('modalExpressNeedTitle')}</h3>
             <form onSubmit={handleCreateNeed} className="space-y-4 text-xs">
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Intitulé de la demande *</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('needTitleLabel')} *</label>
                 <input
                   type="text"
                   required
@@ -1324,7 +1341,7 @@ export const MemberDetailPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[#9ca7b8] font-medium block mb-1">Nature du besoin</label>
+                  <label className="text-[#9ca7b8] font-medium block mb-1">{t('needTypeLabel')}</label>
                   <select
                     value={needType}
                     onChange={(e) => setNeedType(e.target.value)}
@@ -1341,7 +1358,7 @@ export const MemberDetailPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-[#9ca7b8] font-medium block mb-1">Degré d'urgence</label>
+                  <label className="text-[#9ca7b8] font-medium block mb-1">{t('needUrgencyLabel')}</label>
                   <select
                     value={needUrgency}
                     onChange={(e) => setNeedUrgency(e.target.value as any)}
@@ -1355,7 +1372,7 @@ export const MemberDetailPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Visibilité de la demande</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('visibility')}</label>
                 <select
                   value={needVisibility}
                   onChange={(e) => setNeedVisibility(e.target.value as any)}
@@ -1367,7 +1384,7 @@ export const MemberDetailPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#9ca7b8] font-medium block mb-1">Description détaillée *</label>
+                <label className="text-[#9ca7b8] font-medium block mb-1">{t('needDescriptionLabel')} *</label>
                 <textarea
                   required
                   rows={3}
@@ -1399,13 +1416,13 @@ export const MemberDetailPage: React.FC = () => {
                   onClick={() => setShowNeedModal(false)}
                   className="px-4 py-2 rounded-xl bg-[#242e40] text-[#9ca7b8] hover:text-[#e5e9f2]"
                 >
-                  Annuler
+                  {t('cancelBtn')}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-[#f2ca50] text-slate-950 font-bold"
                 >
-                  Publier la Demande
+                  {t('publishBtn')}
                 </button>
               </div>
             </form>

@@ -14,6 +14,7 @@ export const DashboardOverviewPage: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentMembers, setRecentMembers] = useState<Member[]>([]);
   const [founder, setFounder] = useState<Member | null>(null);
+  const [president, setPresident] = useState<Member | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +27,7 @@ export const DashboardOverviewPage: React.FC = () => {
       try {
         const [statsData, membersData, founderData] = await Promise.allSettled([
           getDashboardStats(),
-          getMembers(5),
+          getMembers(50),
           getMemberById('DAMF-0001'),
         ]);
 
@@ -39,7 +40,12 @@ export const DashboardOverviewPage: React.FC = () => {
           }
 
           if (membersData.status === 'fulfilled') {
-            setRecentMembers(membersData.value.members || []);
+            const list = membersData.value.members || [];
+            setRecentMembers(list.slice(0, 5));
+            const foundPresident = list.find(
+              (m) => m.isPresident || m.institutionalRoleCode === 'PRESIDENT'
+            );
+            setPresident(foundPresident || null);
           }
 
           if (founderData.status === 'fulfilled') {
@@ -94,18 +100,18 @@ export const DashboardOverviewPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#f2ca50]/10 border border-[#f2ca50]/20 text-[#f2ca50] text-[11px] font-bold uppercase tracking-wider">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#f2ca50] animate-pulse"></span>
-                Console de Pilotage Exécutive
+                {t('dashboardConsoleBadge')}
               </span>
               <span className="text-xs text-[#9ca7b8] flex items-center gap-1">
                 <span className="material-symbols-outlined text-[14px] text-[#f2ca50]">cloud_done</span>
-                Connecté Neon DB (PostgreSQL)
+                {t('dbConnectedNeon')}
               </span>
             </div>
             <h1 className="font-headline-lg text-2xl lg:text-3xl font-medium tracking-tight text-[#e5e9f2]">
-              Tableau de Bord &amp; Gouvernance
+              {t('dashboardGovernanceTitle')}
             </h1>
             <p className="text-xs lg:text-sm text-[#f2ca50]/90 font-headline-sm italic">
-              Dāʾiratu Al-Mutahābbīna Fillāhi <span className="text-[#9ca7b8] not-italic font-body-md font-normal">• Shaykh Muhammad Nūruddīn Ibn Shaykh Muhammadul Amīn Nâs</span>
+              {t('appName')} <span className="text-[#9ca7b8] not-italic font-body-md font-normal">• {t('appSubtitle')}</span>
             </p>
           </div>
 
@@ -115,7 +121,7 @@ export const DashboardOverviewPage: React.FC = () => {
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#242e40] text-[#f2ca50] hover:bg-[#2b3547] text-xs font-semibold border border-[#f2ca50]/30 transition shadow-sm"
             >
               <span className="material-symbols-outlined text-[18px]">badge</span>
-              <span>Accéder à l'Annuaire</span>
+              <span>{t('accessDirectoryBtn')}</span>
             </Link>
             {user?.role === 'superadmin' && (
               <Link
@@ -123,7 +129,7 @@ export const DashboardOverviewPage: React.FC = () => {
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#f2ca50] text-slate-950 hover:bg-[#e9c349] text-xs font-bold transition shadow-md"
               >
                 <span className="material-symbols-outlined text-[18px]">shield</span>
-                <span>Journal d'Audit</span>
+                <span>{t('auditLogBtn')}</span>
               </Link>
             )}
           </div>
@@ -139,7 +145,7 @@ export const DashboardOverviewPage: React.FC = () => {
         </div>
       )}
 
-      {/* 2. Bloc Protocolaire : Guide Spirituel & Fondateur */}
+      {/* 2. Bloc Protocolaire : Guide Spirituel & Fondateur (Position 1) */}
       <section className="relative rounded-2xl bg-gradient-to-br from-[#0e1624] via-[#121c2c] to-[#0c1420] p-6 lg:p-7 border border-[#c8a44d]/40 shadow-xl overflow-hidden">
         {/* Liseré or institutionnel sobre */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#c8a44d] to-transparent"></div>
@@ -209,6 +215,76 @@ export const DashboardOverviewPage: React.FC = () => {
         </div>
       </section>
 
+      {/* 2.5. Bloc Protocolaire : Direction Exécutive & Présidence (Position 2) */}
+      {!isLoading && president && (
+        <section className="relative rounded-2xl bg-gradient-to-br from-[#0c1a24] via-[#10242f] to-[#0a171e] p-6 lg:p-7 border border-emerald-500/40 shadow-xl overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent"></div>
+
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-start gap-4 sm:gap-5 max-w-3xl">
+              <MemberAvatar
+                photoUrl={president.photo}
+                name={`${president.prenom} ${president.nom}`}
+                matricule={president.matricule}
+                size="lg"
+                className="border-2 border-emerald-500/50 shrink-0"
+              />
+
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[11px] font-bold tracking-wider uppercase">
+                    <span className="material-symbols-outlined text-[15px]">workspace_premium</span>
+                    {t('presidentHighlightBadge')}
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#1b2636] border border-[#2b3547] text-[#9ca7b8] text-[11px] font-mono font-semibold ltr-tech">
+                    {president.matricule}
+                  </span>
+                </div>
+
+                <div>
+                  <h2 className="font-headline-lg text-xl sm:text-2xl font-bold text-[#e5e9f2] tracking-tight">
+                    {president.prenom} {president.nom}
+                  </h2>
+                  {president.nomArabe && (
+                    <p className="text-sm font-headline-sm text-emerald-400 mt-1 font-medium tracking-wide">
+                      {president.nomArabe}
+                    </p>
+                  )}
+                  <p className="text-xs text-[#9ca7b8] mt-1">
+                    {t('presidentCardSubtitle')}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2 text-xs pt-1">
+                  {president.professionActuelle && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#1b2636] text-[#e5e9f2] border border-[#2b3547]">
+                      <span className="material-symbols-outlined text-[15px] text-emerald-400">verified_user</span>
+                      <span>{president.professionActuelle}</span>
+                    </span>
+                  )}
+                  {president.ville && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#1b2636] text-[#9ca7b8] border border-[#2b3547]">
+                      <span className="material-symbols-outlined text-[15px] text-emerald-400">location_on</span>
+                      <span>{president.ville}</span>
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="shrink-0 flex items-center md:self-end">
+              <Link
+                to={`/members/${president.matricule || president.id}`}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 hover:text-emerald-300 border border-emerald-500/40 text-xs font-bold transition shadow-sm group"
+              >
+                <span>{t('accessProfile360')}</span>
+                <span className={`material-symbols-outlined text-[16px] transition-transform ${isRTL ? 'group-hover:-translate-x-1 rotate-180' : 'group-hover:translate-x-1'}`}>arrow_forward</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* 3. Cartes Métriques Clés */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
         
@@ -222,7 +298,7 @@ export const DashboardOverviewPage: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">Total Membres Actifs</span>
+              <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">{t('totalActiveMembersLabel')}</span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#f2ca50]/15 text-[#f2ca50] text-[11px] font-semibold border border-[#f2ca50]/20">
                 <span className="material-symbols-outlined text-[12px]">verified</span> PostgreSQL
               </span>
@@ -232,16 +308,16 @@ export const DashboardOverviewPage: React.FC = () => {
             </div>
           </div>
           <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
-            <span>Enregistrés officiellement</span>
+            <span>{t('registeredOfficially')}</span>
             <span className="text-[#f2ca50] font-semibold flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
-              Voir tous →
+              {t('viewAllLink')}
             </span>
           </div>
         </Link>
 
         {/* Metric 2 : Professionnels en Activité */}
         <Link
-          to="/members?situation=PROFESSIONAL"
+          to="/members?situation=EMPLOYEE"
           className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#f2ca50]/60 hover:bg-[#151c2a] transition-all flex flex-col justify-between group overflow-hidden cursor-pointer"
         >
           <div className="absolute -right-3 -top-3 p-3 text-[#f2ca50]/5 group-hover:text-[#f2ca50]/15 transition-colors pointer-events-none">
@@ -249,9 +325,9 @@ export const DashboardOverviewPage: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">Professionnels</span>
+              <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">{t('professionalsLabel')}</span>
               <span className="px-2 py-0.5 rounded-full bg-[#242e40] text-[#f2ca50] font-bold text-[11px] border border-[#f2ca50]/20">
-                Cadres &amp; Métiers
+                {t('executivesAndTrades')}
               </span>
             </div>
             <div className="font-headline-lg text-4xl font-semibold tracking-tight text-[#f2ca50] my-1">
@@ -259,16 +335,16 @@ export const DashboardOverviewPage: React.FC = () => {
             </div>
           </div>
           <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
-            <span>Salariés &amp; Indépendants</span>
+            <span>{t('employeesAndFreelancers')}</span>
             <span className="text-[#f2ca50] font-semibold flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
-              Filtrer ({totalProfessionals}) →
+              {t('filterCount', { count: totalProfessionals })}
             </span>
           </div>
         </Link>
 
         {/* Metric 3 : Élèves & Étudiants */}
         <Link
-          to="/members?situation=LEARNER"
+          to="/members?situation=STUDENT"
           className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#ffb95f]/60 hover:bg-[#151c2a] transition-all flex flex-col justify-between group overflow-hidden cursor-pointer"
         >
           <div className="absolute -right-3 -top-3 p-3 text-[#ffb95f]/5 group-hover:text-[#ffb95f]/15 transition-colors pointer-events-none">
@@ -276,9 +352,9 @@ export const DashboardOverviewPage: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">Élèves &amp; Étudiants</span>
+              <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">{t('pupilsAndStudents')}</span>
               <span className="px-2 py-0.5 rounded-full bg-[#ffb95f]/15 text-[#ffb95f] font-bold text-[11px] border border-[#ffb95f]/30">
-                Jeunesse &amp; Savoir
+                {t('youthAndKnowledge')}
               </span>
             </div>
             <div className="flex items-baseline gap-2.5 my-1 flex-wrap">
@@ -286,14 +362,14 @@ export const DashboardOverviewPage: React.FC = () => {
                 {isLoading ? '...' : totalLearners}
               </span>
               <span className="text-xs text-[#9ca7b8] font-medium bg-[#1e2638] px-2 py-0.5 rounded-md border border-[#2b3547]/50">
-                {totalPupils} élèves + {totalStudents} étudiants
+                {t('pupilsPlusStudents', { pupils: totalPupils, students: totalStudents })}
               </span>
             </div>
           </div>
           <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
-            <span>Apprenants et Daaras</span>
+            <span>{t('learnersAndDaaras')}</span>
             <span className="text-[#ffb95f] font-semibold flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
-              Filtrer les 11 →
+              {t('filterCount', { count: totalLearners })}
             </span>
           </div>
         </Link>
@@ -305,9 +381,9 @@ export const DashboardOverviewPage: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">Pôle Insertion</span>
+              <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">{t('insertionPoleLabel')}</span>
               <span className="px-2 py-0.5 rounded-full bg-[#242e40] text-[#bfcfed] font-semibold text-[11px]">
-                Accompagnement
+                {t('supportPill')}
               </span>
             </div>
             <div className="font-headline-lg text-4xl font-semibold tracking-tight text-[#e5e9f2] my-1">
@@ -315,8 +391,8 @@ export const DashboardOverviewPage: React.FC = () => {
             </div>
           </div>
           <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
-            <span>En recherche active</span>
-            <span className="text-[#bfcfed] font-semibold">Priorité Waqf</span>
+            <span>{t('activeSearchLabel')}</span>
+            <span className="text-[#bfcfed] font-semibold">{t('waqfPriorityLabel')}</span>
           </div>
         </div>
 
@@ -328,10 +404,10 @@ export const DashboardOverviewPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-[#f2ca50] text-[22px]">bolt</span>
             <h2 className="font-headline-sm text-base font-semibold text-[#e5e9f2]">
-              Actions Rapides &amp; Pilotage Communautaire
+              {t('quickActionsManagementTitle')}
             </h2>
           </div>
-          <span className="text-[11px] text-[#9ca7b8]">Raccourcis exécutifs</span>
+          <span className="text-[11px] text-[#9ca7b8]">{t('executiveShortcuts')}</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -345,9 +421,9 @@ export const DashboardOverviewPage: React.FC = () => {
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-xs font-semibold text-[#e5e9f2] group-hover:text-[#f2ca50] truncate">
-                  + Nouvel Enrôlement
+                  {t('newEnrollmentAction')}
                 </span>
-                <span className="text-[10px] text-[#9ca7b8] truncate">Générer matricule officiel</span>
+                <span className="text-[10px] text-[#9ca7b8] truncate">{t('generateMatriculeDesc')}</span>
               </div>
             </Link>
           )}
@@ -362,9 +438,9 @@ export const DashboardOverviewPage: React.FC = () => {
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-xs font-semibold text-[#e5e9f2] group-hover:text-blue-400 truncate">
-                  + Créer Compte Accès
+                  {t('createAccessAccountAction')}
                 </span>
-                <span className="text-[10px] text-[#9ca7b8] truncate">Lier utilisateur à un membre</span>
+                <span className="text-[10px] text-[#9ca7b8] truncate">{t('linkUserMemberDesc')}</span>
               </div>
             </Link>
           )}
@@ -378,9 +454,9 @@ export const DashboardOverviewPage: React.FC = () => {
             </div>
             <div className="flex flex-col min-w-0">
               <span className="text-xs font-semibold text-[#e5e9f2] group-hover:text-emerald-400 truncate">
-                Carrefour d'Entraide
+                {t('breadcrumbNetwork')}
               </span>
-              <span className="text-[10px] text-[#9ca7b8] truncate">Trouver compétences &amp; services</span>
+              <span className="text-[10px] text-[#9ca7b8] truncate">{t('findSkillsServicesDesc')}</span>
             </div>
           </Link>
 
@@ -394,9 +470,9 @@ export const DashboardOverviewPage: React.FC = () => {
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-xs font-semibold text-[#e5e9f2] group-hover:text-purple-400 truncate">
-                  Journal de Sécurité
+                  {t('securityLogAction')}
                 </span>
-                <span className="text-[10px] text-[#9ca7b8] truncate">Traçabilité Neon immuable</span>
+                <span className="text-[10px] text-[#9ca7b8] truncate">{t('immutableNeonTraceDesc')}</span>
               </div>
             </Link>
           )}
@@ -412,15 +488,15 @@ export const DashboardOverviewPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#f2ca50]/15 border border-[#f2ca50]/30 text-[#f2ca50] text-[11px] font-bold uppercase tracking-wider">
                 <span className="material-symbols-outlined text-[14px]">vital_signs</span>
-                Baromètre d'Impact Confraternel
+                {t('confraternalBarometerBadge')}
               </span>
-              <span className="text-[11px] text-[#9ca7b8]">• Mesure V1.2.3</span>
+              <span className="text-[11px] text-[#9ca7b8]">• {t('phaseBadge')}</span>
             </div>
             <h2 className="font-headline-sm text-xl lg:text-2xl font-semibold text-[#e5e9f2]">
-              Solidarité Active &amp; Entraide Communautaire
+              {t('activeSolidarityTitle')}
             </h2>
             <p className="text-xs text-[#9ca7b8]">
-              Indicateurs de transformation : de l'expression des besoins à l'accompagnement effectif et la résolution.
+              {t('impactExplanationDesc')}
             </p>
           </div>
 
@@ -429,7 +505,7 @@ export const DashboardOverviewPage: React.FC = () => {
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#242e40] text-[#f2ca50] hover:bg-[#2b3547] text-xs font-bold border border-[#f2ca50]/30 transition shrink-0"
           >
             <span className="material-symbols-outlined text-[18px]">handshake</span>
-            <span>Carrefour d'Entraide</span>
+            <span>{t('breadcrumbNetwork')}</span>
             <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
           </Link>
         </div>
@@ -438,46 +514,46 @@ export const DashboardOverviewPage: React.FC = () => {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="rounded-xl bg-[#151d2a] border border-[#2b3547]/80 p-4 flex flex-col justify-between">
             <div className="flex items-center justify-between text-xs text-[#9ca7b8]">
-              <span className="uppercase text-[10px] font-bold tracking-wider">Besoins Exprimés</span>
+              <span className="uppercase text-[10px] font-bold tracking-wider">{t('impactNeedsTotal')}</span>
               <span className="material-symbols-outlined text-amber-400 text-[20px]">help_center</span>
             </div>
             <div className="font-headline-lg text-3xl font-bold text-[#e5e9f2] my-1">
               {isLoading ? '...' : needsTotal}
             </div>
-            <span className="text-[11px] text-[#9ca7b8]">Demandes confraternelles</span>
+            <span className="text-[11px] text-[#9ca7b8]">{t('fraternalRequests')}</span>
           </div>
 
           <div className="rounded-xl bg-[#151d2a] border border-[#2b3547]/80 p-4 flex flex-col justify-between">
             <div className="flex items-center justify-between text-xs text-[#9ca7b8]">
-              <span className="uppercase text-[10px] font-bold tracking-wider">Pris en Charge</span>
+              <span className="uppercase text-[10px] font-bold tracking-wider">{t('supportInProgress')}</span>
               <span className="material-symbols-outlined text-blue-400 text-[20px]">hourglass_top</span>
             </div>
             <div className="font-headline-lg text-3xl font-bold text-blue-400 my-1">
               {isLoading ? '...' : needsInProgress}
             </div>
-            <span className="text-[11px] text-[#9ca7b8]">Accompagnements en cours</span>
+            <span className="text-[11px] text-[#9ca7b8]">{t('supportInProgressDesc')}</span>
           </div>
 
           <div className="rounded-xl bg-[#151d2a] border border-[#2b3547]/80 p-4 flex flex-col justify-between">
             <div className="flex items-center justify-between text-xs text-[#9ca7b8]">
-              <span className="uppercase text-[10px] font-bold tracking-wider">Mises en Relation</span>
+              <span className="uppercase text-[10px] font-bold tracking-wider">{t('connectionMade')}</span>
               <span className="material-symbols-outlined text-emerald-400 text-[20px]">connect_without_contact</span>
             </div>
             <div className="font-headline-lg text-3xl font-bold text-emerald-400 my-1">
               {isLoading ? '...' : relationsActive}
             </div>
-            <span className="text-[11px] text-[#9ca7b8]">Relations fraternelles actives</span>
+            <span className="text-[11px] text-[#9ca7b8]">{t('activeRelationsDesc')}</span>
           </div>
 
           <div className="rounded-xl bg-[#151d2a] border border-[#2b3547]/80 p-4 flex flex-col justify-between">
             <div className="flex items-center justify-between text-xs text-[#9ca7b8]">
-              <span className="uppercase text-[10px] font-bold tracking-wider">Entraides Réalisées</span>
+              <span className="uppercase text-[10px] font-bold tracking-wider">{t('mutualAidsCompleted')}</span>
               <span className="material-symbols-outlined text-[#f2ca50] text-[20px]">verified</span>
             </div>
             <div className="font-headline-lg text-3xl font-bold text-[#f2ca50] my-1">
               {isLoading ? '...' : needsResolved}
             </div>
-            <span className="text-[11px] text-[#9ca7b8]">Besoins pourvus avec succès</span>
+            <span className="text-[11px] text-[#9ca7b8]">{t('needsResolvedDesc')}</span>
           </div>
         </div>
 
@@ -488,7 +564,7 @@ export const DashboardOverviewPage: React.FC = () => {
             <div className="flex items-center justify-between text-xs">
               <span className="font-semibold text-[#e5e9f2] flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                Taux de prise en charge
+                {t('impactSupportRate')}
               </span>
               <span className="font-mono font-bold text-emerald-400 text-sm">
                 {isLoading ? '...' : `${supportRate}%`}
@@ -501,7 +577,7 @@ export const DashboardOverviewPage: React.FC = () => {
               ></div>
             </div>
             <p className="text-[10px] text-[#9ca7b8]">
-              Part des besoins actifs ayant reçu un accompagnement ou déjà résolus.
+              {t('supportRateDesc')}
             </p>
           </div>
 
@@ -510,7 +586,7 @@ export const DashboardOverviewPage: React.FC = () => {
             <div className="flex items-center justify-between text-xs">
               <span className="font-semibold text-[#e5e9f2] flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#f2ca50]"></span>
-                Taux de résolution
+                {t('impactResolutionRate')}
               </span>
               <span className="font-mono font-bold text-[#f2ca50] text-sm">
                 {isLoading ? '...' : `${resolutionRate}%`}
@@ -523,7 +599,7 @@ export const DashboardOverviewPage: React.FC = () => {
               ></div>
             </div>
             <p className="text-[10px] text-[#9ca7b8]">
-              Part des entraides engagées menées à leur terme avec succès.
+              {t('resolutionRateDesc')}
             </p>
           </div>
         </div>
@@ -539,17 +615,17 @@ export const DashboardOverviewPage: React.FC = () => {
               <div>
                 <h2 className="font-headline-sm text-lg font-semibold text-[#e5e9f2] flex items-center gap-2">
                   <span className="material-symbols-outlined text-[#f2ca50] text-[22px]">badge</span>
-                  Membres Récents Enregistrés
+                  {t('recentMembersTitle')}
                 </h2>
                 <p className="text-xs text-[#9ca7b8] mt-0.5">
-                  Synchronisé en temps réel avec PostgreSQL Neon
+                  {t('realtimeSyncNeon')}
                 </p>
               </div>
               <Link
                 to="/members"
                 className="text-xs text-[#f2ca50] hover:underline font-semibold flex items-center gap-1"
               >
-                <span>Voir tout l'annuaire</span>
+                <span>{t('viewAllDirectoryLink')}</span>
                 <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
               </Link>
             </div>
@@ -558,17 +634,17 @@ export const DashboardOverviewPage: React.FC = () => {
               <table className="w-full text-left text-xs font-body-md">
                 <thead>
                   <tr className="bg-[#111722]/70 text-[#9ca7b8] text-[11px] font-bold uppercase tracking-wider border-b border-[#2b3547]/40">
-                    <th className="py-3 px-5">Membre &amp; Matricule</th>
-                    <th className="py-3 px-4">Situation</th>
-                    <th className="py-3 px-4">Pôle / Ville</th>
-                    <th className="py-3 px-5 text-right">Action</th>
+                    <th className="py-3 px-5">{t('members')} &amp; Matricule</th>
+                    <th className="py-3 px-4">{t('situation')}</th>
+                    <th className="py-3 px-4">{t('location')}</th>
+                    <th className="py-3 px-5 text-right">{t('actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#2b3547]/20">
                   {recentMembers.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="py-8 text-center text-[#9ca7b8]">
-                        {isLoading ? 'Chargement des adhérents...' : 'Aucun membre enregistré.'}
+                        {isLoading ? t('loading') : t('emptyState')}
                       </td>
                     </tr>
                   ) : (
@@ -601,7 +677,7 @@ export const DashboardOverviewPage: React.FC = () => {
                             to={`/members/${member.matricule || member.id}`}
                             className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#242e40] hover:bg-[#f2ca50] hover:text-slate-950 text-[#e5e9f2] text-xs font-medium transition"
                           >
-                            <span>Fiche</span>
+                            <span>{t('viewProfile')}</span>
                             <span className="material-symbols-outlined text-[13px]">arrow_forward</span>
                           </Link>
                         </td>
@@ -622,10 +698,10 @@ export const DashboardOverviewPage: React.FC = () => {
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-headline-sm text-base font-semibold text-[#e5e9f2] flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#f2ca50] text-[20px]">category</span>
-                Commissions Actives
+                {t('activeCommissionsTitle')}
               </h3>
               <Link to="/roles" className="text-[11px] text-[#f2ca50] hover:underline font-bold">
-                Gérer
+                {t('manageRolesLink')}
               </Link>
             </div>
             <div className="space-y-2.5">
@@ -639,7 +715,7 @@ export const DashboardOverviewPage: React.FC = () => {
                   </div>
                 ))
               ) : (
-                <p className="text-xs text-[#9ca7b8]">Référentiel des rôles et commissions Dahirah.</p>
+                <p className="text-xs text-[#9ca7b8]">{t('rolesReferenceDesc')}</p>
               )}
             </div>
           </section>
@@ -649,7 +725,7 @@ export const DashboardOverviewPage: React.FC = () => {
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-headline-sm text-base font-semibold text-[#e5e9f2] flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#f2ca50] text-[20px]">security</span>
-                Journal d'Audit
+                {t('securityAuditJournalTitle')}
               </h3>
               <span className="flex h-2 w-2 relative">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f2ca50] opacity-75"></span>
@@ -669,14 +745,14 @@ export const DashboardOverviewPage: React.FC = () => {
                 ))
               ) : (
                 <div className="text-xs text-[#9ca7b8]">
-                  <p>Traçabilité immuable des mutations administratives et sécurisées.</p>
+                  <p>{t('immutableTraceabilityDesc')}</p>
                 </div>
               )}
               <Link
                 to="/audit"
                 className="block text-center text-xs text-[#f2ca50] hover:underline font-bold pt-1"
               >
-                Consulter tous les journaux d'audit
+                {t('consultAllAuditLogsLink')}
               </Link>
             </div>
           </section>

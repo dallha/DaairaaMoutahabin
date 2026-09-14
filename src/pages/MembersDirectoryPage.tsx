@@ -120,10 +120,17 @@ export const MembersDirectoryPage: React.FC = () => {
   const normalizeForSort = (str: string) =>
     (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim();
 
-  // Distinction entre Guide Spirituel & Fondateur (priorité protocolaire) et Membres de la Dahirah
-  const founderMember = members.find((m) => m.isFounder || m.institutionalPriority === 1);
+  // Distinction protocolaire : Guide Spirituel & Fondateur (1), Président de la Dahirah (2), et Disciples
+  const founderMember = members.find((m) => m.isFounder || m.institutionalRoleCode === 'FOUNDER');
+  const presidentMember = members.find((m) => m.isPresident || m.institutionalRoleCode === 'PRESIDENT');
   const communityMembers = members
-    .filter((m) => !(m.isFounder || m.institutionalPriority === 1))
+    .filter(
+      (m) =>
+        !m.isFounder &&
+        !m.isPresident &&
+        m.institutionalRoleCode !== 'FOUNDER' &&
+        m.institutionalRoleCode !== 'PRESIDENT'
+    )
     .sort((a, b) => {
       const nameA = normalizeForSort(`${a.prenom} ${a.nom}`);
       const nameB = normalizeForSort(`${b.prenom} ${b.nom}`);
@@ -142,23 +149,33 @@ export const MembersDirectoryPage: React.FC = () => {
   };
 
   const handleSoftDelete = async (member: Member) => {
-    if (!window.confirm(`Confirmez-vous l'archivage (soft-delete) du membre ${member.prenom} ${member.nom} (${member.matricule}) ?`)) {
+    if (
+      !window.confirm(
+        t('softDeleteConfirmPrompt', {
+          name: `${member.prenom} ${member.nom}`,
+          matricule: member.matricule,
+        })
+      )
+    ) {
       return;
     }
     try {
       await deleteMember(member.id);
-      setNotification({ type: 'success', message: `Membre ${member.matricule} archivé avec succès.` });
+      setNotification({
+        type: 'success',
+        message: t('memberArchivedSuccess', { matricule: member.matricule }),
+      });
       setActionMember(null);
       fetchMembers();
     } catch (err: any) {
-      setNotification({ type: 'error', message: err.message || 'Erreur lors de l’archivage.' });
+      setNotification({ type: 'error', message: err.message || t('error') });
     }
   };
 
   const handleHardDeleteConfirm = async () => {
     if (!hardDeleteTarget) return;
     if (hardDeleteInput.trim() !== hardDeleteTarget.matricule) {
-      setNotification({ type: 'error', message: 'Le matricule saisi ne correspond pas exactement.' });
+      setNotification({ type: 'error', message: t('matriculeMismatchError') });
       return;
     }
 
@@ -167,14 +184,14 @@ export const MembersDirectoryPage: React.FC = () => {
       await hardDeleteMember(hardDeleteTarget.id);
       setNotification({
         type: 'success',
-        message: `Membre ${hardDeleteTarget.matricule} définitivement supprimé de PostgreSQL Neon.`
+        message: t('memberHardDeletedSuccess', { matricule: hardDeleteTarget.matricule }),
       });
       setHardDeleteTarget(null);
       setHardDeleteInput('');
       setActionMember(null);
       fetchMembers();
     } catch (err: any) {
-      setNotification({ type: 'error', message: err.message || 'Erreur lors de la suppression irréversible.' });
+      setNotification({ type: 'error', message: err.message || t('error') });
     } finally {
       setIsDeleting(false);
     }
@@ -254,7 +271,7 @@ export const MembersDirectoryPage: React.FC = () => {
       {filterSituation && (
         <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#1e2638] border border-[#f2ca50]/40 text-xs text-[#e5e9f2] w-fit shadow-sm">
           <span className="material-symbols-outlined text-[17px] text-[#f2ca50]">filter_alt</span>
-          <span>Filtre appliqué : <strong className="text-[#f2ca50]">{getSituationLabel(filterSituation)}</strong> ({totalCount})</span>
+          <span>{t('filterApplied')} : <strong className="text-[#f2ca50]">{getSituationLabel(filterSituation)}</strong> ({totalCount})</span>
           <button
             onClick={() => {
               const p = new URLSearchParams(searchParams);
@@ -262,10 +279,10 @@ export const MembersDirectoryPage: React.FC = () => {
               setSearchParams(p);
             }}
             className="ml-2 px-2 py-0.5 rounded-lg bg-[#111722] hover:bg-[#2b3547] text-[#9ca7b8] hover:text-[#f2ca50] transition flex items-center gap-1 text-[11px] border border-[#2b3547]"
-            title="Effacer le filtre"
+            title={t('clearFilter')}
           >
             <span className="material-symbols-outlined text-[13px]">close</span>
-            <span>Tous les membres</span>
+            <span>{t('allSituations')}</span>
           </button>
         </div>
       )}
@@ -278,7 +295,7 @@ export const MembersDirectoryPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 0. BLOC PROTOCOLAIRE : GUIDE SPIRITUEL & FONDATEUR */}
+      {/* 0. BLOC PROTOCOLAIRE : GUIDE SPIRITUEL & FONDATEUR (Position 1) */}
       {/* ========================================================================= */}
       {!isLoading && founderMember && (
         <div className="relative rounded-2xl bg-gradient-to-br from-[#0e1624] via-[#121c2c] to-[#0c1420] border border-[#c8a44d]/40 shadow-xl p-5 sm:p-6 overflow-hidden space-y-4">
@@ -344,7 +361,7 @@ export const MembersDirectoryPage: React.FC = () => {
                 <Link
                   to={`/members/${founderMember.matricule || founderMember.id}/edit`}
                   className="p-2 rounded-xl bg-[#242e40]/70 hover:bg-[#c8a44d] hover:text-slate-950 text-[#9ca7b8] transition flex items-center justify-center"
-                  title="Modifier"
+                  title={t('editMember')}
                 >
                   <span className="material-symbols-outlined text-[17px]">edit</span>
                 </Link>
@@ -352,7 +369,101 @@ export const MembersDirectoryPage: React.FC = () => {
               <button
                 onClick={() => setActionMember(founderMember)}
                 className="p-2 rounded-xl bg-[#1b2332] hover:bg-[#c8a44d] hover:text-slate-950 text-[#e5e9f2] border border-[#2b3547] transition flex items-center justify-center cursor-pointer"
-                title="Actions contextuelles"
+                title={t('contextActions')}
+              >
+                <span className="material-symbols-outlined text-[17px]">more_vert</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 0.5. BLOC PROTOCOLAIRE : PRÉSIDENT DE LA DAHIRAH (Position 2) */}
+      {/* Rendu UNIQUEMENT si un membre a le statut de président actif */}
+      {/* ========================================================================= */}
+      {!isLoading && presidentMember && (
+        <div className="relative rounded-2xl bg-gradient-to-br from-[#0c1a24] via-[#10242f] to-[#0a171e] border border-emerald-500/40 shadow-xl p-5 sm:p-6 overflow-hidden space-y-4">
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent"></div>
+
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <MemberAvatar
+                photoUrl={presidentMember.photo}
+                name={`${presidentMember.prenom} ${presidentMember.nom}`}
+                matricule={presidentMember.matricule}
+                size="lg"
+                className="border-2 border-emerald-500/50 shrink-0"
+              />
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10px] sm:text-[11px] font-bold tracking-wider uppercase">
+                    <span className="material-symbols-outlined text-[14px]">workspace_premium</span>
+                    {t('presidentBadge')}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-md bg-[#1b2636] border border-[#2b3547] text-[#9ca7b8] text-[11px] font-mono font-semibold ltr-tech">
+                    {presidentMember.matricule}
+                  </span>
+                </div>
+
+                <h2 className="font-headline-lg text-lg sm:text-xl font-bold text-[#e5e9f2] leading-snug">
+                  {presidentMember.prenom} {presidentMember.nom}
+                </h2>
+                {presidentMember.nomArabe && (
+                  <p className="text-xs sm:text-sm font-headline-sm text-emerald-400 font-medium">
+                    {presidentMember.nomArabe}
+                  </p>
+                )}
+                <p className="text-xs text-[#9ca7b8]">
+                  {t('presidentCardSubtitle')}
+                </p>
+              </div>
+            </div>
+
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold self-start sm:self-auto">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              {tControlled('member_status', presidentMember.statutCompte) || 'ACTIF'}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-2 text-xs pt-1">
+            {presidentMember.professionActuelle && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1b2636] text-[#e5e9f2] border border-[#2b3547]">
+                <span className="material-symbols-outlined text-[15px] text-emerald-400">verified_user</span>
+                <span>{presidentMember.professionActuelle}</span>
+              </span>
+            )}
+            {presidentMember.ville && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1b2636] text-[#9ca7b8] border border-[#2b3547]">
+                <span className="material-symbols-outlined text-[15px] text-emerald-400">location_on</span>
+                <span>{presidentMember.ville}</span>
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between pt-3 border-t border-[#2b3547]/40 gap-2">
+            <Link
+              to={`/members/${presidentMember.matricule || presidentMember.id}`}
+              className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 hover:text-emerald-300 border border-emerald-500/40 text-xs font-bold transition shadow-sm group"
+            >
+              <span>{t('viewProfile')}</span>
+              <span className="material-symbols-outlined text-[15px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+            </Link>
+
+            <div className="flex items-center gap-2">
+              {isEditor && (
+                <Link
+                  to={`/members/${presidentMember.matricule || presidentMember.id}/edit`}
+                  className="p-2 rounded-xl bg-[#242e40]/70 hover:bg-emerald-400 hover:text-slate-950 text-[#9ca7b8] transition flex items-center justify-center"
+                  title={t('editMember')}
+                >
+                  <span className="material-symbols-outlined text-[17px]">edit</span>
+                </Link>
+              )}
+              <button
+                onClick={() => setActionMember(presidentMember)}
+                className="p-2 rounded-xl bg-[#1b2332] hover:bg-emerald-400 hover:text-slate-950 text-[#e5e9f2] border border-[#2b3547] transition flex items-center justify-center cursor-pointer"
+                title={t('contextActions')}
               >
                 <span className="material-symbols-outlined text-[17px]">more_vert</span>
               </button>
@@ -364,7 +475,7 @@ export const MembersDirectoryPage: React.FC = () => {
       {/* ========================================================================= */}
       {/* SÉPARATEUR PROTOCOLAIRE : MEMBRES DE LA DAHIRAH */}
       {/* ========================================================================= */}
-      {!isLoading && (founderMember || communityMembers.length > 0) && (
+      {!isLoading && (founderMember || presidentMember || communityMembers.length > 0) && (
         <div className="flex items-center justify-between pt-2 pb-1 border-b border-[#2b3547]/50">
           <div className="flex items-center gap-2">
             <h2 className="font-headline-sm text-xs font-bold uppercase tracking-wider text-[#e5e9f2]">
@@ -457,7 +568,7 @@ export const MembersDirectoryPage: React.FC = () => {
                   <Link
                     to={`/members/${member.matricule || member.id}/edit`}
                     className="p-2 rounded-xl bg-[#242e40]/70 hover:bg-[#f2ca50] hover:text-slate-950 text-[#9ca7b8] transition flex items-center justify-center"
-                    title="Modifier"
+                    title={t('editMember')}
                   >
                     <span className="material-symbols-outlined text-[18px]">edit</span>
                   </Link>
@@ -467,7 +578,7 @@ export const MembersDirectoryPage: React.FC = () => {
                 <button
                   onClick={() => setActionMember(member)}
                   className="p-2 rounded-xl bg-[#1b2332] hover:bg-[#f2ca50] hover:text-slate-950 text-[#e5e9f2] border border-[#2b3547] transition flex items-center justify-center cursor-pointer"
-                  title="Centre d'actions contextuel"
+                  title={t('modalActionsTitle')}
                 >
                   <span className="material-symbols-outlined text-[18px]">more_vert</span>
                 </button>
@@ -575,7 +686,7 @@ export const MembersDirectoryPage: React.FC = () => {
                           <Link
                             to={`/members/${member.matricule || member.id}/edit`}
                             className="p-1.5 rounded-lg bg-[#242e40]/70 hover:bg-[#ffb95f] hover:text-slate-950 text-[#9ca7b8] transition"
-                            title="Modifier ce membre"
+                            title={t('editMember')}
                           >
                             <span className="material-symbols-outlined text-[15px]">edit</span>
                           </Link>
@@ -584,7 +695,7 @@ export const MembersDirectoryPage: React.FC = () => {
                         <button
                           onClick={() => setActionMember(member)}
                           className="p-1.5 rounded-lg bg-[#1b2332] hover:bg-[#f2ca50] hover:text-slate-950 text-[#9ca7b8] border border-[#2b3547] transition"
-                          title="Actions avancées"
+                          title={t('contextActions')}
                         >
                           <span className="material-symbols-outlined text-[16px]">more_vert</span>
                         </button>
@@ -641,8 +752,8 @@ export const MembersDirectoryPage: React.FC = () => {
               >
                 <span className="material-symbols-outlined text-[#f2ca50] text-[20px]">visibility</span>
                 <div>
-                  <span className="font-semibold block">Voir fiche 360°</span>
-                  <span className="text-[10px] text-[#9ca7b8]">Parcours complet &amp; réseau</span>
+                  <span className="font-semibold block">{t('actionView360')}</span>
+                  <span className="text-[10px] text-[#9ca7b8]">{t('actionView360Desc')}</span>
                 </div>
               </button>
 
@@ -656,8 +767,8 @@ export const MembersDirectoryPage: React.FC = () => {
                 >
                   <span className="material-symbols-outlined text-amber-400 text-[20px]">edit</span>
                   <div>
-                    <span className="font-semibold block">Modifier</span>
-                    <span className="text-[10px] text-[#9ca7b8]">État civil, contacts</span>
+                    <span className="font-semibold block">{t('editMember')}</span>
+                    <span className="text-[10px] text-[#9ca7b8]">{t('actionEditDesc')}</span>
                   </div>
                 </button>
               )}
@@ -671,8 +782,8 @@ export const MembersDirectoryPage: React.FC = () => {
               >
                 <span className="material-symbols-outlined text-emerald-400 text-[20px]">hub</span>
                 <div>
-                  <span className="font-semibold block">Entraide &amp; Métiers</span>
-                  <span className="text-[10px] text-[#9ca7b8]">Compétences &amp; services</span>
+                  <span className="font-semibold block">{t('breadcrumbNetwork')}</span>
+                  <span className="text-[10px] text-[#9ca7b8]">{t('actionNetworkDesc')}</span>
                 </div>
               </button>
 
@@ -686,8 +797,8 @@ export const MembersDirectoryPage: React.FC = () => {
                 >
                   <span className="material-symbols-outlined text-blue-400 text-[20px]">manage_accounts</span>
                   <div>
-                    <span className="font-semibold block">Compte Utilisateur</span>
-                    <span className="text-[10px] text-[#9ca7b8]">Lier un accès d'authentification</span>
+                    <span className="font-semibold block">{t('actionUserAccount')}</span>
+                    <span className="text-[10px] text-[#9ca7b8]">{t('actionUserAccountDesc')}</span>
                   </div>
                 </button>
               )}
@@ -699,8 +810,8 @@ export const MembersDirectoryPage: React.FC = () => {
                 >
                   <span className="material-symbols-outlined text-orange-400 text-[20px]">archive</span>
                   <div>
-                    <span className="font-semibold block">Archiver (Soft Delete)</span>
-                    <span className="text-[10px] text-[#9ca7b8]">Désactivation réversible</span>
+                    <span className="font-semibold block">{t('actionArchive')}</span>
+                    <span className="text-[10px] text-[#9ca7b8]">{t('actionArchiveDesc')}</span>
                   </div>
                 </button>
               )}
@@ -715,8 +826,8 @@ export const MembersDirectoryPage: React.FC = () => {
                 >
                   <span className="material-symbols-outlined text-red-400 text-[20px]">delete_forever</span>
                   <div>
-                    <span className="font-semibold block">Supprimer définitivement (Hard Delete)</span>
-                    <span className="text-[10px] text-red-300/80">Super Admin uniquement • Exige saisie du matricule</span>
+                    <span className="font-semibold block">{t('actionHardDelete')}</span>
+                    <span className="text-[10px] text-red-300/80">{t('actionHardDeleteDesc')}</span>
                   </div>
                 </button>
               )}
@@ -734,21 +845,21 @@ export const MembersDirectoryPage: React.FC = () => {
             <div className="flex items-center gap-3 text-red-400">
               <span className="material-symbols-outlined text-[32px]">warning</span>
               <div>
-                <h3 className="font-headline-sm text-base font-bold">Suppression Définitive Irréversible</h3>
-                <p className="text-[11px] text-red-300">Base de données PostgreSQL Neon</p>
+                <h3 className="font-headline-sm text-base font-bold">{t('hardDeleteModalTitle')}</h3>
+                <p className="text-[11px] text-red-300">{t('hardDeleteDatabaseNotice')}</p>
               </div>
             </div>
 
             <p className="text-xs text-[#e5e9f2]/90 leading-relaxed">
-              Vous êtes sur le point de supprimer physiquement de la base le membre{' '}
-              <strong className="text-red-300 font-bold">{hardDeleteTarget.prenom} {hardDeleteTarget.nom}</strong> ({hardDeleteTarget.matricule}).
-              Cette action détruira définitivement son profil ainsi que ses relations associées.
+              {t('hardDeleteWarningMessage', {
+                name: `${hardDeleteTarget.prenom} ${hardDeleteTarget.nom}`,
+                matricule: hardDeleteTarget.matricule,
+              })}
             </p>
 
             <div className="p-3 rounded-xl bg-[#201015] border border-red-500/30 text-xs space-y-2">
               <label className="text-[11px] text-[#9ca7b8] block">
-                Pour confirmer, veuillez saisir exactement le matricule :{' '}
-                <strong className="text-[#f2ca50] font-mono">{hardDeleteTarget.matricule}</strong>
+                {t('hardDeletePrompt', { matricule: hardDeleteTarget.matricule })}
               </label>
               <input
                 type="text"
@@ -765,7 +876,7 @@ export const MembersDirectoryPage: React.FC = () => {
                 onClick={() => setHardDeleteTarget(null)}
                 className="px-4 py-2 rounded-xl bg-[#1b2332] text-[#9ca7b8] hover:text-[#e5e9f2] text-xs font-semibold transition"
               >
-                Annuler
+                {t('cancel')}
               </button>
               <button
                 type="button"
@@ -774,7 +885,7 @@ export const MembersDirectoryPage: React.FC = () => {
                 className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold transition flex items-center gap-1.5 shadow-[0_0_15px_rgba(220,38,38,0.5)]"
               >
                 {isDeleting && <span className="material-symbols-outlined text-[15px] animate-spin">refresh</span>}
-                <span>Confirmer la suppression</span>
+                <span>{t('confirmHardDeleteBtn')}</span>
               </button>
             </div>
           </div>
