@@ -49,12 +49,42 @@ CORS_ALLOW_CREDENTIALS = True
 # Neon PostgreSQL ne stocke AUCUN binaire ; les médias sont acheminés
 # vers le stockage objet distant (ou /tmp sécurisé en serverless Vercel).
 # -----------------------------------------------------------------------------
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL')  # Requis pour Cloudflare R2, Supabase S3, MinIO
-AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'auto')
-AWS_S3_CUSTOM_DOMAIN = os.environ.get('AWS_S3_CUSTOM_DOMAIN')  # CDN personnalisé ou pub-xxx.r2.dev
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', '').strip() or None
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', '').strip() or None
+
+raw_bucket = os.environ.get('AWS_STORAGE_BUCKET_NAME', '').strip()
+# Nettoyage si une URL a été collée au lieu du simple nom de bucket
+if '/' in raw_bucket:
+    raw_bucket = raw_bucket.rstrip('/').split('/')[-1]
+AWS_STORAGE_BUCKET_NAME = raw_bucket or None
+
+raw_endpoint = os.environ.get('AWS_S3_ENDPOINT_URL', '').strip()
+if raw_endpoint:
+    if not raw_endpoint.startswith(('http://', 'https://')):
+        raw_endpoint = f"https://{raw_endpoint}"
+    # Si le nom du bucket a été inclus à la fin de l'URL d'endpoint, le retirer
+    if AWS_STORAGE_BUCKET_NAME and raw_endpoint.endswith(f"/{AWS_STORAGE_BUCKET_NAME}"):
+        raw_endpoint = raw_endpoint[:-len(f"/{AWS_STORAGE_BUCKET_NAME}")]
+    AWS_S3_ENDPOINT_URL = raw_endpoint.rstrip('/')
+else:
+    AWS_S3_ENDPOINT_URL = None
+
+raw_region = os.environ.get('AWS_S3_REGION_NAME', 'auto').strip()
+if ' ' in raw_region:
+    raw_region = raw_region.split()[0]
+AWS_S3_REGION_NAME = raw_region or 'auto'
+
+raw_custom_domain = os.environ.get('AWS_S3_CUSTOM_DOMAIN', '').strip()
+if raw_custom_domain:
+    # django-storages attend le domaine sans protocole ni trailing slash
+    cleaned_domain = raw_custom_domain
+    for prefix in ('https://', 'http://'):
+        if cleaned_domain.startswith(prefix):
+            cleaned_domain = cleaned_domain[len(prefix):]
+    AWS_S3_CUSTOM_DOMAIN = cleaned_domain.rstrip('/')
+else:
+    AWS_S3_CUSTOM_DOMAIN = None
+
 AWS_DEFAULT_ACL = None  # Bucket Owner Enforced
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_FILE_OVERWRITE = False
