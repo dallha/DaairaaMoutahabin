@@ -656,7 +656,44 @@ export const MemberDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Section C : Savoir-Faire & Compétences */}
+          {/* Section C : Formations & Cursus Académique (Étudiants & Cadres) */}
+          <div className="p-5 rounded-xl bg-[#111722]/80 border border-[#2b3547]/40 md:col-span-2 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">school</span>
+                Formations &amp; Cursus Académique ({member.formations?.length || 0})
+              </h3>
+            </div>
+
+            {!member.formations || member.formations.length === 0 ? (
+              <p className="text-xs text-[#9ca7b8] italic">Aucune formation académique ou coranique renseignée pour le moment.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
+                {member.formations.map((form) => (
+                  <div key={form.id} className="p-3.5 rounded-xl bg-[#151c28] border border-[#2b3547]/60 flex flex-col justify-between gap-2 text-xs">
+                    <div>
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="font-semibold text-[#e5e9f2] truncate">{form.diplome || form.niveau || 'Formation'}</span>
+                        {form.annee && (
+                          <span className="px-2 py-0.5 rounded bg-[#242e40] text-[10px] text-[#f2ca50] font-mono ltr-tech font-bold">
+                            {form.annee}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-[#f2ca50] mt-0.5">{form.domaine || 'Domaine général'}</p>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 pt-2 border-t border-[#2b3547]/30 text-[11px] text-[#9ca7b8]">
+                      <span className="material-symbols-outlined text-[14px] text-sky-400">account_balance</span>
+                      <span className="truncate">{form.etablissement || 'Établissement non précisé'}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Section D : Savoir-Faire & Compétences */}
           <div className="p-5 rounded-xl bg-[#111722]/80 border border-[#2b3547]/40 md:col-span-2 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="font-headline-sm text-sm font-semibold text-[#f2ca50] flex items-center gap-2">

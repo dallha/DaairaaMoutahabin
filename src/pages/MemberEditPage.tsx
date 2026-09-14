@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getMemberById, updateMember } from '../services/memberService';
+import { useAuth } from '../context/AuthContext';
 import { Member, Gender, SituationType } from '../types';
 
 export const MemberEditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [member, setMember] = useState<Member | null>(null);
   const [prenom, setPrenom] = useState('');
@@ -103,6 +105,36 @@ export const MemberEditPage: React.FC = () => {
     );
   }
 
+  const isSuperAdmin = user?.role === 'superadmin';
+  const isAdmin = user?.role === 'admin' || isSuperAdmin;
+  const isOwner = Boolean(
+    member && user && (
+      (user.email && member.email && user.email.toLowerCase() === member.email.toLowerCase()) ||
+      (user.member_id && (String(user.member_id) === String(member.id) || String(user.member_id) === String(member.matricule)))
+    )
+  );
+  const canEdit = isAdmin || isOwner;
+
+  if (member && !canEdit) {
+    return (
+      <div className="p-8 max-w-xl mx-auto my-12 rounded-2xl bg-[#151c28] border border-red-500/30 text-center flex flex-col items-center gap-4">
+        <div className="w-14 h-14 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center">
+          <span className="material-symbols-outlined text-[32px]">shield_person</span>
+        </div>
+        <h2 className="font-headline-sm text-xl font-bold text-[#e5e9f2]">Accès Restreint</h2>
+        <p className="text-xs text-[#9ca7b8] max-w-md">
+          Vous n'avez pas l'autorisation de modifier cette fiche membre. Seul le propriétaire direct ou un administrateur accrédité peut effectuer cette opération.
+        </p>
+        <Link
+          to={`/members/${id}`}
+          className="px-5 py-2 rounded-xl bg-[#242e40] hover:bg-[#f2ca50] hover:text-slate-950 text-[#f2ca50] text-xs font-semibold transition"
+        >
+          Retour à la Fiche
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto flex flex-col gap-6">
       
@@ -132,6 +164,15 @@ export const MemberEditPage: React.FC = () => {
             Mise à jour des données signalétiques de l'adhérent dans PostgreSQL Neon.
           </p>
         </div>
+
+        {!isAdmin && isOwner && (
+          <div className="mb-5 p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs flex items-center gap-2.5">
+            <span className="material-symbols-outlined text-[20px] text-blue-400 shrink-0">badge</span>
+            <span>
+              Vous modifiez votre fiche personnelle. Vos coordonnées et votre situation civile seront mises à jour directement.
+            </span>
+          </div>
+        )}
 
         {error && (
           <div className="mb-5 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">

@@ -69,14 +69,14 @@ export default function App() {
               <Route
                 path="/members/:id/edit"
                 element={
-                  <RoleGuard allowed={['admin', 'superadmin', 'agent']}>
+                  <RoleGuard allowed={['admin', 'superadmin', 'agent', 'member']}>
                     <MemberEditPage />
                   </RoleGuard>
                 }
               />
               <Route path="/members/:id" element={<MemberDetailPage />} />
 
-              {/* Référentiels & Taxonomies Métiers */}
+              {/* Référentiels & Taxonomies Métiers (Canonical & Aliases) */}
               <Route
                 path="/referentials/professions"
                 element={
@@ -85,6 +85,7 @@ export default function App() {
                   </RoleGuard>
                 }
               />
+              <Route path="/professions" element={<Navigate to="/referentials/professions" replace />} />
               <Route
                 path="/referentials/categories"
                 element={
@@ -93,6 +94,7 @@ export default function App() {
                   </RoleGuard>
                 }
               />
+              <Route path="/professions/categories" element={<Navigate to="/referentials/categories" replace />} />
               <Route
                 path="/referentials/education"
                 element={
@@ -101,6 +103,7 @@ export default function App() {
                   </RoleGuard>
                 }
               />
+              <Route path="/education" element={<Navigate to="/referentials/education" replace />} />
               <Route
                 path="/referentials/roles"
                 element={
@@ -109,8 +112,9 @@ export default function App() {
                   </RoleGuard>
                 }
               />
+              <Route path="/roles" element={<Navigate to="/referentials/roles" replace />} />
 
-              {/* Administration Avancée & Sécurité */}
+              {/* Administration Avancée & Sécurité (Canonical & Aliases) */}
               <Route
                 path="/admin/audit"
                 element={
@@ -119,6 +123,7 @@ export default function App() {
                   </RoleGuard>
                 }
               />
+              <Route path="/audit" element={<Navigate to="/admin/audit" replace />} />
               <Route
                 path="/admin/users"
                 element={
@@ -127,6 +132,7 @@ export default function App() {
                   </RoleGuard>
                 }
               />
+              <Route path="/users" element={<Navigate to="/admin/users" replace />} />
               <Route
                 path="/admin/settings"
                 element={
@@ -135,6 +141,7 @@ export default function App() {
                   </RoleGuard>
                 }
               />
+              <Route path="/settings" element={<Navigate to="/admin/settings" replace />} />
 
               {/* Page 404 Interne */}
               <Route path="*" element={<NotFoundPage />} />

@@ -261,6 +261,16 @@ class MemberNeedSerializer(serializers.ModelSerializer):
 
         return attrs
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        request = self.context.get('request')
+        is_owner = bool(
+            request and hasattr(request.user, 'member_profile') and request.user.member_profile == instance.member
+        )
+        if instance.is_anonymous and not self._is_admin() and not is_owner:
+            ret['member'] = None
+        return ret
+
 
 class ConnectionRequestSerializer(serializers.ModelSerializer):
     """
@@ -365,5 +375,15 @@ class ConnectionRequestSerializer(serializers.ModelSerializer):
         if requester and target_member and requester == target_member:
             raise serializers.ValidationError("Un membre ne peut pas s'auto-solliciter.")
         return attrs
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        request = self.context.get('request')
+        is_owner = bool(
+            request and hasattr(request.user, 'member_profile') and request.user.member_profile == instance.requester
+        )
+        if instance.need and instance.need.is_anonymous and instance.status != ConnectionRequestStatusChoices.ACCEPTED and not self._is_admin() and not is_owner:
+            ret['requester'] = None
+        return ret
 
 

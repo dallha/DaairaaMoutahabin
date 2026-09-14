@@ -2,9 +2,16 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Dāʾiratu Al-Mutahābbīna Fillāhi | دائرة المتحابين في الله</title>
     <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#f2ca50" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Dahirah" />
     <meta name="description" content="Plateforme communautaire de gestion des membres, annuaire, professions et activités pour Dāʾiratu Al-Mutahābbīna Fillāhi - Shaykh Muhammad Nūruddin Ibn Shaykh Muhammadul Amīn Ñas" />
     <meta property="og:title" content="Dāʾiratu Al-Mutahābbīna Fillāhi | دائرة المتحابين في الله" />
     <meta property="og:description" content="Plateforme communautaire de gestion des membres, annuaire, professions et activités pour Dāʾiratu Al-Mutahābbīna Fillāhi - Shaykh Muhammad Nūruddin Ibn Shaykh Muhammadul Amīn Ñas" />
@@ -18,6 +25,15 @@
   <body class="bg-[#0a0e14] text-[#e5e9f2] antialiased selection:bg-[#f2ca50]/20 selection:text-[#f2ca50]">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch((err) => {
+            console.warn('PWA SW registration notice:', err);
+          });
+        });
+      }
+    </script>
   </body>
 </html>
 

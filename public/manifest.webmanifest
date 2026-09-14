@@ -1,0 +1,28 @@
+{
+  "name": "Dāʾiratu Al-Mutahābbīna Fillāhi | دائرة المتحابين في الله",
+  "short_name": "Dahirah",
+  "description": "Plateforme communautaire souveraine de gestion des membres, annuaire, professions et entraide confraternelle pour Dāʾiratu Al-Mutahābbīna Fillāhi.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0e14",
+  "theme_color": "#f2ca50",
+  "lang": "fr",
+  "dir": "auto",
+  "categories": ["community", "productivity", "education"],
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

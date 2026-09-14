@@ -198,6 +198,16 @@ export const AppLayout: React.FC = () => {
                     <p className="text-[#9ca7b8]">{t('connectedAs')}</p>
                     <p className="font-semibold text-[#e5e9f2] truncate ltr-tech">{user?.email}</p>
                   </div>
+                  {user?.member_id && (
+                    <Link
+                      to={`/members/${user.member_id}`}
+                      onClick={() => setProfileDropdownOpen(false)}
+                      className="w-full flex items-center gap-2 px-3 py-2 mt-1 rounded-lg text-xs text-[#f2ca50] hover:bg-[#f2ca50]/10 transition font-medium"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">account_circle</span>
+                      <span>Mon Profil Souverain</span>
+                    </Link>
+                  )}
                   <button
                     onClick={() => {
                       setProfileDropdownOpen(false);
@@ -250,7 +260,7 @@ export const AppLayout: React.FC = () => {
       </main>
 
       {/* 3. FLOATING DOCK PERSISTANT (5 ANCRES MOBILE-FIRST) */}
-      <aside className="fixed bottom-4 sm:bottom-6 left-0 right-0 z-40 pointer-events-none flex justify-center px-3 sm:px-4">
+      <aside className="fixed bottom-4 sm:bottom-6 left-0 right-0 z-40 pointer-events-none flex justify-center px-3 sm:px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         <nav className="pointer-events-auto flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-[#080c12]/92 backdrop-blur-2xl border border-[#f2ca50]/30 shadow-[0_16px_40px_rgba(0,0,0,0.9)] ring-1 ring-[#f2ca50]/20">
           
           {/* 1. Accueil */}
@@ -426,7 +436,7 @@ export const AppLayout: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-2.5">
               <Link
-                to="/education"
+                to="/referentials/education"
                 onClick={() => setMoreDrawerOpen(false)}
                 className="flex flex-col items-center justify-center text-center p-3 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/50 hover:border-sky-400/50 transition group"
               >
@@ -436,7 +446,7 @@ export const AppLayout: React.FC = () => {
               </Link>
 
               <Link
-                to="/professions"
+                to="/referentials/professions"
                 onClick={() => setMoreDrawerOpen(false)}
                 className="flex flex-col items-center justify-center text-center p-3 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/50 hover:border-amber-400/50 transition group"
               >
@@ -446,7 +456,7 @@ export const AppLayout: React.FC = () => {
               </Link>
 
               <Link
-                to="/professions/categories"
+                to="/referentials/categories"
                 onClick={() => setMoreDrawerOpen(false)}
                 className="flex flex-col items-center justify-center text-center p-3 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/50 hover:border-teal-400/50 transition group"
               >
@@ -456,7 +466,7 @@ export const AppLayout: React.FC = () => {
               </Link>
 
               <Link
-                to="/roles"
+                to="/referentials/roles"
                 onClick={() => setMoreDrawerOpen(false)}
                 className="flex flex-col items-center justify-center text-center p-3 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/50 hover:border-purple-400/50 transition group"
               >
@@ -467,7 +477,7 @@ export const AppLayout: React.FC = () => {
 
               {['admin', 'superadmin'].includes(user?.role || '') && (
                 <Link
-                  to="/users"
+                  to="/admin/users"
                   onClick={() => setMoreDrawerOpen(false)}
                   className="flex flex-col items-center justify-center text-center p-3 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/50 hover:border-blue-400/50 transition group"
                 >
@@ -479,7 +489,7 @@ export const AppLayout: React.FC = () => {
 
               {['admin', 'superadmin'].includes(user?.role || '') && (
                 <Link
-                  to="/audit"
+                  to="/admin/audit"
                   onClick={() => setMoreDrawerOpen(false)}
                   className="flex flex-col items-center justify-center text-center p-3 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/50 hover:border-emerald-400/50 transition group"
                 >
@@ -491,7 +501,7 @@ export const AppLayout: React.FC = () => {
 
               {user?.role === 'superadmin' && (
                 <Link
-                  to="/settings"
+                  to="/admin/settings"
                   onClick={() => setMoreDrawerOpen(false)}
                   className="col-span-2 flex items-center justify-center gap-2 p-3 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/50 hover:border-[#f2ca50]/50 transition group"
                 >
