@@ -336,3 +336,29 @@ class MemberMediaPhotoTests(APITestCase):
             )
             self.assertIn('storages', prod_settings.INSTALLED_APPS)
 
+    def test_10_production_without_bucket_raises_improperly_configured(self):
+        """
+        Vérifie qu'en l'absence de credentials bucket en production,
+        production.py lève STRICTEMENT une exception ImproperlyConfigured
+        interdisant tout fallback silencieux vers /tmp/media.
+        """
+        import os
+        from unittest.mock import patch
+        from django.core.exceptions import ImproperlyConfigured
+
+        # Supprimer toute variable AWS de l'environnement
+        env_without_bucket = {
+            k: v for k, v in os.environ.items()
+            if not k.startswith('AWS_') and k != 'ALLOW_INSECURE_LOCAL_STORAGE'
+        }
+
+        with patch.dict(os.environ, env_without_bucket, clear=True):
+            import importlib
+            import config.settings.production as prod_settings
+
+            with self.assertRaises(ImproperlyConfigured) as ctx:
+                importlib.reload(prod_settings)
+
+            self.assertIn("STRICTEMENT OBLIGATOIRE", str(ctx.exception))
+            self.assertIn("Aucun fallback local silencieux", str(ctx.exception))
+

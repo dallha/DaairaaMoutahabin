@@ -59,6 +59,8 @@ AWS_DEFAULT_ACL = None  # Bucket Owner Enforced
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_FILE_OVERWRITE = False
 
+from django.core.exceptions import ImproperlyConfigured
+
 if AWS_STORAGE_BUCKET_NAME and AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
     if 'storages' not in INSTALLED_APPS:
         INSTALLED_APPS = list(INSTALLED_APPS) + ['storages']
@@ -74,9 +76,8 @@ if AWS_STORAGE_BUCKET_NAME and AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
             "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
-else:
-    # Fallback pour staging / dev sans bucket configuré
-    # Sur Vercel Serverless, utilise /tmp/media pour éviter l'erreur de filesystem en lecture seule
+elif os.environ.get('ALLOW_INSECURE_LOCAL_STORAGE', 'False').lower() in ('true', '1'):
+    # Bypass explicite strictement réservé aux tests d'intégration locaux ou CI
     storage_location = "/tmp/media" if os.environ.get('VERCEL') else str(MEDIA_ROOT)
     STORAGES = {
         "default": {
@@ -90,4 +91,11 @@ else:
             "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
+else:
+    raise ImproperlyConfigured(
+        "CRITICAL ERROR (V1.2.4 Architecture Rule) : En environnement de production (config.settings.production), "
+        "le stockage objet cloud distant (AWS_STORAGE_BUCKET_NAME, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) "
+        "est STRICTEMENT OBLIGATOIRE. Aucun fallback local silencieux (/tmp/media) n'est toléré en production "
+        "pour préserver la durabilité et la souveraineté des médias confraternels."
+    )
 
