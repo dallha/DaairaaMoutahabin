@@ -34,7 +34,7 @@ class MemberMedia(models.Model):
     )
     file = models.FileField(
         _('Fichier'),
-        upload_to='members/media/'
+        upload_to='members/photos/'
     )
     storage_key = models.CharField(
         _('Clé de stockage objet'),

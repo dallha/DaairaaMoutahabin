@@ -184,8 +184,8 @@ def process_and_save_profile_photo(member: Member, uploaded_file) -> MemberMedia
                 'compressed_at': timezone.now().isoformat(),
             }
         )
-        new_media.file.save(storage_path, content_file, save=False)
-        new_media.storage_key = storage_path
+        new_media.file.save(filename, content_file, save=False)
+        new_media.storage_key = new_media.file.name
         new_media.save()
 
         # Synchronisation du champ member.photo pour rétrocompatibilité totale
