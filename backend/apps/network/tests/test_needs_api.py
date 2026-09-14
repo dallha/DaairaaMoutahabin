@@ -31,7 +31,6 @@ class MemberNeedAPITests(APITestCase):
         # 1. Membre Demandeur (Awa)
         self.user_awa = CustomUser.objects.create_user(
             email='awa@dairatu.sn',
-            password='TestPassword123!',
             first_name='Awa',
             last_name='Badiane'
         )
@@ -48,7 +47,6 @@ class MemberNeedAPITests(APITestCase):
         # 2. Membre Observateur (Modou)
         self.user_modou = CustomUser.objects.create_user(
             email='modou@dairatu.sn',
-            password='TestPassword123!',
             first_name='Modou',
             last_name='Biteye'
         )
@@ -65,7 +63,6 @@ class MemberNeedAPITests(APITestCase):
         # 3. Administrateur
         self.user_admin = CustomUser.objects.create_superuser(
             email='admin@dairatu.sn',
-            password='AdminPassword123!',
             first_name='Admin',
             last_name='Gouvernance'
         )

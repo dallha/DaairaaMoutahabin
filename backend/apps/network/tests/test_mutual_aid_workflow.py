@@ -46,7 +46,6 @@ class MutualAidWorkflowTests(APITestCase):
         # 1. Shaykh (DAMF-0001, Fondateur)
         self.user_shaykh = CustomUser.objects.create_superuser(
             email='shaykh@dairatu.sn',
-            password='PassShaykh123!',
             first_name='Shaykh',
             last_name='Muhammad Nūruddin'
         )
@@ -64,7 +63,6 @@ class MutualAidWorkflowTests(APITestCase):
         # 2. Disciple Demandeur (Fatou)
         self.user_fatou = CustomUser.objects.create_user(
             email='fatou@dairatu.sn',
-            password='TestPassword123!',
             first_name='Fatou',
             last_name='Sarr'
         )
@@ -81,7 +79,6 @@ class MutualAidWorkflowTests(APITestCase):
         # 3. Disciple Ressource / Aidant (Babacar - Juriste)
         self.user_babacar = CustomUser.objects.create_user(
             email='babacar@dairatu.sn',
-            password='TestPassword123!',
             first_name='Babacar',
             last_name='Diallo'
         )
@@ -114,7 +111,6 @@ class MutualAidWorkflowTests(APITestCase):
         # 4. Administrateur Facilitateur
         self.user_admin = CustomUser.objects.create_superuser(
             email='admin@dairatu.sn',
-            password='AdminPassword123!',
             first_name='Admin',
             last_name='Dahirah'
         )
