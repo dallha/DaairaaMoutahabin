@@ -28,6 +28,12 @@
   .font-arabic-calligraphy {
     font-family: 'Amiri', serif;
   }
+
+  .ltr-tech {
+    direction: ltr !important;
+    unicode-bidi: isolate;
+    display: inline-block;
+  }
 }
 
 /* Custom scrollbars */

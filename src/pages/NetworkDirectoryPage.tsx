@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import { MemberAvatar } from '../components/MemberAvatar';
 import {
   searchNetwork,
   getSkillCategories,
@@ -36,6 +38,7 @@ type ActiveDoor = 'search' | 'needs' | 'help';
 
 export const NetworkDirectoryPage: React.FC = () => {
   const { user } = useAuth();
+  const { t, tControlled } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Porte active (1: Je cherche, 2: J'ai besoin d'aide, 3: Je peux aider)
@@ -441,10 +444,10 @@ export const NetworkDirectoryPage: React.FC = () => {
             </div>
             <div>
               <div className="text-sm font-bold text-[#e5e9f2] flex items-center gap-1.5">
-                <span>1. Je cherche</span>
+                <span>1. {t('door1Title')}</span>
                 {activeDoor === 'search' && <span className="w-1.5 h-1.5 rounded-full bg-[#f2ca50]"></span>}
               </div>
-              <div className="text-[11px] text-[#9ca7b8]">Compétences, métiers, services, mentorat</div>
+              <div className="text-[11px] text-[#9ca7b8]">{t('door1Subtitle')}</div>
             </div>
           </button>
 
@@ -463,10 +466,10 @@ export const NetworkDirectoryPage: React.FC = () => {
             </div>
             <div>
               <div className="text-sm font-bold text-[#e5e9f2] flex items-center gap-1.5">
-                <span>2. J'ai besoin d'aide</span>
+                <span>2. {t('door2Title')}</span>
                 {activeDoor === 'needs' && <span className="w-1.5 h-1.5 rounded-full bg-[#f2ca50]"></span>}
               </div>
-              <div className="text-[11px] text-[#9ca7b8]">Besoins d'entraide &amp; mises en relation</div>
+              <div className="text-[11px] text-[#9ca7b8]">{t('door2Subtitle')}</div>
             </div>
           </button>
 
@@ -485,10 +488,10 @@ export const NetworkDirectoryPage: React.FC = () => {
             </div>
             <div>
               <div className="text-sm font-bold text-[#e5e9f2] flex items-center gap-1.5">
-                <span>3. Je peux aider</span>
+                <span>3. {t('door3Title')}</span>
                 {activeDoor === 'help' && <span className="w-1.5 h-1.5 rounded-full bg-[#f2ca50]"></span>}
               </div>
-              <div className="text-[11px] text-[#9ca7b8]">Déclarer compétences &amp; disponibilités</div>
+              <div className="text-[11px] text-[#9ca7b8]">{t('door3Subtitle')}</div>
             </div>
           </button>
         </div>
@@ -633,7 +636,7 @@ export const NetworkDirectoryPage: React.FC = () => {
                   <div className="space-y-3">
                     {/* Header Carte : Matricule & Disponibilité */}
                     <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#1b2536] border border-[#2b3547] text-[#9ca7b8] text-[10px] font-mono font-bold">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#1b2536] border border-[#2b3547] text-[#9ca7b8] text-[10px] font-mono font-bold ltr-tech">
                         {m.matricule}
                       </span>
                       {m.availability_status === 'AVAILABLE' ? (
@@ -649,18 +652,26 @@ export const NetworkDirectoryPage: React.FC = () => {
                     </div>
 
                     {/* Identité & Métier */}
-                    <div>
-                      <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2]">
-                        {m.display_name}
-                      </h3>
-                      <div className="text-xs text-[#f2ca50] font-medium mt-0.5">
-                        {m.primary_profession || 'Membre de la Dahirah'}
-                      </div>
-                      {m.primary_organization && (
-                        <div className="text-[11px] text-[#9ca7b8]">
-                          {m.primary_organization}
+                    <div className="flex items-center gap-3">
+                      <MemberAvatar
+                        photoUrl={m.photo}
+                        name={m.display_name}
+                        matricule={m.matricule}
+                        size="md"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-headline-sm text-base font-bold text-[#e5e9f2] truncate">
+                          {m.display_name}
+                        </h3>
+                        <div className="text-xs text-[#f2ca50] font-medium mt-0.5 truncate">
+                          {m.primary_profession || 'Membre de la Dahirah'}
                         </div>
-                      )}
+                        {m.primary_organization && (
+                          <div className="text-[11px] text-[#9ca7b8] truncate">
+                            {m.primary_organization}
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Compétences en badges */}
@@ -787,16 +798,25 @@ export const NetworkDirectoryPage: React.FC = () => {
                           </span>
                         </div>
 
-                        <div className="text-sm font-semibold text-[#e5e9f2]">
-                          {req.need_title ? `Besoin : ${req.need_title}` : 'Sollicitation directe'}
-                        </div>
-
-                        <div className="text-[11px] text-[#9ca7b8]">
-                          {isIncoming ? (
-                            <span>Demandeur : <strong className="text-[#f2ca50]">{req.requester_name}</strong></span>
-                          ) : (
-                            <span>Sollicité : <strong className="text-[#f2ca50]">{req.target_member_name}</strong></span>
-                          )}
+                        <div className="flex items-center gap-3">
+                          <MemberAvatar
+                            photoUrl={isIncoming ? req.requester_photo : req.target_member_photo}
+                            name={isIncoming ? req.requester_name : req.target_member_name}
+                            matricule={isIncoming ? (req.requester_matricule || '') : (req.target_member_matricule || '')}
+                            size="sm"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="text-[11px] text-[#9ca7b8]">
+                              {isIncoming ? (
+                                <span>Demandeur : <strong className="text-[#f2ca50]">{req.requester_name}</strong></span>
+                              ) : (
+                                <span>Sollicité : <strong className="text-[#f2ca50]">{req.target_member_name}</strong></span>
+                              )}
+                            </div>
+                            <div className="text-sm font-semibold text-[#e5e9f2] truncate">
+                              {req.need_title ? `Besoin : ${req.need_title}` : 'Sollicitation directe'}
+                            </div>
+                          </div>
                         </div>
 
                         {req.message && (
@@ -1232,17 +1252,25 @@ export const NetworkDirectoryPage: React.FC = () => {
                     className="p-4 rounded-xl bg-[#17202f] border border-[#2b3547] flex flex-col gap-2.5"
                   >
                     <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-xs font-bold text-[#e5e9f2] flex items-center gap-1.5">
-                          <span>{cand.display_name}</span>
-                          <span className="text-[10px] text-[#9ca7b8] font-mono">({cand.matricule})</span>
-                        </div>
-                        <div className="text-[11px] text-[#f2ca50]">
-                          {cand.primary_profession || 'Membre Dahirah'} • {cand.city}
+                      <div className="flex items-center gap-2.5">
+                        <MemberAvatar
+                          photoUrl={cand.photo}
+                          name={cand.display_name}
+                          matricule={cand.matricule}
+                          size="sm"
+                        />
+                        <div>
+                          <div className="text-xs font-bold text-[#e5e9f2] flex items-center gap-1.5">
+                            <span>{cand.display_name}</span>
+                            <span className="text-[10px] text-[#9ca7b8] font-mono ltr-tech">({cand.matricule})</span>
+                          </div>
+                          <div className="text-[11px] text-[#f2ca50]">
+                            {cand.primary_profession || 'Membre Dahirah'} • {cand.city}
+                          </div>
                         </div>
                       </div>
 
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 text-xs font-bold font-mono">
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 text-xs font-bold font-mono ltr-tech">
                         Affinité : {cand.score} pts
                       </span>
                     </div>

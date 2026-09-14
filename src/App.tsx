@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { LanguageProvider } from './context/LanguageContext';
 import { ProtectedRoute, PublicRoute, RoleGuard } from './routes/RouteGuards';
 import { AppLayout } from './layouts/AppLayout';
 
@@ -26,91 +27,124 @@ import { NetworkDirectoryPage } from './pages/NetworkDirectoryPage';
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Route d'Authentification Publique */}
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
-                <LoginPage />
-              </PublicRoute>
-            }
-          />
-
-          {/* Redirection de la racine vers le Dashboard */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
-          {/* Ensemble des routes protégées enveloppées par AppLayout */}
-          <Route
-            element={
-              <ProtectedRoute>
-                <AppLayout />
-              </ProtectedRoute>
-            }
-          >
-            {/* Tableau de Bord */}
-            <Route path="/dashboard" element={<DashboardOverviewPage />} />
-
-            {/* Annuaire & Fiches Individuelles */}
-            <Route path="/members" element={<MembersDirectoryPage />} />
-            <Route path="/network" element={<NetworkDirectoryPage />} />
+    <LanguageProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Route d'Authentification Publique */}
             <Route
-              path="/members/new"
+              path="/login"
               element={
-                <RoleGuard allowed={['admin', 'superadmin', 'agent']}>
-                  <MemberCreatePage />
-                </RoleGuard>
-              }
-            />
-            <Route path="/members/:id" element={<MemberDetailPage />} />
-            <Route
-              path="/members/:id/edit"
-              element={
-                <RoleGuard allowed={['admin', 'superadmin', 'agent']}>
-                  <MemberEditPage />
-                </RoleGuard>
+                <PublicRoute>
+                  <LoginPage />
+                </PublicRoute>
               }
             />
 
-            {/* Référentiels Métiers & Commissions */}
-            <Route path="/professions" element={<ProfessionsListPage />} />
-            <Route path="/professions/categories" element={<TaxonomyCategoriesPage />} />
-            <Route path="/education" element={<EducationReferentialPage />} />
-            <Route path="/roles" element={<DahirahRolesPage />} />
+            {/* Redirection de la racine vers le Dashboard */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-            {/* Journal d'Audit & Administration */}
+            {/* Ensemble des routes protégées enveloppées par AppLayout */}
             <Route
-              path="/audit"
               element={
-                <RoleGuard allowed={['admin', 'superadmin']}>
-                  <AuditLogsPage />
-                </RoleGuard>
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
               }
-            />
-            <Route
-              path="/users"
-              element={
-                <RoleGuard allowed={['admin', 'superadmin']}>
-                  <UserManagementPage />
-                </RoleGuard>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <RoleGuard allowed={['superadmin']}>
-                  <SystemSettingsPage />
-                </RoleGuard>
-              }
-            />
-          </Route>
+            >
+              {/* Tableau de Bord */}
+              <Route path="/dashboard" element={<DashboardOverviewPage />} />
 
-          {/* Route 404 personnalisée */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+              {/* Annuaire & Fiches Individuelles */}
+              <Route path="/members" element={<MembersDirectoryPage />} />
+              <Route path="/network" element={<NetworkDirectoryPage />} />
+              <Route
+                path="/members/new"
+                element={
+                  <RoleGuard allowed={['admin', 'superadmin', 'agent']}>
+                    <MemberCreatePage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/members/:id/edit"
+                element={
+                  <RoleGuard allowed={['admin', 'superadmin', 'agent']}>
+                    <MemberEditPage />
+                  </RoleGuard>
+                }
+              />
+              <Route path="/members/:id" element={<MemberDetailPage />} />
+
+              {/* Référentiels & Taxonomies Métiers */}
+              <Route
+                path="/referentials/professions"
+                element={
+                  <RoleGuard allowed={['admin', 'superadmin']}>
+                    <ProfessionsListPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/referentials/categories"
+                element={
+                  <RoleGuard allowed={['admin', 'superadmin']}>
+                    <TaxonomyCategoriesPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/referentials/education"
+                element={
+                  <RoleGuard allowed={['admin', 'superadmin']}>
+                    <EducationReferentialPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/referentials/roles"
+                element={
+                  <RoleGuard allowed={['admin', 'superadmin']}>
+                    <DahirahRolesPage />
+                  </RoleGuard>
+                }
+              />
+
+              {/* Administration Avancée & Sécurité */}
+              <Route
+                path="/admin/audit"
+                element={
+                  <RoleGuard allowed={['superadmin']}>
+                    <AuditLogsPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <RoleGuard allowed={['superadmin']}>
+                    <UserManagementPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/admin/settings"
+                element={
+                  <RoleGuard allowed={['superadmin']}>
+                    <SystemSettingsPage />
+                  </RoleGuard>
+                }
+              />
+
+              {/* Page 404 Interne */}
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
+
+            {/* Redirection fallback racine */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }

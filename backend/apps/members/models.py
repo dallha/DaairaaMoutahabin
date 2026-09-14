@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from common.constants import UserRole
+from .models_media import MemberMedia, MediaTypeChoices
 
 try:
     import phonenumbers
@@ -205,6 +207,14 @@ class Member(models.Model):
     def display_name(self) -> str:
         """Propriété calculée combinant prénom et nom (aucune colonne en base)."""
         return f"{self.first_name} {self.last_name}".strip()
+
+    @property
+    def current_profile_photo(self):
+        """Renvoie le média MemberMedia actif servant d'avatar pour le membre."""
+        return self.media_files.filter(
+            media_type=MediaTypeChoices.PROFILE_PHOTO,
+            is_current_profile_photo=True
+        ).first()
 
     def delete(self, using=None, keep_parents=False):
         """Suppression logique (Soft Delete) de l'instance."""

@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import { MemberAvatar } from '../components/MemberAvatar';
 import { DashboardStats, getDashboardStats } from '../services/dashboardService';
 import { getMembers, getMemberById } from '../services/memberService';
 import { Member } from '../types';
 
 export const DashboardOverviewPage: React.FC = () => {
   const { user } = useAuth();
+  const { t, isRTL } = useLanguage();
 
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentMembers, setRecentMembers] = useState<Member[]>([]);
@@ -142,42 +145,52 @@ export const DashboardOverviewPage: React.FC = () => {
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#c8a44d] to-transparent"></div>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-3xl">
-            {/* Badge protocolaire & Matricule */}
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#c8a44d]/15 border border-[#c8a44d]/40 text-[#c8a44d] text-[11px] font-bold tracking-wider uppercase">
-                <span className="material-symbols-outlined text-[15px]">stars</span>
-                Guide Spirituel &amp; Fondateur
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#1b2636] border border-[#2b3547] text-[#9ca7b8] text-[11px] font-mono font-semibold">
-                {founder?.matricule || 'DAMF-0001'}
-              </span>
-            </div>
+          <div className="flex items-start gap-4 sm:gap-5 max-w-3xl">
+            {/* Avatar Officiel du Shaykh */}
+            <MemberAvatar
+              photoUrl={founder?.photo}
+              name={founder ? `${founder.prenom} ${founder.nom}` : 'Shaykh Muhammad Nūruddin'}
+              matricule={founder?.matricule || 'DAMF-0001'}
+              size="lg"
+            />
 
-            {/* Identité & Nom Arabe */}
-            <div>
-              <h2 className="font-headline-lg text-xl sm:text-2xl font-bold text-[#e5e9f2] tracking-tight">
-                {founder ? `${founder.prenom} ${founder.nom}` : 'Shaykh Muhammad Nūruddin Ibn Shaykh Muhammadul Amīn Ñas'}
-              </h2>
-              <p className="text-sm font-headline-sm text-[#c8a44d] mt-1 font-medium tracking-wide">
-                {founder?.nomArabe || 'محمد نور الدين نياس'}
-              </p>
-            </div>
-
-            {/* Disciplines, Expertise & Formation Al-Azhar */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs text-[#9ca7b8]">
-              <div className="flex items-start gap-2.5">
-                <span className="material-symbols-outlined text-[#c8a44d] text-[18px] shrink-0 mt-0.5">school</span>
-                <div>
-                  <span className="text-[#e5e9f2] font-medium block">Université Al-Azhar</span>
-                  <span>Faculté de la Charia et du Droit • Doctorat (thèse en cours)</span>
-                </div>
+            <div className="space-y-2.5">
+              {/* Badge protocolaire & Matricule */}
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#c8a44d]/15 border border-[#c8a44d]/40 text-[#c8a44d] text-[11px] font-bold tracking-wider uppercase">
+                  <span className="material-symbols-outlined text-[15px]">stars</span>
+                  {t('founderHighlightBadge')}
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full bg-[#1b2636] border border-[#2b3547] text-[#9ca7b8] text-[11px] font-mono font-semibold ltr-tech">
+                  {founder?.matricule || 'DAMF-0001'}
+                </span>
               </div>
-              <div className="flex items-start gap-2.5">
-                <span className="material-symbols-outlined text-[#c8a44d] text-[18px] shrink-0 mt-0.5">verified_user</span>
-                <div>
-                  <span className="text-[#e5e9f2] font-medium block">Expertise &amp; Relations</span>
-                  <span>Sciences politiques islamiques &amp; relations internationales</span>
+
+              {/* Identité & Nom Arabe */}
+              <div>
+                <h2 className="font-headline-lg text-xl sm:text-2xl font-bold text-[#e5e9f2] tracking-tight">
+                  {founder ? `${founder.prenom} ${founder.nom}` : 'Shaykh Muhammad Nūruddin Ibn Shaykh Muhammadul Amīn Ñas'}
+                </h2>
+                <p className="text-sm font-headline-sm text-[#c8a44d] mt-1 font-medium tracking-wide">
+                  {founder?.nomArabe || 'محمد نور الدين نياس'}
+                </p>
+              </div>
+
+              {/* Disciplines, Expertise & Formation Al-Azhar */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs text-[#9ca7b8]">
+                <div className="flex items-start gap-2.5">
+                  <span className="material-symbols-outlined text-[#c8a44d] text-[18px] shrink-0 mt-0.5">school</span>
+                  <div>
+                    <span className="text-[#e5e9f2] font-medium block">{t('founderEducation').split('—')[0]}</span>
+                    <span>{t('founderEducation').split('—')[1] || t('founderEducation')}</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <span className="material-symbols-outlined text-[#c8a44d] text-[18px] shrink-0 mt-0.5">verified_user</span>
+                  <div>
+                    <span className="text-[#e5e9f2] font-medium block">{t('founderExpertise').split('islamiques')[0]}</span>
+                    <span>{t('founderExpertise')}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -189,8 +202,8 @@ export const DashboardOverviewPage: React.FC = () => {
               to={`/members/${founder?.matricule || founder?.id || 'DAMF-0001'}`}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#c8a44d]/15 hover:bg-[#c8a44d]/25 text-[#c8a44d] hover:text-[#f3d37a] border border-[#c8a44d]/40 text-xs font-bold transition shadow-sm group"
             >
-              <span>Voir le profil complet</span>
-              <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+              <span>{t('accessProfile360')}</span>
+              <span className={`material-symbols-outlined text-[16px] transition-transform ${isRTL ? 'group-hover:-translate-x-1 rotate-180' : 'group-hover:translate-x-1'}`}>arrow_forward</span>
             </Link>
           </div>
         </div>
@@ -563,14 +576,17 @@ export const DashboardOverviewPage: React.FC = () => {
                       <tr key={member.id} className="group hover:bg-[#1b2332]/60 transition-colors">
                         <td className="py-3.5 px-5">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-[#111722] border border-[#f2ca50]/30 text-[#f2ca50] flex items-center justify-center font-bold text-xs">
-                              {member.prenom?.[0] || 'M'}
-                            </div>
+                            <MemberAvatar
+                              photoUrl={member.photo}
+                              name={`${member.prenom} ${member.nom}`}
+                              matricule={member.matricule}
+                              size="sm"
+                            />
                             <div className="flex flex-col min-w-0">
                               <span className="font-semibold text-[#e5e9f2] text-sm group-hover:text-[#f2ca50] transition-colors">
                                 {member.prenom} {member.nom}
                               </span>
-                              <span className="text-[11px] text-[#9ca7b8] font-mono">{member.matricule}</span>
+                              <span className="text-[11px] text-[#9ca7b8] font-mono ltr-tech">{member.matricule}</span>
                             </div>
                           </div>
                         </td>

@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 
 export const AppLayout: React.FC = () => {
   const { user, logout } = useAuth();
+  const { language, setLanguage, t, isRTL } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [currentLang, setCurrentLang] = useState<'FR' | 'AR' | 'EN'>('FR');
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -45,33 +46,33 @@ export const AppLayout: React.FC = () => {
   const getBreadcrumbLabel = (path: string, index: number) => {
     switch (path) {
       case 'dashboard':
-        return 'Tableau de Bord';
+        return t('breadcrumbDashboard');
       case 'members':
-        return 'Membres';
+        return t('breadcrumbMembers');
       case 'network':
-        return 'Carrefour Entraide';
+        return t('breadcrumbNetwork');
       case 'new':
-        return 'Nouvel Enrôlement';
+        return t('breadcrumbNewMember');
       case 'edit':
-        return 'Modification';
+        return t('breadcrumbEdit');
       case 'professions':
-        return 'Professions';
+        return t('breadcrumbProfessions');
       case 'categories':
-        return 'Catégories';
+        return t('breadcrumbCategories');
       case 'education':
-        return 'Éducation & Diplômes';
+        return t('breadcrumbEducation');
       case 'roles':
-        return 'Rôles Dahirah';
+        return t('breadcrumbRoles');
       case 'audit':
-        return 'Journal d’Audit';
+        return t('breadcrumbAudit');
       case 'users':
-        return 'Utilisateurs & Permissions';
+        return t('breadcrumbUsers');
       case 'settings':
-        return 'Paramètres';
+        return t('breadcrumbSettings');
       default:
         // Matricule ou identifiant (ex: DAMF-0001)
         if (path.startsWith('DAMF-') || path.startsWith('DAM-') || path.startsWith('DM-') || index === 1) {
-          return `Fiche ${path}`;
+          return `${t('breadcrumbProfile')} ${path}`;
         }
         return path.charAt(0).toUpperCase() + path.slice(1);
     }
@@ -94,20 +95,20 @@ export const AppLayout: React.FC = () => {
   const getRoleBadgeLabel = (role?: string) => {
     switch (role) {
       case 'superadmin':
-        return 'Super Admin';
+        return t('roleSuperAdmin');
       case 'admin':
-        return 'Administrateur';
+        return t('roleAdmin');
       case 'agent':
-        return 'Agent Enrôleur';
+        return t('roleAgent');
       case 'member':
-        return 'Membre / Disciple';
+        return t('roleMember');
       default:
-        return 'Authentifié';
+        return t('roleAuthenticated');
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0e14] text-[#e5e9f2] font-body-md flex flex-col antialiased selection:bg-[#f2ca50]/20 selection:text-[#f2ca50]">
+    <div className={`min-h-screen bg-[#0a0e14] text-[#e5e9f2] font-body-md flex flex-col antialiased selection:bg-[#f2ca50]/20 selection:text-[#f2ca50] ${isRTL ? 'rtl' : ''}`}>
       {/* 1. HEADER PERSISTANT */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-[#070b10]/90 backdrop-blur-xl border-b border-[#2b3547]/60 shadow-[0_4px_30px_rgba(0,0,0,0.85)]">
         <div className="h-20 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
@@ -124,15 +125,15 @@ export const AppLayout: React.FC = () => {
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 <span className="font-headline-sm text-base md:text-lg tracking-tight font-medium text-[#e5e9f2] group-hover:text-[#f2ca50] transition-colors">
-                  Dāʾiratu Al-Mutahābbīna Fillāhi
+                  {t('appName')}
                 </span>
                 <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#f2ca50]/10 border border-[#f2ca50]/30 text-[11px] font-semibold text-[#f2ca50] tracking-wide">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#f2ca50] animate-pulse"></span>
-                  Phase 4D • En Ligne
+                  {t('phaseBadge')}
                 </span>
               </div>
               <span className="font-headline-sm text-xs text-[#f2ca50]/80 tracking-wide font-normal">
-                دائرة المتحابين في الله <span className="text-[#9ca7b8] font-body-md">— Fraternité &amp; Savoir</span>
+                {t('appNameArabic')} <span className="text-[#9ca7b8] font-body-md">— {t('subHeaderMotto')}</span>
               </span>
             </div>
           </Link>
@@ -143,26 +144,26 @@ export const AppLayout: React.FC = () => {
             <button
               onClick={() => setSearchOpen(true)}
               className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#111722] border border-[#2b3547] text-xs text-[#9ca7b8] hover:border-[#f2ca50]/50 hover:text-[#e5e9f2] transition"
-              title="Rechercher un membre (Raccourci: /)"
+              title={t('searchShortcut')}
             >
               <span className="material-symbols-outlined text-[17px] text-[#f2ca50]">search</span>
-              <span>Rechercher...</span>
+              <span>{t('searchPlaceholder')}</span>
               <kbd className="px-1.5 py-0.5 rounded bg-[#1b2332] text-[10px] font-mono border border-[#2b3547]">
                 /
               </kbd>
             </button>
 
-            {/* Sélecteur de langue */}
+            {/* Sélecteur de langue interactif bilingue FR / AR */}
             <div className="flex items-center gap-1 bg-[#111722] p-1 rounded-full border border-[#2b3547] text-xs font-label-md">
               <button
-                onClick={() => setCurrentLang('FR')}
-                className={`px-2 py-0.5 rounded-full transition ${currentLang === 'FR' ? 'bg-[#f2ca50] text-slate-950 font-bold' : 'text-[#9ca7b8] hover:text-[#e5e9f2]'}`}
+                onClick={() => setLanguage('fr')}
+                className={`px-2.5 py-0.5 rounded-full transition ${language === 'fr' ? 'bg-[#f2ca50] text-slate-950 font-bold shadow-sm' : 'text-[#9ca7b8] hover:text-[#e5e9f2]'}`}
               >
                 FR
               </button>
               <button
-                onClick={() => setCurrentLang('AR')}
-                className={`px-2 py-0.5 rounded-full transition ${currentLang === 'AR' ? 'bg-[#f2ca50] text-slate-950 font-bold' : 'text-[#9ca7b8] hover:text-[#e5e9f2]'}`}
+                onClick={() => setLanguage('ar')}
+                className={`px-2.5 py-0.5 rounded-full transition ${language === 'ar' ? 'bg-[#f2ca50] text-slate-950 font-bold shadow-sm' : 'text-[#9ca7b8] hover:text-[#e5e9f2]'}`}
               >
                 عربي
               </button>
@@ -194,8 +195,8 @@ export const AppLayout: React.FC = () => {
               {profileDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-52 rounded-xl bg-[#111722] border border-[#2b3547] shadow-2xl p-2 z-50 animate-fadeIn">
                   <div className="px-3 py-2 border-b border-[#2b3547]/50 text-xs">
-                    <p className="text-[#9ca7b8]">Connecté en tant que</p>
-                    <p className="font-semibold text-[#e5e9f2] truncate">{user?.email}</p>
+                    <p className="text-[#9ca7b8]">{t('connectedAs')}</p>
+                    <p className="font-semibold text-[#e5e9f2] truncate ltr-tech">{user?.email}</p>
                   </div>
                   <button
                     onClick={() => {
@@ -206,7 +207,7 @@ export const AppLayout: React.FC = () => {
                     className="w-full flex items-center gap-2 px-3 py-2 mt-1 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition font-medium"
                   >
                     <span className="material-symbols-outlined text-[16px]">logout</span>
-                    <span>Se Déconnecter</span>
+                    <span>{t('logout')}</span>
                   </button>
                 </div>
               )}
@@ -222,7 +223,7 @@ export const AppLayout: React.FC = () => {
         <nav aria-label="Fil d'Ariane" className="flex items-center gap-2 text-xs text-[#9ca7b8] mb-5 overflow-x-auto whitespace-nowrap">
           <Link to="/dashboard" className="flex items-center gap-1 hover:text-[#f2ca50] transition">
             <span className="material-symbols-outlined text-[15px]">home</span>
-            <span>Accueil</span>
+            <span>{t('breadcrumbHome')}</span>
           </Link>
           {pathnames.map((name, index) => {
             const routeTo = `/${pathnames.slice(0, index + 1).join('/')}`;
@@ -264,7 +265,7 @@ export const AppLayout: React.FC = () => {
             }
           >
             <span className="material-symbols-outlined text-[19px]">speed</span>
-            <span className="text-[10px] sm:text-xs">Accueil</span>
+            <span className="text-[10px] sm:text-xs">{t('breadcrumbDashboard')}</span>
           </NavLink>
 
           {/* 2. Membres */}
@@ -279,7 +280,7 @@ export const AppLayout: React.FC = () => {
             }
           >
             <span className="material-symbols-outlined text-[19px] group-hover:scale-110 transition-transform">group</span>
-            <span className="text-[10px] sm:text-xs">Membres</span>
+            <span className="text-[10px] sm:text-xs">{t('breadcrumbMembers')}</span>
           </NavLink>
 
           {/* 3. Bouton Central (+) : Ouvre l'Action Sheet */}
@@ -290,7 +291,7 @@ export const AppLayout: React.FC = () => {
                 setActionSheetOpen((prev) => !prev);
               }}
               className="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-b from-[#FFE494] via-[#f2ca50] to-[#c49726] text-[#2e2000] shadow-[0_0_22px_rgba(242,202,80,0.55)] hover:shadow-[0_0_30px_rgba(242,202,80,0.8)] hover:scale-105 active:scale-95 transition-all font-bold cursor-pointer"
-              title="Actions Rapides"
+              title={t('quickActionsTitle')}
             >
               <span className="material-symbols-outlined text-[24px] sm:text-[26px]">add</span>
             </button>
@@ -308,7 +309,7 @@ export const AppLayout: React.FC = () => {
             }
           >
             <span className="material-symbols-outlined text-[19px] group-hover:scale-110 transition-transform">hub</span>
-            <span className="text-[10px] sm:text-xs">Réseau</span>
+            <span className="text-[10px] sm:text-xs">{t('breadcrumbNetwork')}</span>
           </NavLink>
 
           {/* 5. Plus (Modules & Administration) */}

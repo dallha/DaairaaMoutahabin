@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getMemberById } from '../services/memberService';
+import { getMemberById, uploadMemberPhoto, deleteMemberPhoto } from '../services/memberService';
+import { MemberAvatar } from '../components/MemberAvatar';
+import { useLanguage } from '../context/LanguageContext';
 import {
   MemberSkill,
   MemberServiceOffer,
@@ -34,6 +36,9 @@ export const MemberDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t, tControlled } = useLanguage();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   const [member, setMember] = useState<Member | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -357,6 +362,50 @@ export const MemberDetailPage: React.FC = () => {
     }
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !member) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      setActionError('Le fichier dépasse la taille maximale autorisée de 10 Mo.');
+      return;
+    }
+
+    try {
+      setIsUploadingPhoto(true);
+      setActionError(null);
+      const res = await uploadMemberPhoto(member.matricule || member.id, file);
+      setMember((prev) => (prev ? { ...prev, photo: res.photo_url } : null));
+      setActionSuccess(t('photoUploadedSuccess'));
+      setTimeout(() => setActionSuccess(null), 4000);
+    } catch (err: any) {
+      setActionError(err.message || 'Erreur lors du téléversement de la photo.');
+    } finally {
+      setIsUploadingPhoto(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handlePhotoDelete = async () => {
+    if (!member) return;
+    if (!window.confirm(t('confirm') || 'Confirmez-vous la suppression de la photo de profil ?')) return;
+
+    try {
+      setIsUploadingPhoto(true);
+      setActionError(null);
+      await deleteMemberPhoto(member.matricule || member.id);
+      setMember((prev) => (prev ? { ...prev, photo: undefined } : null));
+      setActionSuccess(t('photoDeletedSuccess'));
+      setTimeout(() => setActionSuccess(null), 4000);
+    } catch (err: any) {
+      setActionError(err.message || 'Erreur lors de la suppression de la photo.');
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="py-24 flex flex-col items-center justify-center text-[#f2ca50] gap-3">
@@ -441,25 +490,67 @@ export const MemberDetailPage: React.FC = () => {
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#f2ca50]/70 to-transparent"></div>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 pb-6 border-b border-[#2b3547]/40">
-          <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-tr from-[#111722] to-[#242e40] border-2 border-[#f2ca50]/40 flex items-center justify-center text-[#f2ca50] text-3xl font-headline-lg font-bold shadow-xl">
-            {member.photo ? (
-              <img src={member.photo} alt={member.prenom} className="w-full h-full object-cover rounded-2xl" />
-            ) : (
-              <span>{member.prenom[0]}</span>
-            )}
-            <span className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full ring-2 ring-[#151c28] ${
+          <div className="relative group shrink-0">
+            <MemberAvatar
+              size="hero"
+              photoUrl={member.photo}
+              name={`${member.prenom} ${member.nom}`}
+              matricule={member.matricule}
+              className="shadow-2xl border-2 border-[#f2ca50]/40 ring-4 ring-[#111722]"
+            />
+            <span className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full ring-2 ring-[#151c28] z-10 ${
               availability?.status === 'AVAILABLE' ? 'bg-emerald-500' :
               availability?.status === 'LIMITED' ? 'bg-amber-500' : 'bg-slate-500'
             }`}></span>
+
+            {canEdit && (
+              <div className="absolute inset-0 rounded-2xl bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 z-20">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingPhoto}
+                  className="p-2 rounded-xl bg-[#f2ca50] text-slate-950 hover:brightness-110 shadow-md transition cursor-pointer"
+                  title={t('uploadPhotoBtn')}
+                >
+                  <span className="material-symbols-outlined text-[18px]">photo_camera</span>
+                </button>
+                {member.photo && (
+                  <button
+                    type="button"
+                    onClick={handlePhotoDelete}
+                    disabled={isUploadingPhoto}
+                    className="p-2 rounded-xl bg-red-600 text-white hover:bg-red-500 shadow-md transition cursor-pointer"
+                    title={t('deletePhotoBtn')}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                  </button>
+                )}
+              </div>
+            )}
+
+            {isUploadingPhoto && (
+              <div className="absolute inset-0 rounded-2xl bg-black/75 flex flex-col items-center justify-center z-30">
+                <span className="material-symbols-outlined text-[#f2ca50] text-[24px] animate-spin">sync</span>
+                <span className="text-[10px] text-[#f2ca50] font-bold mt-1">{t('uploadingPhoto')}</span>
+              </div>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={handlePhotoUpload}
+            />
           </div>
 
           <div className="flex flex-col min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-full bg-[#f2ca50]/15 border border-[#f2ca50]/30 text-[#f2ca50] text-xs font-mono font-bold tracking-wider">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#f2ca50]/15 border border-[#f2ca50]/30 text-[#f2ca50] text-xs font-mono font-bold tracking-wider ltr-tech">
                 {member.matricule}
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
-                {member.statutCompte || 'ACTIF'}
+                {tControlled('member_status', member.statutCompte) || 'ACTIF'}
               </span>
               {availability && availability.status !== 'NOT_SPECIFIED' && (
                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
@@ -511,7 +602,7 @@ export const MemberDetailPage: React.FC = () => {
             <div className="space-y-2.5 text-xs">
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
                 <span className="text-[#9ca7b8]">Situation :</span>
-                <span className="font-medium text-[#e5e9f2]">{member.situation || 'Non précisé'}</span>
+                <span className="font-medium text-[#e5e9f2]">{tControlled('situation', member.situation) || member.situation || 'Non précisé'}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#2b3547]/20">
                 <span className="text-[#9ca7b8]">Profession :</span>

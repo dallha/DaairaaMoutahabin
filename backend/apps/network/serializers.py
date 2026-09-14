@@ -145,7 +145,7 @@ class NetworkMemberCardSerializer(serializers.ModelSerializer):
         model = Member
         fields = [
             'id', 'matricule', 'first_name', 'last_name', 'display_name',
-            'gender', 'situation', 'city',
+            'gender', 'situation', 'photo', 'city',
             'primary_profession', 'primary_organization',
             'skills', 'services_count',
             'availability_status', 'open_for_mentoring', 'open_for_pro_help'
@@ -276,8 +276,10 @@ class ConnectionRequestSerializer(serializers.ModelSerializer):
     )
     requester_name = serializers.SerializerMethodField()
     requester_matricule = serializers.SerializerMethodField()
+    requester_photo = serializers.SerializerMethodField()
     target_member_name = serializers.CharField(source='target_member.display_name', read_only=True)
     target_member_matricule = serializers.CharField(source='target_member.matricule', read_only=True)
+    target_member_photo = serializers.SerializerMethodField()
     facilitator_email = serializers.EmailField(source='facilitator.email', read_only=True)
     need_title = serializers.CharField(source='need.title', read_only=True)
     need_type = serializers.CharField(source='need.need_type', read_only=True)
@@ -296,11 +298,13 @@ class ConnectionRequestSerializer(serializers.ModelSerializer):
             'requester',
             'requester_name',
             'requester_matricule',
+            'requester_photo',
             'facilitator',
             'facilitator_email',
             'target_member',
             'target_member_name',
             'target_member_matricule',
+            'target_member_photo',
             'status',
             'status_display',
             'message',
@@ -334,6 +338,22 @@ class ConnectionRequestSerializer(serializers.ModelSerializer):
                 return obj.requester.matricule
             return None
         return obj.requester.matricule
+
+    def get_requester_photo(self, obj):
+        request = self.context.get('request')
+        if obj.need and obj.need.is_anonymous and obj.status != ConnectionRequestStatusChoices.ACCEPTED and not self._is_admin():
+            if request and hasattr(request.user, 'member_profile') and request.user.member_profile == obj.requester:
+                return request.build_absolute_uri(obj.requester.photo.url) if obj.requester.photo else None
+            return None
+        if obj.requester.photo:
+            return request.build_absolute_uri(obj.requester.photo.url) if request else obj.requester.photo.url
+        return None
+
+    def get_target_member_photo(self, obj):
+        request = self.context.get('request')
+        if obj.target_member and obj.target_member.photo:
+            return request.build_absolute_uri(obj.target_member.photo.url) if request else obj.target_member.photo.url
+        return None
 
     def validate(self, attrs):
         request = self.context.get('request')

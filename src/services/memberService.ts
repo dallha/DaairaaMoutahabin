@@ -260,3 +260,41 @@ export async function hardDeleteMember(id: string): Promise<void> {
   }
 }
 
+export async function uploadMemberPhoto(matriculeOrId: string, file: File): Promise<{ photo_url: string; media_id: string }> {
+  const formData = new FormData();
+  formData.append('photo', file);
+
+  const authHeaders = { ...getAuthHeaders() } as Record<string, string>;
+  // Laisser le navigateur gérer le boundary multipart
+  delete authHeaders['Content-Type'];
+
+  const res = await fetch(`${API_BASE}/members/${matriculeOrId}/photo/`, {
+    method: 'POST',
+    headers: authHeaders,
+    credentials: 'include',
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const detailMsg = err.errors?.photo?.[0] || err.message || err.detail;
+    throw new Error(detailMsg || `Erreur lors de l'enregistrement de la photo (${res.status})`);
+  }
+
+  const json = await res.json();
+  return json.data;
+}
+
+export async function deleteMemberPhoto(matriculeOrId: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/members/${matriculeOrId}/photo/`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || err.detail || `Erreur lors de la suppression de la photo (${res.status})`);
+  }
+}
+

@@ -3,9 +3,12 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { getMembers, deleteMember, hardDeleteMember } from '../services/memberService';
 import { Member } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import { MemberAvatar } from '../components/MemberAvatar';
 
 export const MembersDirectoryPage: React.FC = () => {
   const { user } = useAuth();
+  const { t, tControlled } = useLanguage();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -28,6 +31,9 @@ export const MembersDirectoryPage: React.FC = () => {
   const filterSituation = searchParams.get('situation') || '';
 
   const getSituationLabel = (sit: string) => {
+    if (!sit) return 'Membre';
+    const translated = tControlled('situation', sit);
+    if (translated && translated !== sit) return translated;
     switch (sit?.toUpperCase()) {
       case 'LEARNER':
       case 'APPRENANT':
@@ -186,10 +192,10 @@ export const MembersDirectoryPage: React.FC = () => {
         <div>
           <h1 className="font-headline-lg text-2xl font-semibold text-[#e5e9f2] flex items-center gap-2">
             <span className="material-symbols-outlined text-[#f2ca50] text-[28px]">groups</span>
-            Annuaire Communautaire des Membres
+            {t('directoryTitle')}
           </h1>
           <p className="text-xs text-[#9ca7b8] mt-1">
-            Répertoire officiel et souverain des disciples • Dāʾiratu Al-Mutahābbīna Fillāhi
+            {t('directorySubtitle')}
           </p>
         </div>
 
@@ -199,7 +205,7 @@ export const MembersDirectoryPage: React.FC = () => {
             className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#e9c349] via-[#f2ca50] to-[#d4af37] text-slate-950 font-bold shadow-[0_4px_18px_rgba(242,202,80,0.3)] hover:brightness-110 active:scale-[0.98] transition text-xs"
           >
             <span className="material-symbols-outlined text-[18px] font-bold">person_add</span>
-            <span>+ Nouvel Enrôlement</span>
+            <span>+ {t('newEnrollment')}</span>
           </Link>
         )}
       </div>
@@ -233,14 +239,14 @@ export const MembersDirectoryPage: React.FC = () => {
             type="text"
             value={searchTerm}
             onChange={handleSearchChange}
-            placeholder="Rechercher par nom, prénom, matricule (ex: DAMF-0001)..."
+            placeholder={t('searchPlaceholder')}
             className="w-full bg-[#06090e] text-[#e5e9f2] placeholder-[#788294] text-xs rounded-xl pl-10 pr-4 py-2.5 outline-none border border-[#2b3547] focus:border-[#f2ca50] transition"
           />
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
           <span className="text-xs text-[#9ca7b8] whitespace-nowrap pl-2">
-            <strong className="text-[#f2ca50]">{members.length}</strong> membre{members.length > 1 ? 's' : ''} affiché{members.length > 1 ? 's' : ''}
+            <strong className="text-[#f2ca50] ltr-tech">{members.length}</strong> {t('activeMembers')}
           </span>
         </div>
       </div>
@@ -280,16 +286,20 @@ export const MembersDirectoryPage: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="flex items-start gap-3.5">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#111722] border-2 border-[#c8a44d]/50 text-[#c8a44d] flex items-center justify-center font-bold text-base sm:text-lg shadow-inner shrink-0">
-                {founderMember.prenom?.[0] || 'S'}
-              </div>
+              <MemberAvatar
+                photoUrl={founderMember.photo}
+                name={`${founderMember.prenom} ${founderMember.nom}`}
+                matricule={founderMember.matricule}
+                size="lg"
+                className="border-2 border-[#c8a44d]/50 shrink-0"
+              />
               <div className="space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#c8a44d]/15 border border-[#c8a44d]/40 text-[#c8a44d] text-[10px] sm:text-[11px] font-bold tracking-wider uppercase">
                     <span className="material-symbols-outlined text-[14px]">stars</span>
-                    Guide Spirituel &amp; Fondateur
+                    {t('founderBadge')}
                   </span>
-                  <span className="px-2 py-0.5 rounded-md bg-[#1b2636] border border-[#2b3547] text-[#9ca7b8] text-[11px] font-mono font-semibold">
+                  <span className="px-2 py-0.5 rounded-md bg-[#1b2636] border border-[#2b3547] text-[#9ca7b8] text-[11px] font-mono font-semibold ltr-tech">
                     {founderMember.matricule}
                   </span>
                 </div>
@@ -305,7 +315,7 @@ export const MembersDirectoryPage: React.FC = () => {
 
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#c8a44d]/15 border border-[#c8a44d]/30 text-[#c8a44d] text-[10px] font-bold self-start sm:self-auto">
               <span className="w-1.5 h-1.5 rounded-full bg-[#c8a44d]"></span>
-              {founderMember.statutCompte || 'ACTIF'}
+              {tControlled('member_status', founderMember.statutCompte) || 'ACTIF'}
             </span>
           </div>
 
@@ -325,7 +335,7 @@ export const MembersDirectoryPage: React.FC = () => {
               to={`/members/${founderMember.matricule || founderMember.id}`}
               className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl bg-[#c8a44d]/15 hover:bg-[#c8a44d]/25 text-[#c8a44d] hover:text-[#f3d37a] border border-[#c8a44d]/40 text-xs font-bold transition shadow-sm group"
             >
-              <span>Consulter la Fiche 360°</span>
+              <span>{t('viewProfile')}</span>
               <span className="material-symbols-outlined text-[15px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
             </Link>
 
@@ -358,14 +368,14 @@ export const MembersDirectoryPage: React.FC = () => {
         <div className="flex items-center justify-between pt-2 pb-1 border-b border-[#2b3547]/50">
           <div className="flex items-center gap-2">
             <h2 className="font-headline-sm text-xs font-bold uppercase tracking-wider text-[#e5e9f2]">
-              Membres de la Dahirah
+              {t('dahirahMembers')}
             </h2>
-            <span className="px-2 py-0.5 rounded-full bg-[#1b2332] text-[#c8a44d] text-[11px] font-mono font-bold border border-[#2b3547]">
+            <span className="px-2 py-0.5 rounded-full bg-[#1b2332] text-[#c8a44d] text-[11px] font-mono font-bold border border-[#2b3547] ltr-tech">
               {communityMembers.length}
             </span>
           </div>
           <span className="text-[11px] text-[#788294] hidden sm:inline italic">
-            Ordre alphabétique canonique A → Z
+            {t('alphabeticalOrder')}
           </span>
         </div>
       )}
@@ -377,13 +387,11 @@ export const MembersDirectoryPage: React.FC = () => {
         {isLoading ? (
           <div className="p-10 rounded-2xl bg-[#151c28]/90 border border-[#2b3547]/60 text-center text-[#9ca7b8] space-y-2">
             <span className="material-symbols-outlined text-[28px] animate-spin text-[#f2ca50]">refresh</span>
-            <p className="text-xs">Chargement des fiches membres...</p>
+            <p className="text-xs">{t('loading')}</p>
           </div>
         ) : communityMembers.length === 0 ? (
           <div className="p-10 rounded-2xl bg-[#151c28]/90 border border-[#2b3547]/60 text-center text-[#9ca7b8] text-xs">
-            {founderMember
-              ? "Aucun autre disciple ne correspond à vos critères de recherche."
-              : "Aucun membre ne correspond à vos critères de recherche."}
+            {t('noMembersFound')}
           </div>
         ) : (
           communityMembers.map((member) => (
@@ -394,9 +402,12 @@ export const MembersDirectoryPage: React.FC = () => {
               {/* Ligne 1 : Avatar, Nom, Matricule et Badge Statut */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-12 h-12 rounded-full bg-[#111722] border border-[#f2ca50]/30 text-[#f2ca50] flex items-center justify-center font-bold text-sm shadow-inner shrink-0">
-                    {member.prenom?.[0] || 'M'}
-                  </div>
+                  <MemberAvatar
+                    photoUrl={member.photo}
+                    name={`${member.prenom} ${member.nom}`}
+                    matricule={member.matricule}
+                    size="md"
+                  />
                   <div className="flex flex-col min-w-0">
                     <Link
                       to={`/members/${member.matricule || member.id}`}
@@ -404,13 +415,13 @@ export const MembersDirectoryPage: React.FC = () => {
                     >
                       {member.prenom} {member.nom}
                     </Link>
-                    <span className="text-[11px] text-[#f2ca50] font-mono tracking-wide">{member.matricule}</span>
+                    <span className="text-[11px] text-[#f2ca50] font-mono tracking-wide ltr-tech">{member.matricule}</span>
                   </div>
                 </div>
 
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#f2ca50]/15 border border-[#f2ca50]/30 text-[#f2ca50] text-[10px] font-bold shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#f2ca50]"></span>
-                  {member.statutCompte || 'ACTIF'}
+                  {tControlled('member_status', member.statutCompte) || 'ACTIF'}
                 </span>
               </div>
 
@@ -438,7 +449,7 @@ export const MembersDirectoryPage: React.FC = () => {
                   to={`/members/${member.matricule || member.id}`}
                   className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#242e40] hover:bg-[#f2ca50] hover:text-slate-950 text-[#e5e9f2] text-xs font-semibold transition"
                 >
-                  <span>Fiche 360°</span>
+                  <span>{t('viewProfile')}</span>
                   <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
                 </Link>
 
@@ -474,11 +485,11 @@ export const MembersDirectoryPage: React.FC = () => {
           <table className="w-full text-left text-xs font-body-md">
             <thead>
               <tr className="bg-[#111722] text-[#9ca7b8] text-[11px] font-bold uppercase tracking-wider border-b border-[#2b3547]/40">
-                <th className="py-3.5 px-5">Membre &amp; Matricule</th>
-                <th className="py-3.5 px-4">Situation &amp; Profession</th>
-                <th className="py-3.5 px-4">Pôle / Ville</th>
-                <th className="py-3.5 px-4">Statut</th>
-                <th className="py-3.5 px-5 text-right">Actions</th>
+                <th className="py-3.5 px-5">{t('members')} &amp; Matricule</th>
+                <th className="py-3.5 px-4">{t('situation')} &amp; {t('profession')}</th>
+                <th className="py-3.5 px-4">{t('location')}</th>
+                <th className="py-3.5 px-4">{t('status')}</th>
+                <th className="py-3.5 px-5 text-right">{t('actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#2b3547]/20">
@@ -487,16 +498,14 @@ export const MembersDirectoryPage: React.FC = () => {
                   <td colSpan={5} className="py-12 text-center text-[#9ca7b8]">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <span className="material-symbols-outlined text-[28px] animate-spin text-[#f2ca50]">refresh</span>
-                      <span>Chargement des fiches membres...</span>
+                      <span>{t('loading')}</span>
                     </div>
                   </td>
                 </tr>
               ) : communityMembers.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-[#9ca7b8]">
-                    {founderMember
-                      ? "Aucun autre disciple ne correspond à vos critères de recherche."
-                      : "Aucun membre ne correspond à vos critères de recherche."}
+                    {t('noMembersFound')}
                   </td>
                 </tr>
               ) : (
@@ -506,9 +515,12 @@ export const MembersDirectoryPage: React.FC = () => {
                     {/* Identité & Matricule */}
                     <td className="py-3.5 px-5">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#111722] border border-[#f2ca50]/30 text-[#f2ca50] flex items-center justify-center font-bold text-xs shadow-inner">
-                          {member.prenom?.[0] || 'M'}
-                        </div>
+                        <MemberAvatar
+                          photoUrl={member.photo}
+                          name={`${member.prenom} ${member.nom}`}
+                          matricule={member.matricule}
+                          size="sm"
+                        />
                         <div className="flex flex-col min-w-0">
                           <Link
                             to={`/members/${member.matricule || member.id}`}
@@ -516,7 +528,7 @@ export const MembersDirectoryPage: React.FC = () => {
                           >
                             {member.prenom} {member.nom}
                           </Link>
-                          <span className="text-[11px] text-[#f2ca50] font-mono">{member.matricule}</span>
+                          <span className="text-[11px] text-[#f2ca50] font-mono ltr-tech">{member.matricule}</span>
                         </div>
                       </div>
                     </td>
@@ -543,7 +555,7 @@ export const MembersDirectoryPage: React.FC = () => {
                     <td className="py-3.5 px-4">
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#f2ca50]/15 border border-[#f2ca50]/30 text-[#f2ca50] text-[11px] font-bold">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#f2ca50]"></span>
-                        {member.statutCompte || 'ACTIF'}
+                        {tControlled('member_status', member.statutCompte) || 'ACTIF'}
                       </span>
                     </td>
 
@@ -553,9 +565,9 @@ export const MembersDirectoryPage: React.FC = () => {
                         <Link
                           to={`/members/${member.matricule || member.id}`}
                           className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#242e40] hover:bg-[#f2ca50] hover:text-slate-950 text-[#e5e9f2] text-xs font-semibold transition"
-                          title="Consulter la fiche 360°"
+                          title={t('viewProfile')}
                         >
-                          <span>Fiche</span>
+                          <span>{t('viewProfile')}</span>
                           <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
                         </Link>
 
@@ -597,14 +609,17 @@ export const MembersDirectoryPage: React.FC = () => {
             {/* Header Modal */}
             <div className="flex items-center justify-between border-b border-[#2b3547]/60 pb-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#111722] border border-[#f2ca50]/30 text-[#f2ca50] flex items-center justify-center font-bold text-xs">
-                  {actionMember.prenom?.[0] || 'M'}
-                </div>
+                <MemberAvatar
+                  photoUrl={actionMember.photo}
+                  name={`${actionMember.prenom} ${actionMember.nom}`}
+                  matricule={actionMember.matricule}
+                  size="sm"
+                />
                 <div>
                   <h3 className="text-sm font-semibold text-[#e5e9f2]">
                     {actionMember.prenom} {actionMember.nom}
                   </h3>
-                  <p className="text-xs text-[#f2ca50] font-mono">{actionMember.matricule}</p>
+                  <p className="text-xs text-[#f2ca50] font-mono ltr-tech">{actionMember.matricule}</p>
                 </div>
               </div>
               <button

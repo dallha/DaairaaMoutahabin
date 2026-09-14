@@ -103,6 +103,7 @@ export interface NetworkMemberCard {
   first_name: string;
   last_name: string;
   display_name: string;
+  photo?: string | null;
   gender: string;
   situation: string;
   city: string;
@@ -478,6 +479,7 @@ export interface NeedMatchCandidateDTO {
   member_id: string;
   matricule: string;
   display_name: string;
+  photo?: string | null;
   gender: string;
   city: string;
   primary_profession?: string | null;
@@ -496,11 +498,13 @@ export interface ConnectionRequestDTO {
   requester?: string;
   requester_name: string;
   requester_matricule?: string;
+  requester_photo?: string | null;
   facilitator?: string;
   facilitator_email?: string;
   target_member: string;
   target_member_name: string;
   target_member_matricule: string;
+  target_member_photo?: string | null;
   status: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'CANCELLED';
   status_display: string;
   message?: string;

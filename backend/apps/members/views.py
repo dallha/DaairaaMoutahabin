@@ -7,9 +7,11 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from django.core.exceptions import ValidationError
 from django_filters.rest_framework import DjangoFilterBackend
 import django_filters
 
@@ -19,6 +21,7 @@ from common.constants import UserRole
 from common.pagination import StandardResultsSetPagination
 from common.permissions import CanHardDelete, IsAdminUserRole, IsOwnerOrAdmin, IsSuperAdminUser
 from .models import Member, MemberStatusChoices, SituationChoices, VisibilityChoices
+from .services.media_service import process_and_save_profile_photo, delete_profile_photo
 from .serializers import (
     MemberAdminSerializer,
     MemberCreateSerializer,
@@ -99,7 +102,7 @@ class MemberViewSet(viewsets.ModelViewSet):
             permission_classes = [AllowAny]
         elif self.action == 'create':
             permission_classes = [IsAdminUserRole]
-        elif self.action in ['update', 'partial_update']:
+        elif self.action in ['update', 'partial_update', 'photo']:
             permission_classes = [IsOwnerOrAdmin]
         elif self.action in ['destroy', 'restore']:
             permission_classes = [IsAdminUserRole]
@@ -302,3 +305,93 @@ class MemberViewSet(viewsets.ModelViewSet):
             'success': True,
             'message': 'Membre définitivement supprimé de la base de données.'
         }, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post', 'delete'], url_path='photo', parser_classes=[MultiPartParser, FormParser, JSONParser])
+    def photo(self, request, pk=None):
+        """
+        Gestion sécurisée de la photo de profil / avatar :
+        - POST   : Téléversement / remplacement avec compression progressive <= 2 Mo,
+                   redimensionnement <= 1600x1600 px, purge EXIF et transaction atomique.
+        - DELETE : Suppression de l'avatar et purge physique du fichier.
+        Contrôle d'accès strict IsOwnerOrAdmin :
+        - Le disciple ne peut modifier que sa propre photo.
+        - L'administrateur et super-administrateur peuvent gérer tous les profils.
+        """
+        instance = self.get_object()
+
+        if request.method == 'POST':
+            file_obj = request.FILES.get('photo') or request.FILES.get('file')
+            if not file_obj:
+                return Response({
+                    'success': False,
+                    'status_code': 400,
+                    'error_code': 'FILE_MISSING',
+                    'message': "Aucun fichier photo fourni dans le champ 'photo' ou 'file'.",
+                    'errors': {'photo': ["Un fichier image est requis."]}
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                media = process_and_save_profile_photo(instance, file_obj)
+            except ValidationError as e:
+                return Response({
+                    'success': False,
+                    'status_code': 400,
+                    'error_code': 'VALIDATION_ERROR',
+                    'message': str(e.message if hasattr(e, 'message') else e),
+                    'errors': {'photo': [str(e.message if hasattr(e, 'message') else e)]}
+                }, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({
+                    'success': False,
+                    'status_code': 400,
+                    'error_code': 'PROCESSING_ERROR',
+                    'message': f"Erreur de traitement de l'image : {str(e)}",
+                    'errors': {'photo': [str(e)]}
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            photo_url = request.build_absolute_uri(media.file.url) if request else media.file.url
+
+            log_audit_event(
+                user=request.user,
+                action=AuditActionChoices.UPDATE,
+                entity='Member',
+                entity_id=str(instance.id),
+                old_values={'photo': instance.photo.name if instance.photo else None},
+                new_values={'photo': media.file.name, 'media_id': str(media.id)},
+                request=request
+            )
+
+            return Response({
+                'success': True,
+                'message': "Photo de profil mise à jour avec succès.",
+                'data': {
+                    'media_id': str(media.id),
+                    'photo_url': photo_url,
+                    'width': media.width,
+                    'height': media.height,
+                    'size': media.size,
+                    'mime_type': media.mime_type,
+                }
+            }, status=status.HTTP_200_OK)
+
+        elif request.method == 'DELETE':
+            old_photo = instance.photo.name if instance.photo else None
+            delete_profile_photo(instance)
+
+            log_audit_event(
+                user=request.user,
+                action=AuditActionChoices.UPDATE,
+                entity='Member',
+                entity_id=str(instance.id),
+                old_values={'photo': old_photo},
+                new_values={'photo': None},
+                request=request
+            )
+
+            return Response({
+                'success': True,
+                'message': "Photo de profil supprimée avec succès.",
+                'data': {
+                    'photo_url': None
+                }
+            }, status=status.HTTP_200_OK)
