@@ -285,139 +285,221 @@ export const DashboardOverviewPage: React.FC = () => {
         </section>
       )}
 
-      {/* 3. Cartes Métriques Clés */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
-        
-        {/* Metric 1 : Total Membres Actifs */}
-        <Link
-          to="/members"
-          className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#f2ca50]/60 hover:bg-[#151c2a] transition-all flex flex-col justify-between group overflow-hidden cursor-pointer"
-        >
-          <div className="absolute -right-3 -top-3 p-3 text-[#f2ca50]/5 group-hover:text-[#f2ca50]/15 transition-colors pointer-events-none">
-            <span className="material-symbols-outlined text-[72px]">groups_3</span>
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">{t('totalActiveMembersLabel')}</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#f2ca50]/15 text-[#f2ca50] text-[11px] font-semibold border border-[#f2ca50]/20">
-                <span className="material-symbols-outlined text-[12px]">verified</span> PostgreSQL
-              </span>
-            </div>
-            <div className="font-headline-lg text-4xl font-semibold tracking-tight text-[#e5e9f2] my-1">
-              {isLoading ? '...' : totalMembers}
-            </div>
-          </div>
-          <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
-            <span>{t('registeredOfficially')}</span>
-            <span className="text-[#f2ca50] font-semibold flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
-              {t('viewAllLink')}
-            </span>
-          </div>
-        </Link>
-
-        {/* Metric 2 : Professionnels en Activité */}
-        <Link
-          to="/members?situation=EMPLOYEE"
-          className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#f2ca50]/60 hover:bg-[#151c2a] transition-all flex flex-col justify-between group overflow-hidden cursor-pointer"
-        >
-          <div className="absolute -right-3 -top-3 p-3 text-[#f2ca50]/5 group-hover:text-[#f2ca50]/15 transition-colors pointer-events-none">
-            <span className="material-symbols-outlined text-[72px]">work</span>
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">{t('professionalsLabel')}</span>
-              <span className="px-2 py-0.5 rounded-full bg-[#242e40] text-[#f2ca50] font-bold text-[11px] border border-[#f2ca50]/20">
-                {t('executivesAndTrades')}
-              </span>
-            </div>
-            <div className="font-headline-lg text-4xl font-semibold tracking-tight text-[#f2ca50] my-1">
-              {isLoading ? '...' : totalProfessionals}
-            </div>
-          </div>
-          <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
-            <span>{t('employeesAndFreelancers')}</span>
-            <span className="text-[#f2ca50] font-semibold flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
-              {t('filterCount', { count: totalProfessionals })}
-            </span>
-          </div>
-        </Link>
-
-        {/* Metric 3 : Élèves & Étudiants */}
-        <Link
-          to="/members?situation=STUDENT"
-          className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#ffb95f]/60 hover:bg-[#151c2a] transition-all flex flex-col justify-between group overflow-hidden cursor-pointer"
-        >
-          <div className="absolute -right-3 -top-3 p-3 text-[#ffb95f]/5 group-hover:text-[#ffb95f]/15 transition-colors pointer-events-none">
-            <span className="material-symbols-outlined text-[72px]">school</span>
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">{t('pupilsAndStudents')}</span>
-              <span className="px-2 py-0.5 rounded-full bg-[#ffb95f]/15 text-[#ffb95f] font-bold text-[11px] border border-[#ffb95f]/30">
-                {t('youthAndKnowledge')}
-              </span>
-            </div>
-            <div className="flex items-baseline gap-2.5 my-1 flex-wrap">
-              <span className="font-headline-lg text-4xl font-semibold tracking-tight text-[#ffb95f]">
-                {isLoading ? '...' : totalLearners}
-              </span>
-              <span className="text-xs text-[#9ca7b8] font-medium bg-[#1e2638] px-2 py-0.5 rounded-md border border-[#2b3547]/50">
-                {t('pupilsPlusStudents', { pupils: totalPupils, students: totalStudents })}
-              </span>
-            </div>
-          </div>
-          <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
-            <span>{t('learnersAndDaaras')}</span>
-            <span className="text-[#ffb95f] font-semibold flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
-              {t('filterCount', { count: totalLearners })}
-            </span>
-          </div>
-        </Link>
-
-        {/* Metric 4 : En Recherche d'Emploi / Archives */}
-        <div className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#bfcfed]/40 transition flex flex-col justify-between group overflow-hidden">
-          <div className="absolute -right-3 -top-3 p-3 text-[#bfcfed]/5 group-hover:text-[#bfcfed]/10 transition-colors pointer-events-none">
-            <span className="material-symbols-outlined text-[72px]">travel_explore</span>
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">{t('insertionPoleLabel')}</span>
-              <span className="px-2 py-0.5 rounded-full bg-[#242e40] text-[#bfcfed] font-semibold text-[11px]">
-                {t('supportPill')}
-              </span>
-            </div>
-            <div className="font-headline-lg text-4xl font-semibold tracking-tight text-[#e5e9f2] my-1">
-              {isLoading ? '...' : totalJobSeekers}
-            </div>
-          </div>
-          <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
-            <span>{t('activeSearchLabel')}</span>
-            <span className="text-[#bfcfed] font-semibold">{t('waqfPriorityLabel')}</span>
-          </div>
+      {/* 3. La Dahirah en Chiffres (Métriques Clés à Hiérarchie Allégée) */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="font-headline-sm text-sm font-semibold uppercase tracking-wider text-[#9ca7b8] flex items-center gap-2">
+            <span className="material-symbols-outlined text-[#f2ca50] text-[18px]">equalizer</span>
+            {t('dahirahInNumbersTitle')}
+          </h2>
         </div>
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+          
+          {/* Metric 1 : Total Membres Actifs */}
+          <Link
+            to="/members"
+            className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#f2ca50]/60 hover:bg-[#151c2a] transition-all flex flex-col justify-between group overflow-hidden cursor-pointer shadow-lg"
+          >
+            <div className="absolute -right-3 -top-3 p-3 text-[#f2ca50]/5 group-hover:text-[#f2ca50]/15 transition-colors pointer-events-none">
+              <span className="material-symbols-outlined text-[72px]">groups_3</span>
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">{t('totalActiveMembersLabel')}</span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#f2ca50]/15 text-[#f2ca50] text-[10px] font-bold border border-[#f2ca50]/20">
+                  <span className="material-symbols-outlined text-[12px]">verified</span> PostgreSQL
+                </span>
+              </div>
+              <div className="font-headline-lg text-3xl sm:text-4xl font-semibold tracking-tight text-[#e5e9f2] my-1">
+                {isLoading ? '...' : totalMembers}
+              </div>
+            </div>
+            <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
+              <span>{t('registeredOfficially')}</span>
+              <span className="text-[#f2ca50] font-semibold flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+                {t('viewAllLink')}
+              </span>
+            </div>
+          </Link>
+
+          {/* Metric 2 : Professionnels & Cadres */}
+          <Link
+            to="/members?situation=EMPLOYEE"
+            className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#f2ca50]/60 hover:bg-[#151c2a] transition-all flex flex-col justify-between group overflow-hidden cursor-pointer shadow-lg"
+          >
+            <div className="absolute -right-3 -top-3 p-3 text-[#f2ca50]/5 group-hover:text-[#f2ca50]/15 transition-colors pointer-events-none">
+              <span className="material-symbols-outlined text-[72px]">work</span>
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">{t('professionalsLabel')}</span>
+                <span className="px-2 py-0.5 rounded-full bg-[#242e40] text-[#f2ca50] font-bold text-[10px] border border-[#f2ca50]/20">
+                  {t('executivesAndTrades')}
+                </span>
+              </div>
+              <div className="font-headline-lg text-3xl sm:text-4xl font-semibold tracking-tight text-[#f2ca50] my-1">
+                {isLoading ? '...' : totalProfessionals}
+              </div>
+            </div>
+            <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
+              <span>{t('employeesAndFreelancers')}</span>
+              <span className="text-[#f2ca50] font-semibold flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+                {t('filterCount', { count: totalProfessionals })}
+              </span>
+            </div>
+          </Link>
+
+          {/* Metric 3 : Élèves & Étudiants */}
+          <Link
+            to="/members?situation=STUDENT"
+            className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-[#ffb95f]/60 hover:bg-[#151c2a] transition-all flex flex-col justify-between group overflow-hidden cursor-pointer shadow-lg"
+          >
+            <div className="absolute -right-3 -top-3 p-3 text-[#ffb95f]/5 group-hover:text-[#ffb95f]/15 transition-colors pointer-events-none">
+              <span className="material-symbols-outlined text-[72px]">school</span>
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">{t('pupilsAndStudents')}</span>
+                <span className="px-2 py-0.5 rounded-full bg-[#ffb95f]/15 text-[#ffb95f] font-bold text-[10px] border border-[#ffb95f]/30">
+                  {t('youthAndKnowledge')}
+                </span>
+              </div>
+              <div className="flex items-baseline gap-2.5 my-1 flex-wrap">
+                <span className="font-headline-lg text-3xl sm:text-4xl font-semibold tracking-tight text-[#ffb95f]">
+                  {isLoading ? '...' : totalLearners}
+                </span>
+                <span className="text-xs text-[#9ca7b8] font-medium bg-[#1e2638] px-2 py-0.5 rounded-md border border-[#2b3547]/50">
+                  {t('pupilsPlusStudents', { pupils: totalPupils, students: totalStudents })}
+                </span>
+              </div>
+            </div>
+            <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
+              <span>{t('learnersAndDaaras')}</span>
+              <span className="text-[#ffb95f] font-semibold flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+                {t('filterCount', { count: totalLearners })}
+              </span>
+            </div>
+          </Link>
+
+          {/* Metric 4 : Entraide & Solidarité Résolue */}
+          <Link
+            to="/network"
+            className="relative rounded-2xl bg-[#111722]/90 p-5 border border-[#263143] hover:border-emerald-500/50 hover:bg-[#151c2a] transition-all flex flex-col justify-between group overflow-hidden cursor-pointer shadow-lg"
+          >
+            <div className="absolute -right-3 -top-3 p-3 text-emerald-500/5 group-hover:text-emerald-500/15 transition-colors pointer-events-none">
+              <span className="material-symbols-outlined text-[72px]">handshake</span>
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-[#9ca7b8] uppercase tracking-wider">{t('fraternalMutualAid')}</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold text-[10px] border border-emerald-500/30">
+                  {resolutionRate}% {t('impactResolutionRate')}
+                </span>
+              </div>
+              <div className="font-headline-lg text-3xl sm:text-4xl font-semibold tracking-tight text-emerald-400 my-1">
+                {isLoading ? '...' : (needsResolved || relationsActive)}
+              </div>
+            </div>
+            <div className="pt-3 border-t border-[#2b3547]/30 flex items-center justify-between text-xs text-[#9ca7b8]">
+              <span>{t('mutualAidsCompleted')}</span>
+              <span className="text-emerald-400 font-semibold flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+                {t('viewAllLink')}
+              </span>
+            </div>
+          </Link>
+
+        </div>
       </section>
 
-      {/* 2.5 Bento : Actions Rapides & Accélérateurs */}
+      {/* 4. Bento 1 : 🤝 Vie de la Dahirah & Entraide (Pour tous les disciples) */}
       <section className="rounded-2xl bg-[#111722]/80 border border-[#2b3547]/60 p-5 shadow-xl space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[#f2ca50] text-[22px]">bolt</span>
-            <h2 className="font-headline-sm text-base font-semibold text-[#e5e9f2]">
-              {t('quickActionsManagementTitle')}
-            </h2>
+            <span className="material-symbols-outlined text-[#f2ca50] text-[22px]">diversity_3</span>
+            <div>
+              <h2 className="font-headline-sm text-base font-semibold text-[#e5e9f2]">
+                {t('communityLifeTitle')}
+              </h2>
+              <p className="text-[11px] text-[#9ca7b8] hidden sm:block">
+                {t('communityLifeSubtitle')}
+              </p>
+            </div>
           </div>
-          <span className="text-[11px] text-[#9ca7b8]">{t('executiveShortcuts')}</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {['admin', 'superadmin', 'agent'].includes(user?.role || '') && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <Link
+            to="/network"
+            className="flex items-center gap-3 p-4 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/60 hover:border-[#f2ca50]/50 transition group shadow-sm"
+          >
+            <div className="w-11 h-11 rounded-xl bg-[#f2ca50]/15 text-[#f2ca50] flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+              <span className="material-symbols-outlined text-[24px]">hub</span>
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-semibold text-[#e5e9f2] group-hover:text-[#f2ca50] truncate">
+                {t('breadcrumbNetwork')}
+              </span>
+              <span className="text-xs text-[#9ca7b8] truncate">{t('findSkillsServicesDesc')}</span>
+            </div>
+          </Link>
+
+          <Link
+            to="/members"
+            className="flex items-center gap-3 p-4 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/60 hover:border-emerald-400/50 transition group shadow-sm"
+          >
+            <div className="w-11 h-11 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+              <span className="material-symbols-outlined text-[24px]">groups</span>
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-semibold text-[#e5e9f2] group-hover:text-emerald-400 truncate">
+                {t('viewDirectory')}
+              </span>
+              <span className="text-xs text-[#9ca7b8] truncate">{t('registeredOfficially')}</span>
+            </div>
+          </Link>
+
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-[#151c28] border border-[#2b3547]/40 shadow-sm">
+            <div className="w-11 h-11 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[24px]">mosque</span>
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-semibold text-[#e5e9f2] truncate">
+                {t('hadaratWazifaFriday')}
+              </span>
+              <span className="text-xs text-sky-300 truncate">{t('hadaratFridayTime')}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Bento 2 : ⚙️ Espace Administration & Pilotage (Strictement pour les Admins) */}
+      {['admin', 'superadmin', 'agent'].includes(user?.role || '') && (
+        <section className="rounded-2xl bg-[#131b28]/85 border border-[#3b475c]/70 p-5 shadow-xl space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-purple-400 text-[22px]">admin_panel_settings</span>
+              <div>
+                <h2 className="font-headline-sm text-base font-semibold text-[#e5e9f2]">
+                  {t('adminConsoleTitle')}
+                </h2>
+                <p className="text-[11px] text-[#9ca7b8] hidden sm:block">
+                  {t('adminConsoleSubtitle')}
+                </p>
+              </div>
+            </div>
+            <span className="px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-300 text-[10px] font-bold border border-purple-500/30 uppercase tracking-wider">
+              {user?.role === 'superadmin' ? t('roleSuperAdmin') : t('roleAdmin')}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
             <Link
               to="/members/new"
-              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/60 hover:border-[#f2ca50]/50 transition group"
+              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#162030] hover:bg-[#1e2a3f] border border-[#2b3547]/80 hover:border-[#f2ca50]/50 transition group"
             >
               <div className="w-10 h-10 rounded-lg bg-[#f2ca50]/15 text-[#f2ca50] flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                <span className="material-symbols-outlined text-[22px]">person_add</span>
+                <span className="material-symbols-outlined text-[20px]">person_add</span>
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-xs font-semibold text-[#e5e9f2] group-hover:text-[#f2ca50] truncate">
@@ -426,58 +508,50 @@ export const DashboardOverviewPage: React.FC = () => {
                 <span className="text-[10px] text-[#9ca7b8] truncate">{t('generateMatriculeDesc')}</span>
               </div>
             </Link>
-          )}
 
-          {['admin', 'superadmin'].includes(user?.role || '') && (
-            <Link
-              to="/users?action=create"
-              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/60 hover:border-blue-400/50 transition group"
-            >
-              <div className="w-10 h-10 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                <span className="material-symbols-outlined text-[22px]">manage_accounts</span>
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-xs font-semibold text-[#e5e9f2] group-hover:text-blue-400 truncate">
-                  {t('createAccessAccountAction')}
-                </span>
-                <span className="text-[10px] text-[#9ca7b8] truncate">{t('linkUserMemberDesc')}</span>
-              </div>
-            </Link>
-          )}
+            {['admin', 'superadmin'].includes(user?.role || '') && (
+              <Link
+                to="/users?action=create"
+                className="flex items-center gap-3 p-3.5 rounded-xl bg-[#162030] hover:bg-[#1e2a3f] border border-[#2b3547]/80 hover:border-blue-400/50 transition group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                  <span className="material-symbols-outlined text-[20px]">manage_accounts</span>
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xs font-semibold text-[#e5e9f2] group-hover:text-blue-400 truncate">
+                    {t('createAccessAccountAction')}
+                  </span>
+                  <span className="text-[10px] text-[#9ca7b8] truncate">{t('linkUserMemberDesc')}</span>
+                </div>
+              </Link>
+            )}
 
-          <Link
-            to="/network"
-            className="flex items-center gap-3 p-3.5 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/60 hover:border-emerald-400/50 transition group"
-          >
-            <div className="w-10 h-10 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-              <span className="material-symbols-outlined text-[22px]">hub</span>
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-xs font-semibold text-[#e5e9f2] group-hover:text-emerald-400 truncate">
-                {t('breadcrumbNetwork')}
-              </span>
-              <span className="text-[10px] text-[#9ca7b8] truncate">{t('findSkillsServicesDesc')}</span>
-            </div>
-          </Link>
-
-          {['admin', 'superadmin'].includes(user?.role || '') && (
-            <Link
-              to="/audit"
-              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#151c28] hover:bg-[#1b2332] border border-[#2b3547]/60 hover:border-purple-400/50 transition group"
-            >
-              <div className="w-10 h-10 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                <span className="material-symbols-outlined text-[22px]">verified_user</span>
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-xs font-semibold text-[#e5e9f2] group-hover:text-purple-400 truncate">
-                  {t('securityLogAction')}
-                </span>
-                <span className="text-[10px] text-[#9ca7b8] truncate">{t('immutableNeonTraceDesc')}</span>
-              </div>
-            </Link>
-          )}
-        </div>
-      </section>
+            {['admin', 'superadmin'].includes(user?.role || '') && (
+              <Link
+                to="/audit"
+                className="flex items-center gap-3 p-3.5 rounded-xl bg-[#162030] hover:bg-[#1e2a3f] border border-[#2b3547]/80 hover:border-purple-400/50 transition group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                  <span className="material-symbols-outlined text-[20px]">verified_user</span>
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-semibold text-[#e5e9f2] group-hover:text-purple-400 truncate">
+                      {t('securityLogAction')}
+                    </span>
+                    {recentAuditLogs.length > 0 && (
+                      <span className="w-2 h-2 rounded-full bg-[#f2ca50] animate-pulse shrink-0"></span>
+                    )}
+                  </div>
+                  <span className="text-[10px] text-[#9ca7b8] truncate">
+                    {recentAuditLogs.length > 0 ? `${recentAuditLogs.length} ${t('executiveSecurityEvents')}` : t('immutableNeonTraceDesc')}
+                  </span>
+                </div>
+              </Link>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* 2.6 Baromètre d'Impact & Solidarité */}
       <section className="relative rounded-2xl bg-gradient-to-br from-[#0e1625] via-[#121c2c] to-[#0d1521] border border-[#26354d] p-6 lg:p-7 shadow-2xl overflow-hidden space-y-6">
@@ -630,7 +704,8 @@ export const DashboardOverviewPage: React.FC = () => {
               </Link>
             </div>
 
-            <div className="w-full overflow-x-auto">
+            {/* Vue Desktop : Tableau complet */}
+            <div className="hidden md:block w-full overflow-x-auto">
               <table className="w-full text-left text-xs font-body-md">
                 <thead>
                   <tr className="bg-[#111722]/70 text-[#9ca7b8] text-[11px] font-bold uppercase tracking-wider border-b border-[#2b3547]/40">
@@ -659,15 +734,27 @@ export const DashboardOverviewPage: React.FC = () => {
                               size="sm"
                             />
                             <div className="flex flex-col min-w-0">
-                              <span className="font-semibold text-[#e5e9f2] text-sm group-hover:text-[#f2ca50] transition-colors">
-                                {member.prenom} {member.nom}
-                              </span>
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="font-semibold text-[#e5e9f2] text-sm group-hover:text-[#f2ca50] transition-colors">
+                                  {member.prenom} {member.nom}
+                                </span>
+                                {member.is_founder && (
+                                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#f2ca50]/20 text-[#f2ca50] border border-[#f2ca50]/40">
+                                    {t('badgeFounder')}
+                                  </span>
+                                )}
+                                {member.is_president && (
+                                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                                    {t('badgePresident')}
+                                  </span>
+                                )}
+                              </div>
                               <span className="text-[11px] text-[#9ca7b8] font-mono ltr-tech">{member.matricule}</span>
                             </div>
                           </div>
                         </td>
                         <td className="py-3.5 px-4 text-[#e5e9f2]">
-                          {member.situation || 'Membre'}
+                          {member.situation || t('members')}
                         </td>
                         <td className="py-3.5 px-4 text-[#9ca7b8]">
                           {member.ville || 'Sénégal'}
@@ -687,32 +774,98 @@ export const DashboardOverviewPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Vue Mobile : Cartes verticales fluides (P0 Responsiveness) */}
+            <div className="block md:hidden divide-y divide-[#2b3547]/30">
+              {recentMembers.length === 0 ? (
+                <div className="py-8 text-center text-[#9ca7b8] text-xs">
+                  {isLoading ? t('loading') : t('emptyState')}
+                </div>
+              ) : (
+                recentMembers.map((member) => (
+                  <Link
+                    key={member.id}
+                    to={`/members/${member.matricule || member.id}`}
+                    className="flex items-center justify-between p-4 hover:bg-[#1b2332]/60 transition-colors gap-3 group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <MemberAvatar
+                        photoUrl={member.photo}
+                        name={`${member.prenom} ${member.nom}`}
+                        matricule={member.matricule}
+                        size="md"
+                      />
+                      <div className="flex flex-col min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-semibold text-[#e5e9f2] text-sm group-hover:text-[#f2ca50] transition-colors truncate">
+                            {member.prenom} {member.nom}
+                          </span>
+                          {member.is_founder && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#f2ca50]/20 text-[#f2ca50] border border-[#f2ca50]/40 shrink-0">
+                              {t('badgeFounder')}
+                            </span>
+                          )}
+                          {member.is_president && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0">
+                              {t('badgePresident')}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-[11px] text-[#9ca7b8] mt-1">
+                          <span className="font-mono ltr-tech text-[#f2ca50] font-semibold">{member.matricule}</span>
+                          <span>•</span>
+                          <span className="truncate">{member.situation || member.ville || 'Dahirah'}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-[#9ca7b8] group-hover:text-[#f2ca50] transition-colors">
+                      <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+                    </div>
+                  </Link>
+                ))
+              )}
+            </div>
           </section>
         </div>
 
-        {/* Colonne Latérale : Top Fonctions & Journal (4 cols) */}
+        {/* Colonne Latérale : Nos Commissions & Notice de Sécurité (4 cols) */}
         <div className="lg:col-span-4 flex flex-col gap-6">
           
-          {/* Top Fonctions & Commissions Dahirah */}
+          {/* Nos Commissions Dahirah (Format Institutionnel Chaleureux) */}
           <section className="rounded-2xl bg-[#151c28]/90 border border-[#2b3547]/60 p-5 shadow-xl">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-headline-sm text-base font-semibold text-[#e5e9f2] flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#f2ca50] text-[20px]">category</span>
-                {t('activeCommissionsTitle')}
-              </h3>
-              <Link to="/roles" className="text-[11px] text-[#f2ca50] hover:underline font-bold">
-                {t('manageRolesLink')}
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-headline-sm text-base font-semibold text-[#e5e9f2] flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[#f2ca50] text-[20px]">account_tree</span>
+                  {t('ourCommissionsTitle')}
+                </h3>
+                <p className="text-[11px] text-[#9ca7b8] mt-0.5">
+                  {t('rolesReferenceDesc')}
+                </p>
+              </div>
+              <Link to="/roles" className="text-xs text-[#f2ca50] hover:underline font-bold flex items-center gap-1 shrink-0">
+                <span>{t('viewCommissionsLink')}</span>
+                <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
               </Link>
             </div>
             <div className="space-y-2.5">
               {topRoles && topRoles.length > 0 ? (
                 topRoles.map((r: any, i: number) => (
-                  <div key={i} className="flex items-center justify-between p-2.5 rounded-xl bg-[#111722] border border-[#2b3547]/40 text-xs">
-                    <span className="font-medium text-[#e5e9f2] truncate">{r.role__name}</span>
-                    <span className="px-2 py-0.5 rounded-full bg-[#f2ca50]/15 text-[#f2ca50] font-bold text-[11px]">
+                  <Link
+                    key={i}
+                    to="/roles"
+                    className="flex items-center justify-between p-3 rounded-xl bg-[#111722]/80 border border-[#2b3547]/40 hover:border-[#f2ca50]/40 transition text-xs group"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#f2ca50] shrink-0"></span>
+                      <span className="font-medium text-[#e5e9f2] group-hover:text-[#f2ca50] transition-colors truncate">
+                        {r.role__name}
+                      </span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full bg-[#f2ca50]/15 text-[#f2ca50] font-bold text-[11px] shrink-0">
                       {r.count}
                     </span>
-                  </div>
+                  </Link>
                 ))
               ) : (
                 <p className="text-xs text-[#9ca7b8]">{t('rolesReferenceDesc')}</p>
@@ -720,42 +873,31 @@ export const DashboardOverviewPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Journal d'Audit Système */}
-          <section className="rounded-2xl bg-[#151c28]/90 border border-[#2b3547]/60 p-5 shadow-xl">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-headline-sm text-base font-semibold text-[#e5e9f2] flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#f2ca50] text-[20px]">security</span>
-                {t('securityAuditJournalTitle')}
-              </h3>
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f2ca50] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#f2ca50]"></span>
-              </span>
-            </div>
-            <div className="space-y-2.5">
-              {recentAuditLogs && recentAuditLogs.length > 0 ? (
-                recentAuditLogs.map((log: any) => (
-                  <div key={log.id} className="flex items-start gap-2 text-xs pb-2 border-b border-[#2b3547]/20">
-                    <span className="material-symbols-outlined text-[#f2ca50] text-[15px] mt-0.5">history</span>
-                    <div className="flex flex-col min-w-0">
-                      <span className="font-medium text-[#e5e9f2] truncate">{log.action} • {log.entity}</span>
-                      <span className="text-[10px] text-[#9ca7b8]">{log.user__email || 'Système'}</span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-xs text-[#9ca7b8]">
-                  <p>{t('immutableTraceabilityDesc')}</p>
-                </div>
-              )}
+          {/* Espace Audit & Sécurité (Visible pour Administrateurs & Staff uniquement) */}
+          {isStaffOrAdmin && (
+            <section className="rounded-2xl bg-[#151c28]/90 border border-[#2b3547]/60 p-5 shadow-xl">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-headline-sm text-base font-semibold text-[#e5e9f2] flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[#f2ca50] text-[20px]">verified_user</span>
+                  {t('securityAuditNotice')}
+                </h3>
+                <span className="flex h-2 w-2 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                </span>
+              </div>
+              <p className="text-xs text-[#9ca7b8] mb-4">
+                {t('immutableTraceabilityDesc')}
+              </p>
               <Link
                 to="/audit"
-                className="block text-center text-xs text-[#f2ca50] hover:underline font-bold pt-1"
+                className="inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 rounded-xl bg-[#242e40] hover:bg-[#2b3547] text-[#f2ca50] border border-[#f2ca50]/30 text-xs font-bold transition"
               >
-                {t('consultAllAuditLogsLink')}
+                <span className="material-symbols-outlined text-[16px]">shield</span>
+                <span>{t('examineAuditEventsBtn')}</span>
               </Link>
-            </div>
-          </section>
+            </section>
+          )}
 
         </div>
 

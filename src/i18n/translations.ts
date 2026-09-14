@@ -375,6 +375,21 @@ export const TRANSLATIONS = {
     savingChanges: 'Enregistrement...',
     saveChangesBtn: 'Enregistrer les Modifications',
 
+    // Dashboard V1.4.1 Refactoring
+    ourCommissionsTitle: 'Nos Commissions',
+    viewCommissionsLink: 'Voir les commissions',
+    communityLifeTitle: 'Vie de la Dahirah & Entraide',
+    communityLifeSubtitle: 'Services fraternels, carrefour d’entraide et annuaire des disciples',
+    adminConsoleTitle: 'Espace Administration & Pilotage',
+    adminConsoleSubtitle: 'Gestion des accès, enrôlement et conformité réglementaire',
+    securityAuditNotice: 'Journal d’Audit & Sécurité',
+    dahirahInNumbersTitle: 'La Dahirah en chiffres',
+    activeNeedsSupported: 'Besoins Pris en Charge',
+    fraternalMutualAid: 'Entraide & Solidarité',
+    executiveSecurityEvents: 'Événements de sécurité audités',
+    examineAuditEventsBtn: 'Examiner le journal d’audit',
+    compactMemberViewLabel: 'Voir le profil complet',
+
     // Generic Actions & Messages
     save: 'Enregistrer',
     cancel: 'Annuler',
@@ -761,6 +776,21 @@ export const TRANSLATIONS = {
     institutionalRoleProtectedNotice: 'يتمتع هذا العضو بصفة مؤسسية محمية ({role}). تعديل المهام السيادية من اختصاص إدارة الدائرة المركزية.',
     savingChanges: 'جاري حفظ التعديلات...',
     saveChangesBtn: 'حفظ التعديلات',
+
+    // Dashboard V1.4.1 Refactoring
+    ourCommissionsTitle: 'لجان الدائرة',
+    viewCommissionsLink: 'عرض اللجان',
+    communityLifeTitle: 'أنشطة الدائرة والتكافل',
+    communityLifeSubtitle: 'خدمات الأخوة، ملتقى التعاون ودليل المنتسبين',
+    adminConsoleTitle: 'فضاء الإدارة والقيادة',
+    adminConsoleSubtitle: 'إدارة الصلاحيات، التسجيل والمطابقة',
+    securityAuditNotice: 'سجل التدقيق والأمان',
+    dahirahInNumbersTitle: 'الدائرة في أرقام',
+    activeNeedsSupported: 'حالات التكافل المدعومة',
+    fraternalMutualAid: 'الأخوة والتضامن',
+    executiveSecurityEvents: 'أحداث الأمان المدققة',
+    examineAuditEventsBtn: 'مراجعة سجل التدقيق',
+    compactMemberViewLabel: 'عرض الملف الكامل',
 
     // Generic Actions & Messages
     save: 'حفظ التغييرات',
